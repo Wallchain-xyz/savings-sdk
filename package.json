@@ -1,0 +1,11 @@
+{
+  "name": "yield-sdk",
+  "version": "1.0.0",
+  "description": "## 1. Setup client In order to automatically execute deposits/with we use AA concept, more  specifically ZeroDev implementation.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
