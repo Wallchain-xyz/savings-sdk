@@ -1,11 +1,59 @@
 {
-  "name": "yield-sdk",
-  "version": "1.0.0",
-  "description": "## 1. Setup client In order to automatically execute deposits/with we use AA concept, more  specifically ZeroDev implementation.",
-  "main": "index.js",
+  "name": "@wallchain/savings-sdk",
+  "version": "0.0.1",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rimraf dist && tsc",
+    "prepare": "husky install",
+    "semantic-release": "semantic-release",
+    "test": "jest"
   },
-  "author": "",
-  "license": "ISC"
+  "lint-staged": {
+    "package.json": [
+      "sort-package-json"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ],
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --max-warnings=0 --fix --no-ignore"
+    ]
+  },
+  "prettier": "@kilohealth/prettier-config",
+  "eslintConfig": {
+    "extends": "@kilohealth/eslint-config-node"
+  },
+  "dependencies": {
+    "@zerodev/ecdsa-validator": "^5.0.3",
+    "@zerodev/sdk": "^5.0.8",
+    "@zerodev/session-key": "^5.1.1",
+    "viem": "^2.5.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
+    "@kilohealth/eslint-config-node": "^1.6.1",
+    "@kilohealth/prettier-config": "^1.0.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.7",
+    "@semantic-release/npm": "^10.0.3",
+    "@semantic-release/release-notes-generator": "^11.0.1",
+    "@types/jest": "^29.5.1",
+    "eslint": "^8.41.0",
+    "husky": "^8.0.3",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "jsdom": "^22.0.0",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
+    "rimraf": "^5.0.1",
+    "semantic-release": "^21.0.2",
+    "sort-package-json": "^2.4.1",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4",
+    "viem": "^2.5.0"
+  }
 }
