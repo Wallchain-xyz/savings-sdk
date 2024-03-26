@@ -75,9 +75,8 @@ publish:
   extends: .base
   stage: release
   needs: [build-prod]
-  when: on_success
   script:
     - npm run semantic-release
   rules:
     - if: $CI_COMMIT_BRANCH == 'alpha' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: always
+      when: on_success
