@@ -1,12 +1,7 @@
+import type { Permission, signerToSessionKeyValidator } from '@zerodev/session-key';
 import type { Abi, Address, Chain } from 'viem';
-import type {
-  Permission,
-  signerToSessionKeyValidator,
-} from '@zerodev/session-key';
 
-export type ValidatorData = Parameters<
-  typeof signerToSessionKeyValidator
->[1]['validatorData'];
+export type ValidatorData = Parameters<typeof signerToSessionKeyValidator>[1]['validatorData'];
 
 export type DepositStrategyId = string;
 export interface DepositStrategy {

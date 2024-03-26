@@ -1,1 +1,1 @@
-export { createAAAccountClientFromPrivateKeyAccount } from "./createAAAccountClientFromPrivateKeyAccount";
+export { createAAAccountClientFromPrivateKeyAccount } from './createAAAccountClientFromPrivateKeyAccount';

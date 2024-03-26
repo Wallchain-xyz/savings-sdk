@@ -1,31 +1,25 @@
-import type { Address, PrivateKeyAccount } from "viem";
-import { createPublicClient, http } from "viem";
-import { addressToEmptyAccount, createKernelAccount } from "@zerodev/sdk";
-import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator";
-import {
-  revokeSessionKey,
-  serializeSessionKeyAccount,
-  signerToSessionKeyValidator,
-} from "@zerodev/session-key";
+import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
+import { addressToEmptyAccount, createKernelAccount } from '@zerodev/sdk';
+import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
+import { createPublicClient, http } from 'viem';
 
-import type { createApiClient } from "../api/createApiClient";
-import type { AAAccountClient } from "../SavingsSDK/createAAAccountClientFromPrivateKeyAccount";
-import type {
-  DepositStrategy,
-  DepositStrategyId,
-  ValidatorData,
-} from "../depositStrategies/DepositStrategy";
-import { getDepositStrategyById } from "../depositStrategies/getDepositStrategyById";
+import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
-export interface PrepareSessionKeyAccountParams {
+import type { createApiClient } from '../api/createApiClient';
+import type { DepositStrategy, DepositStrategyId, ValidatorData } from '../depositStrategies/DepositStrategy';
+import type { AAAccountClient } from '../SavingsSDK/createAAAccountClientFromPrivateKeyAccount';
+import type { Address, PrivateKeyAccount } from 'viem';
+
+interface PrepareSessionKeyAccountParams {
   sessionKeyAccountAddress: Address;
   validatorData: ValidatorData;
 }
+
 type SessionKeyAccountServiceClient = ReturnType<typeof createApiClient>;
 // type TokenAmount = Hex;
 
-export interface CreateSessionKeyAccountParams {
-  validatorData: PrepareSessionKeyAccountParams["validatorData"];
+interface CreateSessionKeyAccountParams {
+  validatorData: PrepareSessionKeyAccountParams['validatorData'];
 }
 
 interface ConstructorParams {
@@ -34,22 +28,21 @@ interface ConstructorParams {
   savingsBackendClient: SessionKeyAccountServiceClient;
   bundlerAPIKey: string;
 }
+
 export class SavingsAccount {
   public aaAccountClient: AAAccountClient;
+
   private readonly privateKeyAccount: PrivateKeyAccount;
+
   private savingsBackendClient: SessionKeyAccountServiceClient;
+
   private readonly bundlerAPIKey: string;
 
   get aaAddress(): Address {
     return this.aaAccountClient.account.address;
   }
 
-  constructor({
-    privateKeyAccount,
-    savingsBackendClient,
-    aaAccountClient,
-    bundlerAPIKey,
-  }: ConstructorParams) {
+  constructor({ privateKeyAccount, savingsBackendClient, aaAccountClient, bundlerAPIKey }: ConstructorParams) {
     this.privateKeyAccount = privateKeyAccount;
     this.savingsBackendClient = savingsBackendClient;
     this.aaAccountClient = aaAccountClient;
@@ -62,31 +55,19 @@ export class SavingsAccount {
   }
 
   // =====starts ====
-  async activateStrategies(
-    additionalDepositStrategyIds: DepositStrategyId[]
-  ): Promise<void> {
+  async activateStrategies(additionalDepositStrategyIds: DepositStrategyId[]): Promise<void> {
     const activeDepositStrategies = await this.getActiveStrategies();
-    const activeDepositStrategyIds = activeDepositStrategies.map(
-      (depositStrategy) => depositStrategy.id
-    );
-    const newActiveDepositStrategyIds = new Set([
-      ...activeDepositStrategyIds,
-      ...additionalDepositStrategyIds,
-    ]);
-    const newActiveDepositStrategies = Array.from(
-      newActiveDepositStrategyIds
-    ).map(getDepositStrategyById);
-    const combinedPermissions = newActiveDepositStrategies.flatMap(
-      (depositStrategy) => depositStrategy.permissions
-    );
+    const activeDepositStrategyIds = activeDepositStrategies.map(depositStrategy => depositStrategy.id);
+    const newActiveDepositStrategyIds = new Set([...activeDepositStrategyIds, ...additionalDepositStrategyIds]);
+    const newActiveDepositStrategies = Array.from(newActiveDepositStrategyIds).map(getDepositStrategyById);
+    const combinedPermissions = newActiveDepositStrategies.flatMap(depositStrategy => depositStrategy.permissions);
     const validatorData = {
       permissions: combinedPermissions,
     };
 
     try {
       const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
-      const sessionKeyAccountAddress =
-        walletSessionKeyAccount.sessionKeyAccountAddress;
+      const { sessionKeyAccountAddress } = walletSessionKeyAccount;
       await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
       await this.signSessionKeyAccount({
         validatorData,
@@ -117,17 +98,14 @@ export class SavingsAccount {
 
   async deactivateAllStrategies() {
     const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
-    const sessionKeyAccountAddress =
-      walletSessionKeyAccount.sessionKeyAccountAddress;
+    const { sessionKeyAccountAddress } = walletSessionKeyAccount;
     await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
     //   TODO: @merlin add delete request to backend
   }
 
   //  ===== END STRATS ====
 
-  async createAndSignSessionKeyAccount({
-    validatorData,
-  }: CreateSessionKeyAccountParams) {
+  async createAndSignSessionKeyAccount({ validatorData }: CreateSessionKeyAccountParams) {
     try {
       const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
 
@@ -136,23 +114,21 @@ export class SavingsAccount {
       }
 
       await this.signSessionKeyAccount({
-        sessionKeyAccountAddress:
-          walletSessionKeyAccount.sessionKeyAccountAddress,
+        sessionKeyAccountAddress: walletSessionKeyAccount.sessionKeyAccountAddress,
         validatorData,
       });
     } catch (error) {
       const walletSessionKeyAccount = await this.savingsBackendClient.post(
-        "/b/v2/session_key_account_manager_service/session_key_account/:user_address",
+        '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
         undefined,
         {
           params: {
             user_address: this.aaAddress,
           },
-        }
+        },
       );
       await this.signSessionKeyAccount({
-        sessionKeyAccountAddress:
-          walletSessionKeyAccount.sessionKeyAccountAddress,
+        sessionKeyAccountAddress: walletSessionKeyAccount.sessionKeyAccountAddress,
         validatorData,
       });
     }
@@ -161,22 +137,17 @@ export class SavingsAccount {
   private async getWalletSessionKeyAccount() {
     // TODO: @merlin maybe we can use cache here
     return this.savingsBackendClient.get(
-      "/b/v2/session_key_account_manager_service/session_key_account/:user_address",
+      '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
       {
         params: {
           user_address: this.aaAddress,
         },
-      }
+      },
     );
   }
 
-  private async signSessionKeyAccount({
-    sessionKeyAccountAddress,
-    validatorData,
-  }: PrepareSessionKeyAccountParams) {
-    const aaBundlerTransport = http(
-      `https://rpc.zerodev.app/api/v2/bundler/${this.bundlerAPIKey}`
-    );
+  private async signSessionKeyAccount({ sessionKeyAccountAddress, validatorData }: PrepareSessionKeyAccountParams) {
+    const aaBundlerTransport = http(`https://rpc.zerodev.app/api/v2/bundler/${this.bundlerAPIKey}`);
     const publicClient = createPublicClient({
       transport: aaBundlerTransport,
     });
@@ -185,17 +156,12 @@ export class SavingsAccount {
       signer: this.privateKeyAccount,
     });
 
-    const emptySessionKeySigner = addressToEmptyAccount(
-      sessionKeyAccountAddress
-    );
+    const emptySessionKeySigner = addressToEmptyAccount(sessionKeyAccountAddress);
 
-    const sessionKeyValidator = await signerToSessionKeyValidator(
-      publicClient,
-      {
-        signer: emptySessionKeySigner,
-        validatorData,
-      }
-    );
+    const sessionKeyValidator = await signerToSessionKeyValidator(publicClient, {
+      signer: emptySessionKeySigner,
+      validatorData,
+    });
 
     const sessionKeyAccount = await createKernelAccount(publicClient, {
       plugins: {
@@ -204,13 +170,11 @@ export class SavingsAccount {
       },
     });
 
-    const serializedSessionKey = await serializeSessionKeyAccount(
-      sessionKeyAccount
-    );
+    const serializedSessionKey = await serializeSessionKeyAccount(sessionKeyAccount);
 
     // TODO: @merlin attach strategyIds
     return this.savingsBackendClient.patch(
-      "/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key",
+      '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
       {
         serializedSessionKey,
       },
@@ -218,7 +182,7 @@ export class SavingsAccount {
         params: {
           user_address: this.aaAddress,
         },
-      }
+      },
     );
   }
 

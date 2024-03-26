@@ -1,4 +1,3 @@
-import type { Address } from "viem";
+import type { Address } from 'viem';
 
-export const nativeTokenAddress: Address =
-  "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+export const nativeTokenAddress: Address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';

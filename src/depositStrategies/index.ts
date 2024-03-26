@@ -1,1 +1,1 @@
-export { getSupportedDepositStrategies } from "./getSupportedStrategies";
+export { getSupportedDepositStrategies } from './getSupportedStrategies';

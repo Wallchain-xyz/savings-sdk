@@ -1,9 +1,9 @@
-import type { PrivateKeyAccount } from "viem";
+import { createApiClient } from '../api/createApiClient';
+import { createAAAccountClientFromPrivateKeyAccount } from '../SavingsSDK';
 
-import { createApiClient } from "../api/createApiClient";
-import { createAAAccountClientFromPrivateKeyAccount } from "../SavingsSDK";
+import { SavingsAccount } from './SavingsAccount';
 
-import { SavingsAccount } from "./SavingsAccount";
+import type { PrivateKeyAccount } from 'viem';
 
 interface CreateYieldAccountParams {
   privateKeyAccount: PrivateKeyAccount;

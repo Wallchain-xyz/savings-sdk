@@ -3,12 +3,13 @@
 // separate API for SDK - it will have it's own
 // openapi scheme which we will use to generate this client
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Zodios, type ZodiosOptions } from "@zodios/core";
+import { Zodios, type ZodiosOptions } from '@zodios/core';
 
-import type { TypeOf } from "./zod";
-import { zod as z } from "./zod";
+import { zod as z } from './zod';
 
-const UserKeyType = z.enum(["web3auth", "wallet", "account_abstraction"]);
+import type { TypeOf } from './zod';
+
+const UserKeyType = z.enum(['web3auth', 'wallet', 'account_abstraction']);
 
 const UserKeyTypeSchema = UserKeyType;
 type UserKeyType = TypeOf<typeof UserKeyTypeSchema>;
@@ -19,19 +20,14 @@ const SignInData = z
     email: z.string(),
     address: z.address(),
     aaSignerAddress: z.union([z.string(), z.null()]).optional(),
-    keyType: UserKeyType.optional().default("web3auth"),
+    keyType: UserKeyType.optional().default('web3auth'),
   })
   .passthrough();
 
 const SignInDataSchema = SignInData;
 type SignInData = TypeOf<typeof SignInDataSchema>;
 
-const NetworkEnum = z.union([
-  z.literal(1),
-  z.literal(56),
-  z.literal(8453),
-  z.literal(42161),
-]);
+const NetworkEnum = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
 
 const NetworkEnumSchema = NetworkEnum;
 type NetworkEnum = TypeOf<typeof NetworkEnumSchema>;
@@ -77,7 +73,7 @@ const APIUserInfo = z
 const APIUserInfoSchema = APIUserInfo;
 type APIUserInfo = TypeOf<typeof APIUserInfoSchema>;
 
-const ChatFlow = z.enum(["main", "buy", "sell", "balance", "transfer"]);
+const ChatFlow = z.enum(['main', 'buy', 'sell', 'balance', 'transfer']);
 
 const ChatFlowSchema = ChatFlow;
 type ChatFlow = TypeOf<typeof ChatFlowSchema>;
@@ -149,12 +145,12 @@ const SetupSwapData = z
 const SetupSwapDataSchema = SetupSwapData;
 type SetupSwapData = TypeOf<typeof SetupSwapDataSchema>;
 
-const TxnStatus = z.enum(["SUCCESS", "FAIL", "PENDING", "UNSENT"]);
+const TxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT']);
 
 const TxnStatusSchema = TxnStatus;
 type TxnStatus = TypeOf<typeof TxnStatusSchema>;
 
-const TxnSubmissionType = z.enum(["web3_rpc", "aa_bundler"]);
+const TxnSubmissionType = z.enum(['web3_rpc', 'aa_bundler']);
 
 const TxnSubmissionTypeSchema = TxnSubmissionType;
 type TxnSubmissionType = TypeOf<typeof TxnSubmissionTypeSchema>;
@@ -211,7 +207,7 @@ type APITokenPrice = TypeOf<typeof APITokenPriceSchema>;
 
 const APIToken = z
   .object({
-    type: z.literal("erc20"),
+    type: z.literal('erc20'),
     addr: z.address(),
     info: APITokenInfo,
     price: z.union([APITokenPrice, z.null()]),
@@ -223,7 +219,7 @@ type APIToken = TypeOf<typeof APITokenSchema>;
 
 const APINativeToken = z
   .object({
-    type: z.literal("native"),
+    type: z.literal('native'),
     addr: z.address(),
     info: APITokenInfo,
     price: z.union([APITokenPrice, z.null()]),
@@ -268,28 +264,28 @@ const APISwapData = z
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
     swap: APISwapInfo,
-    tokenIn: z.discriminatedUnion("type", [APIToken, APINativeToken]),
-    tokenOut: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    tokenIn: z.discriminatedUnion('type', [APIToken, APINativeToken]),
+    tokenOut: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balanceIn: APIBalance,
     balanceOut: APIBalance,
     gas: APIGasData,
-    type: z.literal("swap"),
+    type: z.literal('swap'),
   })
   .passthrough();
 
 const APISwapDataSchema = APISwapData;
 type APISwapData = TypeOf<typeof APISwapDataSchema>;
 
-const FundUsageEnum = z.enum(["FOR_AMOUNT", "FOR_GAS", "FOR_AMOUNT_AND_GAS"]);
+const FundUsageEnum = z.enum(['FOR_AMOUNT', 'FOR_GAS', 'FOR_AMOUNT_AND_GAS']);
 
 const FundUsageEnumSchema = FundUsageEnum;
 type FundUsageEnum = TypeOf<typeof FundUsageEnumSchema>;
 
 const APIInsufficientFundsError = z
   .object({
-    code: z.literal("insufficient_funds"),
+    code: z.literal('insufficient_funds'),
     detail: z.string(),
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     requiredAmount: z.positiveHexString(),
     fundUsage: FundUsageEnum,
@@ -333,9 +329,9 @@ const APITransferData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("transfer"),
+    type: z.literal('transfer'),
     transfer: APITransferInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
   })
@@ -354,13 +350,7 @@ const SetupTGTransferData = z
 const SetupTGTransferDataSchema = SetupTGTransferData;
 type SetupTGTransferData = TypeOf<typeof SetupTGTransferDataSchema>;
 
-const TGTransferTxnStatus = z.enum([
-  "SUCCESS",
-  "FAIL",
-  "PENDING",
-  "UNSENT",
-  "WAITING_FOR_ACCEPT",
-]);
+const TGTransferTxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT', 'WAITING_FOR_ACCEPT']);
 
 const TGTransferTxnStatusSchema = TGTransferTxnStatus;
 type TGTransferTxnStatus = TypeOf<typeof TGTransferTxnStatusSchema>;
@@ -388,9 +378,9 @@ const APITGTransferData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("tg_transfer"),
+    type: z.literal('tg_transfer'),
     transfer: APITGTransferInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
     inlineCommandQuery: z.string(),
@@ -412,9 +402,7 @@ const SetupAddDepositData = z
 const SetupAddDepositDataSchema = SetupAddDepositData;
 type SetupAddDepositData = TypeOf<typeof SetupAddDepositDataSchema>;
 
-const APIDepositInfo = z
-  .object({ amount: z.positiveHexString() })
-  .passthrough();
+const APIDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
 const APIDepositInfoSchema = APIDepositInfo;
 type APIDepositInfo = TypeOf<typeof APIDepositInfoSchema>;
@@ -430,9 +418,9 @@ const APIAddDepositData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("add_deposit"),
+    type: z.literal('add_deposit'),
     deposit: APIDepositInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
   })
@@ -451,9 +439,7 @@ const SetupWithdrawDepositData = z
 const SetupWithdrawDepositDataSchema = SetupWithdrawDepositData;
 type SetupWithdrawDepositData = TypeOf<typeof SetupWithdrawDepositDataSchema>;
 
-const APIWithdrawDepositInfo = z
-  .object({ amount: z.positiveHexString() })
-  .passthrough();
+const APIWithdrawDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
 const APIWithdrawDepositInfoSchema = APIWithdrawDepositInfo;
 type APIWithdrawDepositInfo = TypeOf<typeof APIWithdrawDepositInfoSchema>;
@@ -469,7 +455,7 @@ const APIWithdrawDepositData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("withdraw_deposit"),
+    type: z.literal('withdraw_deposit'),
     deposit: APIWithdrawDepositInfo,
     gas: APIGasData,
   })
@@ -479,12 +465,12 @@ const APIWithdrawDepositDataSchema = APIWithdrawDepositData;
 type APIWithdrawDepositData = TypeOf<typeof APIWithdrawDepositDataSchema>;
 
 const TxnType = z.enum([
-  "SWAP",
-  "TRANSFER",
-  "INCOMING_TRANSFER",
-  "TG_TRANSFER",
-  "TG_INCOMING_TRANSFER",
-  "EXTERNAL_TRANSFER",
+  'SWAP',
+  'TRANSFER',
+  'INCOMING_TRANSFER',
+  'TG_TRANSFER',
+  'TG_INCOMING_TRANSFER',
+  'EXTERNAL_TRANSFER',
 ]);
 
 const TxnTypeSchema = TxnType;
@@ -495,12 +481,12 @@ const txnType = z.union([TxnType, z.null()]).optional();
 const txnTypeSchema = txnType;
 type txnType = TypeOf<typeof txnTypeSchema>;
 
-const TxnSortingOptions = z.enum(["unspecified", "by_built_at"]);
+const TxnSortingOptions = z.enum(['unspecified', 'by_built_at']);
 
 const TxnSortingOptionsSchema = TxnSortingOptions;
 type TxnSortingOptions = TypeOf<typeof TxnSortingOptionsSchema>;
 
-const sortBy = TxnSortingOptions.optional().default("unspecified");
+const sortBy = TxnSortingOptions.optional().default('unspecified');
 
 const sortBySchema = sortBy;
 type sortBy = TypeOf<typeof sortBySchema>;
@@ -516,9 +502,9 @@ const APIIncomingTransferData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("incoming_transfer"),
+    type: z.literal('incoming_transfer'),
     transfer: APITransferInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
     sentBy: APIUserInfo,
@@ -539,9 +525,9 @@ const APITGIncomingTransferData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("tg_incoming_transfer"),
+    type: z.literal('tg_incoming_transfer'),
     transfer: APITransferInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
     sentBy: APIUserInfo,
@@ -562,9 +548,9 @@ const APIExternalTransferData = z
     completedAt: z.union([z.string(), z.null()]),
     txn: APITXNData,
     txnHash: z.union([z.string(), z.null()]),
-    type: z.literal("external_transfer"),
+    type: z.literal('external_transfer'),
     transfer: APITransferInfo,
-    token: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    token: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balance: APIBalance,
     gas: APIGasData,
   })
@@ -587,8 +573,8 @@ type SubmittedTransactionData = TypeOf<typeof SubmittedTransactionDataSchema>;
 const APISwapDraftData = z
   .object({
     swap: APISwapInfo,
-    tokenIn: z.discriminatedUnion("type", [APIToken, APINativeToken]),
-    tokenOut: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    tokenIn: z.discriminatedUnion('type', [APIToken, APINativeToken]),
+    tokenOut: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     balanceIn: APIBalance,
     balanceOut: APIBalance,
     gas: APIGasData,
@@ -603,33 +589,25 @@ const popular = z.union([z.boolean(), z.null()]).optional();
 const popularSchema = popular;
 type popular = TypeOf<typeof popularSchema>;
 
-const TokenSortingOptions = z.enum([
-  "unspecified",
-  "by_addr",
-  "by_name",
-  "by_symbol",
-  "by_match_score",
-]);
+const TokenSortingOptions = z.enum(['unspecified', 'by_addr', 'by_name', 'by_symbol', 'by_match_score']);
 
 const TokenSortingOptionsSchema = TokenSortingOptions;
 type TokenSortingOptions = TypeOf<typeof TokenSortingOptionsSchema>;
 
-const APIPnL = z
-  .object({ token: APIToken, balance: APIBalance, usdPaid: z.number() })
-  .passthrough();
+const APIPnL = z.object({ token: APIToken, balance: APIBalance, usdPaid: z.number() }).passthrough();
 
 const APIPnLSchema = APIPnL;
 type APIPnL = TypeOf<typeof APIPnLSchema>;
 
 const APIPnLBuyTrade = z
   .object({
-    type: z.literal("user_buy"),
+    type: z.literal('user_buy'),
     amount: z.positiveHexString(),
     amountNormalized: z.number(),
     usdPriceOld: z.union([z.number(), z.null()]),
     paidAmount: z.positiveHexString(),
     paidAmountNormalized: z.number(),
-    paidWith: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    paidWith: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     paidWithOldPriceUsd: z.union([z.number(), z.null()]),
     paidWithCurrentPriceUsd: z.union([z.number(), z.null()]),
     timestamp: z.string().datetime({ offset: true }),
@@ -641,13 +619,13 @@ type APIPnLBuyTrade = TypeOf<typeof APIPnLBuyTradeSchema>;
 
 const APIPnLSellTrade = z
   .object({
-    type: z.literal("user_sell"),
+    type: z.literal('user_sell'),
     amount: z.positiveHexString(),
     amountNormalized: z.number(),
     usdPriceOld: z.union([z.number(), z.null()]),
     receivedAmount: z.positiveHexString(),
     receivedAmountNormalized: z.number(),
-    received: z.discriminatedUnion("type", [APIToken, APINativeToken]),
+    received: z.discriminatedUnion('type', [APIToken, APINativeToken]),
     receivedOldPriceUsd: z.union([z.number(), z.null()]),
     receivedCurrentPriceUsd: z.union([z.number(), z.null()]),
     timestamp: z.string().datetime({ offset: true }),
@@ -695,9 +673,7 @@ const APISessionKeyAccount = z
 const APISessionKeyAccountSchema = APISessionKeyAccount;
 type APISessionKeyAccount = TypeOf<typeof APISessionKeyAccountSchema>;
 
-const UpdateSessionKeyData = z
-  .object({ serializedSessionKey: z.string() })
-  .passthrough();
+const UpdateSessionKeyData = z.object({ serializedSessionKey: z.string() }).passthrough();
 
 const UpdateSessionKeyDataSchema = UpdateSessionKeyData;
 type UpdateSessionKeyData = TypeOf<typeof UpdateSessionKeyDataSchema>;
@@ -718,21 +694,21 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
     baseUrl,
     [
       {
-        method: "get",
-        path: "/b/v2/session_key_account_manager_service/session_key_account/:user_address",
+        method: 'get',
+        path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
         alias:
-          "get_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__get",
+          'get_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__get',
         description: `Returns session key account if exists`,
-        requestFormat: "json",
+        requestFormat: 'json',
         parameters: [
           {
-            name: "user_address",
-            type: "Path",
+            name: 'user_address',
+            type: 'Path',
             schema: z.string(),
           },
           {
-            name: "chainId",
-            type: "Query",
+            name: 'chainId',
+            type: 'Query',
             schema: chainId,
           },
         ],
@@ -746,21 +722,21 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
       },
       {
-        method: "post",
-        path: "/b/v2/session_key_account_manager_service/session_key_account/:user_address",
+        method: 'post',
+        path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
         alias:
-          "create_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__post",
+          'create_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__post',
         description: `Creates session key account if doesn&#x27;t exist`,
-        requestFormat: "json",
+        requestFormat: 'json',
         parameters: [
           {
-            name: "user_address",
-            type: "Path",
+            name: 'user_address',
+            type: 'Path',
             schema: z.string(),
           },
           {
-            name: "chainId",
-            type: "Query",
+            name: 'chainId',
+            type: 'Query',
             schema: chainId,
           },
         ],
@@ -774,28 +750,26 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
       },
       {
-        method: "patch",
-        path: "/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key",
+        method: 'patch',
+        path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
         alias:
-          "update_session_key_b_v2_session_key_account_manager_service_session_key_account__user_address__serialized_session_key_patch",
+          'update_session_key_b_v2_session_key_account_manager_service_session_key_account__user_address__serialized_session_key_patch',
         description: `Updates session key for account`,
-        requestFormat: "json",
+        requestFormat: 'json',
         parameters: [
           {
-            name: "body",
-            type: "Body",
-            schema: z
-              .object({ serializedSessionKey: z.string() })
-              .passthrough(),
+            name: 'body',
+            type: 'Body',
+            schema: z.object({ serializedSessionKey: z.string() }).passthrough(),
           },
           {
-            name: "user_address",
-            type: "Path",
+            name: 'user_address',
+            type: 'Path',
             schema: z.string(),
           },
           {
-            name: "chainId",
-            type: "Query",
+            name: 'chainId',
+            type: 'Query',
             schema: chainId,
           },
         ],
@@ -809,26 +783,26 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
       },
       {
-        method: "post",
-        path: "/b/v2/session_key_account_manager_service/session_key_account/:user_address/user_operation",
+        method: 'post',
+        path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address/user_operation',
         alias:
-          "execute_user_operation_with_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__user_operation_post",
+          'execute_user_operation_with_session_key_account_b_v2_session_key_account_manager_service_session_key_account__user_address__user_operation_post',
         description: `Executes transaction`,
-        requestFormat: "json",
+        requestFormat: 'json',
         parameters: [
           {
-            name: "body",
-            type: "Body",
+            name: 'body',
+            type: 'Body',
             schema: IncomingTxn,
           },
           {
-            name: "user_address",
-            type: "Path",
+            name: 'user_address',
+            type: 'Path',
             schema: z.string(),
           },
           {
-            name: "chainId",
-            type: "Query",
+            name: 'chainId',
+            type: 'Query',
             schema: chainId,
           },
         ],
@@ -842,6 +816,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
       },
     ],
-    options
+    options,
   );
 }
