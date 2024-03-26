@@ -11,7 +11,7 @@ module.exports = {
         assets: ['package.json'],
         message:
           // eslint-disable-next-line no-template-curly-in-string
-          'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+          'chore(release): ${nextRelease.version} [skip ci]',
       },
     ],
   ],
