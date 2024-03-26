@@ -2,6 +2,9 @@
   "name": "@wallchain/savings-sdk",
   "version": "1.0.0-alpha.1",
   "main": "dist/index.js",
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
     "build": "rimraf dist && tsc",
     "prepare": "husky install",

@@ -20,11 +20,64 @@ variables:
   NPM_TOKEN: ${CI_JOB_TOKEN}
 
 stages:
+  - build
+  - test
   - release
+# ========== SHARED CONFIG ==========
+.base:
+  interruptible: true
+
+.cache-base:
+  extends: .base
+  cache:
+    key: &CACHE_KEY
+      files:
+        - package-lock.json
+      prefix: $CI_PROJECT_NAME
+    policy: pull
+    paths: &CACHE_PATHS
+      - node_modules
+
+.node-base:
+  extends: .cache-base
+  image: node:20-alpine
+
+# ========== BASIC STEPS CONFIG: BUILD ==========
+build_deps:
+  extends: .node-base
+  stage: build
+  cache:
+    - key: *CACHE_KEY
+      policy: push
+      paths: *CACHE_PATHS
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+  script:
+    - npm ci
+
+# ========== BASIC STEPS CONFIG: TEST ==========
+build-prod:
+  extends: .node-base
+  stage: test
+  needs: [build_deps]
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
 
 publish:
+  extends: .base
   stage: release
+  needs: [build-prod]
+  when: on_success
   script:
     - npm run semantic-release
   rules:
-    - if: $CI_COMMIT_BRANCH == 'alpha'
+    - if: $CI_COMMIT_BRANCH == 'alpha' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
