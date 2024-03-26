@@ -57,9 +57,7 @@ module.exports = {
   ...semanticReleaseConfig({
     defaultBranch: 'main',
     plugins: {
-      '@semantic-release/npm': { npmPublish: true },
+      '@semantic-release/gitlab': { npmPublish: true },
     },
   }),
-  // TODO: @merlin fix
-  repositoryUrl: '',
 };

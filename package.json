@@ -5,7 +5,8 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "prepare": "husky install",
-    "semantic-release": "semantic-release",
+    "prepublish": "npm run build",
+    "publish": "semantic-release",
     "test": "jest"
   },
   "lint-staged": {
@@ -20,6 +21,7 @@
       "eslint --max-warnings=0 --fix --no-ignore"
     ]
   },
+  "prettier": "@kilohealth/prettier-config",
   "eslintConfig": {
     "extends": "@kilohealth/eslint-config-node"
   },
@@ -41,6 +43,7 @@
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^8.0.7",
+    "@semantic-release/gitlab-config": "^14.0.1",
     "@semantic-release/npm": "^10.0.3",
     "@semantic-release/release-notes-generator": "^11.0.1",
     "@types/jest": "^29.5.1",
