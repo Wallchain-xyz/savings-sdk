@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    // for react
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2020",
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+
+    // for lib
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+
+    "baseUrl": "./src",
+    "rootDir": "./src",
+    "outDir": "dist"
+  },
+  "include": ["./src/**/*", "./typings/**/*"],
+  "exclude": [
+    "./node_modules/**/*",
+    "./dist/**/*",
+    "./__tests__/**/*",
+    "./**/*.test.ts"
+  ]
+}
