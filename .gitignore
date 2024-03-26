@@ -5,3 +5,5 @@ dist/
 .idea
 coverage/
 
+.env.local
+.npmrc
