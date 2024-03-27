@@ -1,14 +1,12 @@
-import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
-import { addressToEmptyAccount, createKernelAccount } from '@zerodev/sdk';
-import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
-import { createPublicClient, http } from 'viem';
+import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 
+import { AAManager } from '../AAManager/AAManager';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import type { createApiClient } from '../api/createApiClient';
 import type { DepositStrategy, DepositStrategyId, ValidatorData } from '../depositStrategies/DepositStrategy';
-import type { AAAccountClient } from '../SavingsSDK/createAAAccountClientFromPrivateKeyAccount';
-import type { Address, PrivateKeyAccount } from 'viem';
+import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
+import type { Address, Chain, Transport } from 'viem';
 
 interface PrepareSessionKeyAccountParams {
   sessionKeyAccountAddress: Address;
@@ -23,35 +21,28 @@ interface CreateSessionKeyAccountParams {
 }
 
 interface ConstructorParams {
-  privateKeyAccount: PrivateKeyAccount;
-  aaAccountClient: AAAccountClient;
+  aaManager: AAManager;
   savingsBackendClient: SessionKeyAccountServiceClient;
-  bundlerAPIKey: string;
 }
 
 export class SavingsAccount {
-  public aaAccountClient: AAAccountClient;
-
-  private readonly privateKeyAccount: PrivateKeyAccount;
-
   private savingsBackendClient: SessionKeyAccountServiceClient;
 
-  private readonly bundlerAPIKey: string;
+  private aaManager: AAManager;
 
   get aaAddress(): Address {
-    return this.aaAccountClient.account.address;
+    return this.aaManager.aaAddress;
   }
 
-  constructor({ privateKeyAccount, savingsBackendClient, aaAccountClient, bundlerAPIKey }: ConstructorParams) {
-    this.privateKeyAccount = privateKeyAccount;
+  // TODO: @melrin not sure we want to expose this
+  get aaAccountClient() {
+    // TODO: @merlin find better typing here
+    return this.aaManager.aaAccountClient as KernelAccountClient<Transport, Chain, KernelSmartAccount>;
+  }
+
+  constructor({ aaManager, savingsBackendClient }: ConstructorParams) {
     this.savingsBackendClient = savingsBackendClient;
-    this.aaAccountClient = aaAccountClient;
-    // TODO: @merlin ideally we should not pass aaAccountClient and bundlerAPIKey at the same time
-    // since aaAccountClient already have bundlerAPIKey inside as well as sudo validator
-    // for SKA and main aaAccount should be the same
-    // we could pass here privateKeyAccount and create aaAccountClient,
-    // but then constructor will have to be async
-    this.bundlerAPIKey = bundlerAPIKey;
+    this.aaManager = aaManager;
   }
 
   // =====starts ====
@@ -68,7 +59,8 @@ export class SavingsAccount {
     try {
       const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
       const { sessionKeyAccountAddress } = walletSessionKeyAccount;
-      await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
+      await this.aaManager.revokeSKA(sessionKeyAccountAddress);
+
       await this.signSessionKeyAccount({
         validatorData,
         sessionKeyAccountAddress,
@@ -99,7 +91,7 @@ export class SavingsAccount {
   async deactivateAllStrategies() {
     const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
     const { sessionKeyAccountAddress } = walletSessionKeyAccount;
-    await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
+    await this.aaManager.revokeSKA(sessionKeyAccountAddress);
     //   TODO: @merlin add delete request to backend
   }
 
@@ -147,30 +139,10 @@ export class SavingsAccount {
   }
 
   private async signSessionKeyAccount({ sessionKeyAccountAddress, validatorData }: PrepareSessionKeyAccountParams) {
-    const aaBundlerTransport = http(`https://rpc.zerodev.app/api/v2/bundler/${this.bundlerAPIKey}`);
-    const publicClient = createPublicClient({
-      transport: aaBundlerTransport,
-    });
-
-    const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
-      signer: this.privateKeyAccount,
-    });
-
-    const emptySessionKeySigner = addressToEmptyAccount(sessionKeyAccountAddress);
-
-    const sessionKeyValidator = await signerToSessionKeyValidator(publicClient, {
-      signer: emptySessionKeySigner,
+    const serializedSessionKey = await this.aaManager.signSKA({
+      sessionKeyAccountAddress,
       validatorData,
     });
-
-    const sessionKeyAccount = await createKernelAccount(publicClient, {
-      plugins: {
-        sudo: ecdsaValidator,
-        regular: sessionKeyValidator,
-      },
-    });
-
-    const serializedSessionKey = await serializeSessionKeyAccount(sessionKeyAccount);
 
     // TODO: @merlin attach strategyIds
     return this.savingsBackendClient.patch(

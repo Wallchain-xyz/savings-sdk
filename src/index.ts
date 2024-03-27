@@ -1,4 +1,4 @@
-export { createAAAccountClientFromPrivateKeyAccount } from './SavingsSDK';
 export { getSupportedDepositStrategies } from './depositStrategies';
-export { createSavingsAccount } from './SavingsAccount/createSavingsAccount';
+export { createSavingsAccountFromPrivateKeyAccount } from './factories/createSavingsAccountFromPrivateKeyAccount';
+export { createSavingsAccountFromSudoValidator } from './factories/createSavingsAccountFromSudoValidator';
 export { SavingsAccount } from './SavingsAccount/SavingsAccount';
