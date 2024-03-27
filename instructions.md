@@ -1,7 +1,5 @@
 TODO:
 
-- fix eslint and prettier configs
-- add release config - repositoryUrl
 - add zod generation
 - update dev deps (now it breaks ts for sdk somehow)
 

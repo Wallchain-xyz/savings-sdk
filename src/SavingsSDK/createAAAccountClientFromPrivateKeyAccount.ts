@@ -34,3 +34,5 @@ export async function createAAAccountClientFromPrivateKeyAccount({
     transport: aaBundlerTransport,
   });
 }
+
+export type AAAccountClient = Awaited<ReturnType<typeof createAAAccountClientFromPrivateKeyAccount>>;

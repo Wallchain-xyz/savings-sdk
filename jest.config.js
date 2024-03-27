@@ -11,7 +11,7 @@ module.exports = {
     ],
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
   moduleDirectories: ['node_modules', 'src'],
   testEnvironment: 'jsdom',
 };
