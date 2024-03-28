@@ -1,0 +1,1 @@
+export const BIGGEST_UINT256 = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');

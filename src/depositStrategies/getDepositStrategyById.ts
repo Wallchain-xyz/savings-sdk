@@ -3,13 +3,13 @@ import { getSupportedDepositStrategies } from './getSupportedStrategies';
 
 import type { DepositStrategy, DepositStrategyId } from './DepositStrategy';
 
-export function getDepositStrategyById(depositStrategyId: DepositStrategyId): DepositStrategy {
-  const supportedDepositStrategies = getSupportedDepositStrategies();
-  const depositStrategy = supportedDepositStrategies.find(depositStrategy => depositStrategy.id === depositStrategyId);
+export function getDepositStrategyById(strategyId: DepositStrategyId): DepositStrategy {
+  const supportedStrategies = getSupportedDepositStrategies();
+  const strategy = supportedStrategies.find(strategy => strategy.id === strategyId);
 
-  if (!depositStrategy) {
-    throw new DepositStrategyNotFoundError(depositStrategyId);
+  if (!strategy) {
+    throw new DepositStrategyNotFoundError(strategyId);
   }
 
-  return depositStrategy;
+  return strategy;
 }
