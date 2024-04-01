@@ -1,6 +1,6 @@
 import { bsc } from 'viem/chains';
 
-import { BIGGEST_UINT256 } from '../../../consts';
+import { UINT256_MAX } from '../../../consts';
 import { nativeTokenAddress } from '../../../shared/nativeTokenAddress';
 
 import { DepositStrategy } from '../../DepositStrategy';
@@ -21,7 +21,7 @@ export const beefyBscNativeStrategy: DepositStrategy = {
   permissions: [
     {
       target: vaultAddress,
-      valueLimit: BIGGEST_UINT256,
+      valueLimit: UINT256_MAX,
       abi,
       functionName: 'depositBNB',
     },

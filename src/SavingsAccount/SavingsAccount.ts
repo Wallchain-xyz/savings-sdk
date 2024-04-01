@@ -30,6 +30,11 @@ export class SavingsAccount {
 
   private aaManager: AAManager;
 
+  constructor({ aaManager, savingsBackendClient }: ConstructorParams) {
+    this.savingsBackendClient = savingsBackendClient;
+    this.aaManager = aaManager;
+  }
+
   get aaAddress(): Address {
     return this.aaManager.aaAddress;
   }
@@ -40,17 +45,13 @@ export class SavingsAccount {
     return this.aaManager.aaAccountClient as KernelAccountClient<Transport, Chain, KernelSmartAccount>;
   }
 
-  constructor({ aaManager, savingsBackendClient }: ConstructorParams) {
-    this.savingsBackendClient = savingsBackendClient;
-    this.aaManager = aaManager;
-  }
-
   // =====starts ====
   async activateStrategies(additionalDepositStrategyIds: DepositStrategyId[]): Promise<void> {
     const activeDepositStrategies = await this.getActiveStrategies();
     const activeDepositStrategyIds = activeDepositStrategies.map(depositStrategy => depositStrategy.id);
     const newActiveDepositStrategyIds = new Set([...activeDepositStrategyIds, ...additionalDepositStrategyIds]);
     const newActiveDepositStrategies = Array.from(newActiveDepositStrategyIds).map(getDepositStrategyById);
+    // TODO: @merlin remove permissions duplication
     const combinedPermissions = newActiveDepositStrategies.flatMap(depositStrategy => depositStrategy.permissions);
     const validatorData = {
       permissions: combinedPermissions,
@@ -110,6 +111,8 @@ export class SavingsAccount {
         validatorData,
       });
     } catch (error) {
+      // create session_key_account backend entity and get sessionKeyAccountAddress
+      // back to sign permissions using it
       const walletSessionKeyAccount = await this.savingsBackendClient.post(
         '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
         undefined,
@@ -144,6 +147,7 @@ export class SavingsAccount {
       validatorData,
     });
 
+    // send session key to backend
     // TODO: @merlin attach strategyIds
     return this.savingsBackendClient.patch(
       '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
