@@ -3,7 +3,9 @@ import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidat
 
 import { Address, type Transport, createPublicClient, http } from 'viem';
 
-import type { ValidatorData } from '../depositStrategies/DepositStrategy';
+import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
+
+import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
 interface ConstructorParams {
   sudoValidator: KernelValidator;
@@ -12,7 +14,7 @@ interface ConstructorParams {
 
 interface PrepareSessionKeyAccountParams {
   sessionKeyAccountAddress: Address;
-  validatorData: ValidatorData;
+  depositStrategyIds: DepositStrategyId[];
 }
 
 export class AAManager {
@@ -70,12 +72,18 @@ export class AAManager {
     await revokeSessionKey(this._aaAccountClient, sessionKeyAccountAddress);
   }
 
-  async signSKA({ sessionKeyAccountAddress, validatorData }: PrepareSessionKeyAccountParams) {
+  async signSKA({ sessionKeyAccountAddress, depositStrategyIds }: PrepareSessionKeyAccountParams) {
     const emptySessionKeySigner = addressToEmptyAccount(sessionKeyAccountAddress);
+
+    const strategies = depositStrategyIds.map(getDepositStrategyById);
+    // TODO: @merlin remove permissions duplication
+    const combinedPermissions = strategies.flatMap(strategy => strategy.permissions);
 
     const sessionKeyValidator = await signerToSessionKeyValidator(this.publicClient, {
       signer: emptySessionKeySigner,
-      validatorData,
+      validatorData: {
+        permissions: combinedPermissions,
+      },
     });
 
     const sessionKeyAccount = await createKernelAccount(this.publicClient, {

@@ -2,6 +2,7 @@ import { KernelValidator } from '@zerodev/sdk';
 
 import { AAManager } from '../AAManager/AAManager';
 import { createApiClient } from '../api/createApiClient';
+import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 
 interface CreateSavingsAccountFromKernelValidatorParams {
@@ -20,7 +21,7 @@ export async function createSavingsAccountFromSudoValidator({
   const aaManager = new AAManager({ sudoValidator, bundlerAPIKey });
   await aaManager.init();
 
-  const savingsBackendClient = createApiClient(savingsBackendUrl, {
+  const apiClient = createApiClient(savingsBackendUrl, {
     axiosConfig: {
       headers: savingsBackendHeaders,
     },
@@ -28,6 +29,6 @@ export async function createSavingsAccountFromSudoValidator({
 
   return new SavingsAccount({
     aaManager,
-    savingsBackendClient,
+    savingsBackendClient: new SavingsBackendClient({ apiClient }),
   });
 }

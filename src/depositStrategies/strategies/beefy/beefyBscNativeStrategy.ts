@@ -1,7 +1,6 @@
 import { bsc } from 'viem/chains';
 
-import { UINT256_MAX } from '../../../consts';
-import { nativeTokenAddress } from '../../../shared/nativeTokenAddress';
+import { NATIVE_TOKEN_ADDRESS, UINT256_MAX } from '../../../consts';
 
 import { DepositStrategy } from '../../DepositStrategy';
 
@@ -33,6 +32,6 @@ export const beefyBscNativeStrategy: DepositStrategy = {
     },
   ],
   chainId: bsc.id,
-  tokenAddress: nativeTokenAddress,
+  tokenAddress: NATIVE_TOKEN_ADDRESS,
   bondTokenAddress,
 };

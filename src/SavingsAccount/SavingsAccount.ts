@@ -1,32 +1,20 @@
 import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 
 import { AAManager } from '../AAManager/AAManager';
+import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
-import type { createApiClient } from '../api/createApiClient';
-import type { DepositStrategy, DepositStrategyId, ValidatorData } from '../depositStrategies/DepositStrategy';
+import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
 import type { Address, Chain, Transport } from 'viem';
 
-interface PrepareSessionKeyAccountParams {
-  sessionKeyAccountAddress: Address;
-  validatorData: ValidatorData;
-}
-
-type SessionKeyAccountServiceClient = ReturnType<typeof createApiClient>;
-// type TokenAmount = Hex;
-
-interface CreateSessionKeyAccountParams {
-  validatorData: PrepareSessionKeyAccountParams['validatorData'];
-}
-
 interface ConstructorParams {
   aaManager: AAManager;
-  savingsBackendClient: SessionKeyAccountServiceClient;
+  savingsBackendClient: SavingsBackendClient;
 }
 
 export class SavingsAccount {
-  private savingsBackendClient: SessionKeyAccountServiceClient;
+  private savingsBackendClient: SavingsBackendClient;
 
   private aaManager: AAManager;
 
@@ -45,121 +33,48 @@ export class SavingsAccount {
     return this.aaManager.aaAccountClient as KernelAccountClient<Transport, Chain, KernelSmartAccount>;
   }
 
-  // =====starts ====
-  async activateStrategies(additionalDepositStrategyIds: DepositStrategyId[]): Promise<void> {
-    const activeDepositStrategies = await this.getActiveStrategies();
-    const activeDepositStrategyIds = activeDepositStrategies.map(depositStrategy => depositStrategy.id);
-    const newActiveDepositStrategyIds = new Set([...activeDepositStrategyIds, ...additionalDepositStrategyIds]);
-    const newActiveDepositStrategies = Array.from(newActiveDepositStrategyIds).map(getDepositStrategyById);
-    // TODO: @merlin remove permissions duplication
-    const combinedPermissions = newActiveDepositStrategies.flatMap(depositStrategy => depositStrategy.permissions);
-    const validatorData = {
-      permissions: combinedPermissions,
-    };
-
-    try {
-      const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
-      const { sessionKeyAccountAddress } = walletSessionKeyAccount;
-      await this.aaManager.revokeSKA(sessionKeyAccountAddress);
-
-      await this.signSessionKeyAccount({
-        validatorData,
-        sessionKeyAccountAddress,
-      });
-    } catch (error) {
-      //   TODO: @merlin check that this is 404
-      await this.createAndSignSessionKeyAccount({
-        validatorData,
-      });
+  async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
+    let walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    if (walletSessionKeyAccount) {
+      // TODO: @merlin think about transactions here, what if chain fails in the middle
+      await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
+    } else {
+      walletSessionKeyAccount = await this.savingsBackendClient.createWalletSessionKeyAccount(this.aaAddress);
     }
+
+    const { sessionKeyAccountAddress } = walletSessionKeyAccount;
+
+    const newStrategyIds = await this.mergeWithActiveStrategyIds(strategyIds);
+
+    const serializedSessionKey = await this.aaManager.signSKA({
+      sessionKeyAccountAddress,
+      depositStrategyIds: newStrategyIds,
+    });
+
+    await this.savingsBackendClient.updateWalletSessionKeyAccount({
+      userAddress: this.aaAddress,
+      depositStrategyIds: newStrategyIds,
+      serializedSessionKey,
+    });
+  }
+
+  private async mergeWithActiveStrategyIds(strategyIds: DepositStrategyId[]) {
+    const activeStrategyIds = (await this.getActiveStrategies()).map(strategy => strategy.id);
+    return Array.from(new Set([...activeStrategyIds, ...strategyIds]));
   }
 
   async getActiveStrategies(): Promise<DepositStrategy[]> {
-    try {
-      await this.getWalletSessionKeyAccount();
-
-      // return walletSessionKeyAccount.depositStrategyIds.map(
-      //   getDepositStrategyById,
-      // );
-      return [];
-
-      // TODO: @merlin check that error is not found
-    } catch (error) {
-      return [];
-    }
+    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    return walletSessionKeyAccount?.depositStrategyIds.map(getDepositStrategyById) ?? [];
   }
 
   async deactivateAllStrategies() {
-    const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
-    const { sessionKeyAccountAddress } = walletSessionKeyAccount;
-    await this.aaManager.revokeSKA(sessionKeyAccountAddress);
-    //   TODO: @merlin add delete request to backend
-  }
-
-  //  ===== END STRATS ====
-
-  async createAndSignSessionKeyAccount({ validatorData }: CreateSessionKeyAccountParams) {
-    try {
-      const walletSessionKeyAccount = await this.getWalletSessionKeyAccount();
-
-      if (walletSessionKeyAccount.isSigned) {
-        return;
-      }
-
-      await this.signSessionKeyAccount({
-        sessionKeyAccountAddress: walletSessionKeyAccount.sessionKeyAccountAddress,
-        validatorData,
-      });
-    } catch (error) {
-      // create session_key_account backend entity and get sessionKeyAccountAddress
-      // back to sign permissions using it
-      const walletSessionKeyAccount = await this.savingsBackendClient.post(
-        '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
-        undefined,
-        {
-          params: {
-            user_address: this.aaAddress,
-          },
-        },
-      );
-      await this.signSessionKeyAccount({
-        sessionKeyAccountAddress: walletSessionKeyAccount.sessionKeyAccountAddress,
-        validatorData,
-      });
+    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    if (!walletSessionKeyAccount) {
+      return;
     }
-  }
-
-  private async getWalletSessionKeyAccount() {
-    // TODO: @merlin maybe we can use cache here
-    return this.savingsBackendClient.get(
-      '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
-      {
-        params: {
-          user_address: this.aaAddress,
-        },
-      },
-    );
-  }
-
-  private async signSessionKeyAccount({ sessionKeyAccountAddress, validatorData }: PrepareSessionKeyAccountParams) {
-    const serializedSessionKey = await this.aaManager.signSKA({
-      sessionKeyAccountAddress,
-      validatorData,
-    });
-
-    // send session key to backend
-    // TODO: @merlin attach strategyIds
-    return this.savingsBackendClient.patch(
-      '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
-      {
-        serializedSessionKey,
-      },
-      {
-        params: {
-          user_address: this.aaAddress,
-        },
-      },
-    );
+    await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
+    //   TODO: @merlin add delete request to backend
   }
 
   // //   =========== DEPOSITS ==========

@@ -3,16 +3,16 @@
 // separate API for SDK - it will have it's own
 // openapi scheme which we will use to generate this client
 /* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable camelcase */
+
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
-import { zod as z } from './zod';
-
-import type { TypeOf } from './zod';
+import { TypeOf, zod as z } from './zod';
 
 const UserKeyType = z.enum(['web3auth', 'wallet', 'account_abstraction']);
 
-const UserKeyTypeSchema = UserKeyType;
-type UserKeyType = TypeOf<typeof UserKeyTypeSchema>;
+export const UserKeyTypeSchema = UserKeyType;
+export type UserKeyType = TypeOf<typeof UserKeyTypeSchema>;
 
 const SignInData = z
   .object({
@@ -24,37 +24,38 @@ const SignInData = z
   })
   .passthrough();
 
-const SignInDataSchema = SignInData;
-type SignInData = TypeOf<typeof SignInDataSchema>;
+export const SignInDataSchema = SignInData;
+export type SignInData = TypeOf<typeof SignInDataSchema>;
 
 const NetworkEnum = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
 
-const NetworkEnumSchema = NetworkEnum;
-type NetworkEnum = TypeOf<typeof NetworkEnumSchema>;
+export const NetworkEnumSchema = NetworkEnum;
+export type NetworkEnum = TypeOf<typeof NetworkEnumSchema>;
 
 const chainId = z.union([NetworkEnum, z.null()]).optional();
 
-const chainIdSchema = chainId;
-type chainId = TypeOf<typeof chainIdSchema>;
+export const chainIdSchema = chainId;
+export type chainId = TypeOf<typeof chainIdSchema>;
+
+const X_TG_Web_App_Init_Data = z.union([z.string(), z.null()]).optional();
+
+export const X_TG_Web_App_Init_DataSchema = X_TG_Web_App_Init_Data;
+export type X_TG_Web_App_Init_Data = TypeOf<typeof X_TG_Web_App_Init_DataSchema>;
 
 const ValidationError = z
-  .object({
-    loc: z.array(z.union([z.string(), z.number()])),
-    msg: z.string(),
-    type: z.string(),
-  })
+  .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
   .passthrough();
 
-const ValidationErrorSchema = ValidationError;
-type ValidationError = TypeOf<typeof ValidationErrorSchema>;
+export const ValidationErrorSchema = ValidationError;
+export type ValidationError = TypeOf<typeof ValidationErrorSchema>;
 
 const HTTPValidationError = z
   .object({ detail: z.array(ValidationError) })
   .partial()
   .passthrough();
 
-const HTTPValidationErrorSchema = HTTPValidationError;
-type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
+export const HTTPValidationErrorSchema = HTTPValidationError;
+export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
 const APIUserInfo = z
   .object({
@@ -70,23 +71,28 @@ const APIUserInfo = z
   })
   .passthrough();
 
-const APIUserInfoSchema = APIUserInfo;
-type APIUserInfo = TypeOf<typeof APIUserInfoSchema>;
+export const APIUserInfoSchema = APIUserInfo;
+export type APIUserInfo = TypeOf<typeof APIUserInfoSchema>;
+
+const user_id = z.union([z.number(), z.literal('me')]);
+
+export const user_idSchema = user_id;
+export type user_id = TypeOf<typeof user_idSchema>;
 
 const ChatFlow = z.enum(['main', 'buy', 'sell', 'balance', 'transfer']);
 
-const ChatFlowSchema = ChatFlow;
-type ChatFlow = TypeOf<typeof ChatFlowSchema>;
+export const ChatFlowSchema = ChatFlow;
+export type ChatFlow = TypeOf<typeof ChatFlowSchema>;
 
 const NavigateChatData = z.object({ flow: ChatFlow }).passthrough();
 
-const NavigateChatDataSchema = NavigateChatData;
-type NavigateChatData = TypeOf<typeof NavigateChatDataSchema>;
+export const NavigateChatDataSchema = NavigateChatData;
+export type NavigateChatData = TypeOf<typeof NavigateChatDataSchema>;
 
 const SetChainData = z.object({ chainId: NetworkEnum }).passthrough();
 
-const SetChainDataSchema = SetChainData;
-type SetChainData = TypeOf<typeof SetChainDataSchema>;
+export const SetChainDataSchema = SetChainData;
+export type SetChainData = TypeOf<typeof SetChainDataSchema>;
 
 const TokenBalanceInfo = z
   .object({
@@ -103,13 +109,13 @@ const TokenBalanceInfo = z
   })
   .passthrough();
 
-const TokenBalanceInfoSchema = TokenBalanceInfo;
-type TokenBalanceInfo = TypeOf<typeof TokenBalanceInfoSchema>;
+export const TokenBalanceInfoSchema = TokenBalanceInfo;
+export type TokenBalanceInfo = TypeOf<typeof TokenBalanceInfoSchema>;
 
 const DetailError = z.object({ detail: z.string() }).passthrough();
 
-const DetailErrorSchema = DetailError;
-type DetailError = TypeOf<typeof DetailErrorSchema>;
+export const DetailErrorSchema = DetailError;
+export type DetailError = TypeOf<typeof DetailErrorSchema>;
 
 const NativeBalanceInfo = z
   .object({
@@ -125,13 +131,13 @@ const NativeBalanceInfo = z
   })
   .passthrough();
 
-const NativeBalanceInfoSchema = NativeBalanceInfo;
-type NativeBalanceInfo = TypeOf<typeof NativeBalanceInfoSchema>;
+export const NativeBalanceInfoSchema = NativeBalanceInfo;
+export type NativeBalanceInfo = TypeOf<typeof NativeBalanceInfoSchema>;
 
 const APIPointsInfo = z.object({ points: z.number().int() }).passthrough();
 
-const APIPointsInfoSchema = APIPointsInfo;
-type APIPointsInfo = TypeOf<typeof APIPointsInfoSchema>;
+export const APIPointsInfoSchema = APIPointsInfo;
+export type APIPointsInfo = TypeOf<typeof APIPointsInfoSchema>;
 
 const SetupSwapData = z
   .object({
@@ -142,18 +148,18 @@ const SetupSwapData = z
   })
   .passthrough();
 
-const SetupSwapDataSchema = SetupSwapData;
-type SetupSwapData = TypeOf<typeof SetupSwapDataSchema>;
+export const SetupSwapDataSchema = SetupSwapData;
+export type SetupSwapData = TypeOf<typeof SetupSwapDataSchema>;
 
 const TxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT']);
 
-const TxnStatusSchema = TxnStatus;
-type TxnStatus = TypeOf<typeof TxnStatusSchema>;
+export const TxnStatusSchema = TxnStatus;
+export type TxnStatus = TypeOf<typeof TxnStatusSchema>;
 
 const TxnSubmissionType = z.enum(['web3_rpc', 'aa_bundler']);
 
-const TxnSubmissionTypeSchema = TxnSubmissionType;
-type TxnSubmissionType = TypeOf<typeof TxnSubmissionTypeSchema>;
+export const TxnSubmissionTypeSchema = TxnSubmissionType;
+export type TxnSubmissionType = TypeOf<typeof TxnSubmissionTypeSchema>;
 
 const APITXNData = z
   .object({
@@ -164,8 +170,8 @@ const APITXNData = z
   })
   .passthrough();
 
-const APITXNDataSchema = APITXNData;
-type APITXNData = TypeOf<typeof APITXNDataSchema>;
+export const APITXNDataSchema = APITXNData;
+export type APITXNData = TypeOf<typeof APITXNDataSchema>;
 
 const APISwapInfo = z
   .object({
@@ -178,8 +184,8 @@ const APISwapInfo = z
   })
   .passthrough();
 
-const APISwapInfoSchema = APISwapInfo;
-type APISwapInfo = TypeOf<typeof APISwapInfoSchema>;
+export const APISwapInfoSchema = APISwapInfo;
+export type APISwapInfo = TypeOf<typeof APISwapInfoSchema>;
 
 const APITokenInfo = z
   .object({
@@ -192,18 +198,15 @@ const APITokenInfo = z
   })
   .passthrough();
 
-const APITokenInfoSchema = APITokenInfo;
-type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
+export const APITokenInfoSchema = APITokenInfo;
+export type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
 
 const APITokenPrice = z
-  .object({
-    usdPrice: z.number(),
-    change24HPercent: z.union([z.number(), z.null()]),
-  })
+  .object({ usdPrice: z.number(), change24HPercent: z.union([z.number(), z.null()]) })
   .passthrough();
 
-const APITokenPriceSchema = APITokenPrice;
-type APITokenPrice = TypeOf<typeof APITokenPriceSchema>;
+export const APITokenPriceSchema = APITokenPrice;
+export type APITokenPrice = TypeOf<typeof APITokenPriceSchema>;
 
 const APIToken = z
   .object({
@@ -214,8 +217,8 @@ const APIToken = z
   })
   .passthrough();
 
-const APITokenSchema = APIToken;
-type APIToken = TypeOf<typeof APITokenSchema>;
+export const APITokenSchema = APIToken;
+export type APIToken = TypeOf<typeof APITokenSchema>;
 
 const APINativeToken = z
   .object({
@@ -226,8 +229,8 @@ const APINativeToken = z
   })
   .passthrough();
 
-const APINativeTokenSchema = APINativeToken;
-type APINativeToken = TypeOf<typeof APINativeTokenSchema>;
+export const APINativeTokenSchema = APINativeToken;
+export type APINativeToken = TypeOf<typeof APINativeTokenSchema>;
 
 const APIBalance = z
   .object({
@@ -237,8 +240,8 @@ const APIBalance = z
   })
   .passthrough();
 
-const APIBalanceSchema = APIBalance;
-type APIBalance = TypeOf<typeof APIBalanceSchema>;
+export const APIBalanceSchema = APIBalance;
+export type APIBalance = TypeOf<typeof APIBalanceSchema>;
 
 const APIGasData = z
   .object({
@@ -249,8 +252,8 @@ const APIGasData = z
   })
   .passthrough();
 
-const APIGasDataSchema = APIGasData;
-type APIGasData = TypeOf<typeof APIGasDataSchema>;
+export const APIGasDataSchema = APIGasData;
+export type APIGasData = TypeOf<typeof APIGasDataSchema>;
 
 const APISwapData = z
   .object({
@@ -273,13 +276,13 @@ const APISwapData = z
   })
   .passthrough();
 
-const APISwapDataSchema = APISwapData;
-type APISwapData = TypeOf<typeof APISwapDataSchema>;
+export const APISwapDataSchema = APISwapData;
+export type APISwapData = TypeOf<typeof APISwapDataSchema>;
 
 const FundUsageEnum = z.enum(['FOR_AMOUNT', 'FOR_GAS', 'FOR_AMOUNT_AND_GAS']);
 
-const FundUsageEnumSchema = FundUsageEnum;
-type FundUsageEnum = TypeOf<typeof FundUsageEnumSchema>;
+export const FundUsageEnumSchema = FundUsageEnum;
+export type FundUsageEnum = TypeOf<typeof FundUsageEnumSchema>;
 
 const APIInsufficientFundsError = z
   .object({
@@ -292,8 +295,8 @@ const APIInsufficientFundsError = z
   })
   .passthrough();
 
-const APIInsufficientFundsErrorSchema = APIInsufficientFundsError;
-type APIInsufficientFundsError = TypeOf<typeof APIInsufficientFundsErrorSchema>;
+export const APIInsufficientFundsErrorSchema = APIInsufficientFundsError;
+export type APIInsufficientFundsError = TypeOf<typeof APIInsufficientFundsErrorSchema>;
 
 const SetupTransferData = z
   .object({
@@ -303,8 +306,8 @@ const SetupTransferData = z
   })
   .passthrough();
 
-const SetupTransferDataSchema = SetupTransferData;
-type SetupTransferData = TypeOf<typeof SetupTransferDataSchema>;
+export const SetupTransferDataSchema = SetupTransferData;
+export type SetupTransferData = TypeOf<typeof SetupTransferDataSchema>;
 
 const APITransferInfo = z
   .object({
@@ -315,8 +318,8 @@ const APITransferInfo = z
   })
   .passthrough();
 
-const APITransferInfoSchema = APITransferInfo;
-type APITransferInfo = TypeOf<typeof APITransferInfoSchema>;
+export const APITransferInfoSchema = APITransferInfo;
+export type APITransferInfo = TypeOf<typeof APITransferInfoSchema>;
 
 const APITransferData = z
   .object({
@@ -337,35 +340,32 @@ const APITransferData = z
   })
   .passthrough();
 
-const APITransferDataSchema = APITransferData;
-type APITransferData = TypeOf<typeof APITransferDataSchema>;
+export const APITransferDataSchema = APITransferData;
+export type APITransferData = TypeOf<typeof APITransferDataSchema>;
 
 const SetupTGTransferData = z
-  .object({
-    token: z.union([z.string(), z.null()]),
-    amount: z.union([z.string(), z.null()]),
-  })
+  .object({ token: z.union([z.string(), z.null()]), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupTGTransferDataSchema = SetupTGTransferData;
-type SetupTGTransferData = TypeOf<typeof SetupTGTransferDataSchema>;
+export const SetupTGTransferDataSchema = SetupTGTransferData;
+export type SetupTGTransferData = TypeOf<typeof SetupTGTransferDataSchema>;
 
 const TGTransferTxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT', 'WAITING_FOR_ACCEPT']);
 
-const TGTransferTxnStatusSchema = TGTransferTxnStatus;
-type TGTransferTxnStatus = TypeOf<typeof TGTransferTxnStatusSchema>;
+export const TGTransferTxnStatusSchema = TGTransferTxnStatus;
+export type TGTransferTxnStatus = TypeOf<typeof TGTransferTxnStatusSchema>;
 
 const APITGTransferInfo = z
   .object({
     amount: z.positiveHexString(),
     amountNormalized: z.number(),
     amountUsd: z.union([z.number(), z.null()]),
-    receiver: z.union([z.address(), z.null()]),
+    receiver: z.union([z.string(), z.null()]),
   })
   .passthrough();
 
-const APITGTransferInfoSchema = APITGTransferInfo;
-type APITGTransferInfo = TypeOf<typeof APITGTransferInfoSchema>;
+export const APITGTransferInfoSchema = APITGTransferInfo;
+export type APITGTransferInfo = TypeOf<typeof APITGTransferInfoSchema>;
 
 const APITGTransferData = z
   .object({
@@ -389,23 +389,20 @@ const APITGTransferData = z
   })
   .passthrough();
 
-const APITGTransferDataSchema = APITGTransferData;
-type APITGTransferData = TypeOf<typeof APITGTransferDataSchema>;
+export const APITGTransferDataSchema = APITGTransferData;
+export type APITGTransferData = TypeOf<typeof APITGTransferDataSchema>;
 
 const SetupAddDepositData = z
-  .object({
-    depositStrategyId: z.number().int(),
-    amount: z.union([z.string(), z.null()]),
-  })
+  .object({ depositStrategyId: z.number().int(), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupAddDepositDataSchema = SetupAddDepositData;
-type SetupAddDepositData = TypeOf<typeof SetupAddDepositDataSchema>;
+export const SetupAddDepositDataSchema = SetupAddDepositData;
+export type SetupAddDepositData = TypeOf<typeof SetupAddDepositDataSchema>;
 
 const APIDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
-const APIDepositInfoSchema = APIDepositInfo;
-type APIDepositInfo = TypeOf<typeof APIDepositInfoSchema>;
+export const APIDepositInfoSchema = APIDepositInfo;
+export type APIDepositInfo = TypeOf<typeof APIDepositInfoSchema>;
 
 const APIAddDepositData = z
   .object({
@@ -426,23 +423,20 @@ const APIAddDepositData = z
   })
   .passthrough();
 
-const APIAddDepositDataSchema = APIAddDepositData;
-type APIAddDepositData = TypeOf<typeof APIAddDepositDataSchema>;
+export const APIAddDepositDataSchema = APIAddDepositData;
+export type APIAddDepositData = TypeOf<typeof APIAddDepositDataSchema>;
 
 const SetupWithdrawDepositData = z
-  .object({
-    depositStrategyId: z.number().int(),
-    amount: z.union([z.string(), z.null()]),
-  })
+  .object({ depositStrategyId: z.number().int(), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupWithdrawDepositDataSchema = SetupWithdrawDepositData;
-type SetupWithdrawDepositData = TypeOf<typeof SetupWithdrawDepositDataSchema>;
+export const SetupWithdrawDepositDataSchema = SetupWithdrawDepositData;
+export type SetupWithdrawDepositData = TypeOf<typeof SetupWithdrawDepositDataSchema>;
 
 const APIWithdrawDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
-const APIWithdrawDepositInfoSchema = APIWithdrawDepositInfo;
-type APIWithdrawDepositInfo = TypeOf<typeof APIWithdrawDepositInfoSchema>;
+export const APIWithdrawDepositInfoSchema = APIWithdrawDepositInfo;
+export type APIWithdrawDepositInfo = TypeOf<typeof APIWithdrawDepositInfoSchema>;
 
 const APIWithdrawDepositData = z
   .object({
@@ -461,8 +455,8 @@ const APIWithdrawDepositData = z
   })
   .passthrough();
 
-const APIWithdrawDepositDataSchema = APIWithdrawDepositData;
-type APIWithdrawDepositData = TypeOf<typeof APIWithdrawDepositDataSchema>;
+export const APIWithdrawDepositDataSchema = APIWithdrawDepositData;
+export type APIWithdrawDepositData = TypeOf<typeof APIWithdrawDepositDataSchema>;
 
 const TxnType = z.enum([
   'SWAP',
@@ -473,23 +467,23 @@ const TxnType = z.enum([
   'EXTERNAL_TRANSFER',
 ]);
 
-const TxnTypeSchema = TxnType;
-type TxnType = TypeOf<typeof TxnTypeSchema>;
+export const TxnTypeSchema = TxnType;
+export type TxnType = TypeOf<typeof TxnTypeSchema>;
 
 const txnType = z.union([TxnType, z.null()]).optional();
 
-const txnTypeSchema = txnType;
-type txnType = TypeOf<typeof txnTypeSchema>;
+export const txnTypeSchema = txnType;
+export type txnType = TypeOf<typeof txnTypeSchema>;
 
 const TxnSortingOptions = z.enum(['unspecified', 'by_built_at']);
 
-const TxnSortingOptionsSchema = TxnSortingOptions;
-type TxnSortingOptions = TypeOf<typeof TxnSortingOptionsSchema>;
+export const TxnSortingOptionsSchema = TxnSortingOptions;
+export type TxnSortingOptions = TypeOf<typeof TxnSortingOptionsSchema>;
 
 const sortBy = TxnSortingOptions.optional().default('unspecified');
 
-const sortBySchema = sortBy;
-type sortBy = TypeOf<typeof sortBySchema>;
+export const sortBySchema = sortBy;
+export type sortBy = TypeOf<typeof sortBySchema>;
 
 const APIIncomingTransferData = z
   .object({
@@ -511,8 +505,8 @@ const APIIncomingTransferData = z
   })
   .passthrough();
 
-const APIIncomingTransferDataSchema = APIIncomingTransferData;
-type APIIncomingTransferData = TypeOf<typeof APIIncomingTransferDataSchema>;
+export const APIIncomingTransferDataSchema = APIIncomingTransferData;
+export type APIIncomingTransferData = TypeOf<typeof APIIncomingTransferDataSchema>;
 
 const APITGIncomingTransferData = z
   .object({
@@ -534,8 +528,8 @@ const APITGIncomingTransferData = z
   })
   .passthrough();
 
-const APITGIncomingTransferDataSchema = APITGIncomingTransferData;
-type APITGIncomingTransferData = TypeOf<typeof APITGIncomingTransferDataSchema>;
+export const APITGIncomingTransferDataSchema = APITGIncomingTransferData;
+export type APITGIncomingTransferData = TypeOf<typeof APITGIncomingTransferDataSchema>;
 
 const APIExternalTransferData = z
   .object({
@@ -556,19 +550,16 @@ const APIExternalTransferData = z
   })
   .passthrough();
 
-const APIExternalTransferDataSchema = APIExternalTransferData;
-type APIExternalTransferData = TypeOf<typeof APIExternalTransferDataSchema>;
+export const APIExternalTransferDataSchema = APIExternalTransferData;
+export type APIExternalTransferData = TypeOf<typeof APIExternalTransferDataSchema>;
 
 const SubmittedTransactionData = z
-  .object({
-    txnHash: z.union([z.string(), z.null()]),
-    userOpHash: z.union([z.string(), z.null()]),
-  })
+  .object({ txnHash: z.union([z.string(), z.null()]), userOpHash: z.union([z.string(), z.null()]) })
   .partial()
   .passthrough();
 
-const SubmittedTransactionDataSchema = SubmittedTransactionData;
-type SubmittedTransactionData = TypeOf<typeof SubmittedTransactionDataSchema>;
+export const SubmittedTransactionDataSchema = SubmittedTransactionData;
+export type SubmittedTransactionData = TypeOf<typeof SubmittedTransactionDataSchema>;
 
 const APISwapDraftData = z
   .object({
@@ -581,23 +572,28 @@ const APISwapDraftData = z
   })
   .passthrough();
 
-const APISwapDraftDataSchema = APISwapDraftData;
-type APISwapDraftData = TypeOf<typeof APISwapDraftDataSchema>;
+export const APISwapDraftDataSchema = APISwapDraftData;
+export type APISwapDraftData = TypeOf<typeof APISwapDraftDataSchema>;
 
 const popular = z.union([z.boolean(), z.null()]).optional();
 
-const popularSchema = popular;
-type popular = TypeOf<typeof popularSchema>;
+export const popularSchema = popular;
+export type popular = TypeOf<typeof popularSchema>;
 
 const TokenSortingOptions = z.enum(['unspecified', 'by_addr', 'by_name', 'by_symbol', 'by_match_score']);
 
-const TokenSortingOptionsSchema = TokenSortingOptions;
-type TokenSortingOptions = TypeOf<typeof TokenSortingOptionsSchema>;
+export const TokenSortingOptionsSchema = TokenSortingOptions;
+export type TokenSortingOptions = TypeOf<typeof TokenSortingOptionsSchema>;
+
+const sortBy__2 = TokenSortingOptions.optional().default('by_match_score');
+
+export const sortBy__2Schema = sortBy__2;
+export type sortBy__2 = TypeOf<typeof sortBy__2Schema>;
 
 const APIPnL = z.object({ token: APIToken, balance: APIBalance, usdPaid: z.number() }).passthrough();
 
-const APIPnLSchema = APIPnL;
-type APIPnL = TypeOf<typeof APIPnLSchema>;
+export const APIPnLSchema = APIPnL;
+export type APIPnL = TypeOf<typeof APIPnLSchema>;
 
 const APIPnLBuyTrade = z
   .object({
@@ -614,8 +610,8 @@ const APIPnLBuyTrade = z
   })
   .passthrough();
 
-const APIPnLBuyTradeSchema = APIPnLBuyTrade;
-type APIPnLBuyTrade = TypeOf<typeof APIPnLBuyTradeSchema>;
+export const APIPnLBuyTradeSchema = APIPnLBuyTrade;
+export type APIPnLBuyTrade = TypeOf<typeof APIPnLBuyTradeSchema>;
 
 const APIPnLSellTrade = z
   .object({
@@ -632,8 +628,8 @@ const APIPnLSellTrade = z
   })
   .passthrough();
 
-const APIPnLSellTradeSchema = APIPnLSellTrade;
-type APIPnLSellTrade = TypeOf<typeof APIPnLSellTradeSchema>;
+export const APIPnLSellTradeSchema = APIPnLSellTrade;
+export type APIPnLSellTrade = TypeOf<typeof APIPnLSellTradeSchema>;
 
 const APIPnLDetailed = z
   .object({
@@ -644,8 +640,8 @@ const APIPnLDetailed = z
   })
   .passthrough();
 
-const APIPnLDetailedSchema = APIPnLDetailed;
-type APIPnLDetailed = TypeOf<typeof APIPnLDetailedSchema>;
+export const APIPnLDetailedSchema = APIPnLDetailed;
+export type APIPnLDetailed = TypeOf<typeof APIPnLDetailedSchema>;
 
 const APIDepositStrategy = z
   .object({
@@ -653,32 +649,34 @@ const APIDepositStrategy = z
     name: z.string(),
     iconUrl: z.string(),
     chainId: NetworkEnum,
-    vaultAddr: z.address(),
     depositTokenAddr: z.address(),
     bondTokenAddr: z.address(),
   })
   .passthrough();
 
-const APIDepositStrategySchema = APIDepositStrategy;
-type APIDepositStrategy = TypeOf<typeof APIDepositStrategySchema>;
+export const APIDepositStrategySchema = APIDepositStrategy;
+export type APIDepositStrategy = TypeOf<typeof APIDepositStrategySchema>;
 
 const APISessionKeyAccount = z
   .object({
     userAddress: z.address(),
     sessionKeyAccountAddress: z.address(),
     isSigned: z.boolean(),
+    depositStrategyIds: z.array(z.string()),
   })
   .passthrough();
 
-const APISessionKeyAccountSchema = APISessionKeyAccount;
-type APISessionKeyAccount = TypeOf<typeof APISessionKeyAccountSchema>;
+export const APISessionKeyAccountSchema = APISessionKeyAccount;
+export type APISessionKeyAccount = TypeOf<typeof APISessionKeyAccountSchema>;
 
-const UpdateSessionKeyData = z.object({ serializedSessionKey: z.string() }).passthrough();
+const UpdateSessionKeyData = z
+  .object({ serializedSessionKey: z.string(), depositStrategyIds: z.array(z.string()) })
+  .passthrough();
 
-const UpdateSessionKeyDataSchema = UpdateSessionKeyData;
-type UpdateSessionKeyData = TypeOf<typeof UpdateSessionKeyDataSchema>;
+export const UpdateSessionKeyDataSchema = UpdateSessionKeyData;
+export type UpdateSessionKeyData = TypeOf<typeof UpdateSessionKeyDataSchema>;
 
-const IncomingTxn = z
+const MinimumExecutableTxn = z
   .object({
     to: z.address(),
     value: z.positiveHexString(),
@@ -686,13 +684,83 @@ const IncomingTxn = z
   })
   .passthrough();
 
-const IncomingTxnSchema = IncomingTxn;
-type IncomingTxn = TypeOf<typeof IncomingTxnSchema>;
+export const MinimumExecutableTxnSchema = MinimumExecutableTxn;
+export type MinimumExecutableTxn = TypeOf<typeof MinimumExecutableTxnSchema>;
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
     baseUrl,
     [
+      {
+        method: 'get',
+        path: '/b/v2/deposit_strategies',
+        alias: 'get_deposit_providers_b_v2_deposit_strategies_get',
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.array(APIDepositStrategy),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/pnls',
+        alias: 'list_pnl_b_v2_pnls_get',
+        description: `List PnL (profit and loss) for user tokens`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.array(APIPnL),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/pnls/:token_addr',
+        alias: 'get_detailed_pnl_b_v2_pnls__token_addr__get',
+        description: `Get detailed PnL (profit and loss) for single user tokens`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'token_addr',
+            type: 'Path',
+            schema: z.address(),
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: APIPnLDetailed,
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
       {
         method: 'get',
         path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
@@ -760,7 +828,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             name: 'body',
             type: 'Body',
-            schema: z.object({ serializedSessionKey: z.string() }).passthrough(),
+            schema: UpdateSessionKeyData,
           },
           {
             name: 'user_address',
@@ -793,7 +861,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             name: 'body',
             type: 'Body',
-            schema: IncomingTxn,
+            schema: MinimumExecutableTxn,
           },
           {
             name: 'user_address',
@@ -807,6 +875,335 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           },
         ],
         response: z.string(),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/users/',
+        alias: 'list_users_b_v2_users__get',
+        description: `List all users`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.array(APIUserInfo),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/users/:user_id',
+        alias: 'get_user_b_v2_users__user_id__get',
+        description: `Get user info`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: APIUserInfo,
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'delete',
+        path: '/b/v2/users/:user_id',
+        alias: 'delete_self_b_v2_users__user_id__delete',
+        description: `Delete the user from DB`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/users/:user_id/native_balance',
+        alias: 'user_native_balance_b_v2_users__user_id__native_balance_get',
+        description: `Get native balance of a user`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: NativeBalanceInfo,
+        errors: [
+          {
+            status: 404,
+            description: `User not found`,
+            schema: z.object({ detail: z.string() }).passthrough(),
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
+        path: '/b/v2/users/:user_id/navigate_in_chat',
+        alias: 'navigate_in_chat_b_v2_users__user_id__navigate_in_chat_post',
+        description: `Open chat flow (chat menu)`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'body',
+            type: 'Body',
+            schema: NavigateChatData,
+          },
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/users/:user_id/points',
+        alias: 'user_points_b_v2_users__user_id__points_get',
+        description: `Get point count of a user`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.object({ points: z.number().int() }).passthrough(),
+        errors: [
+          {
+            status: 404,
+            description: `User not found`,
+            schema: z.object({ detail: z.string() }).passthrough(),
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
+        path: '/b/v2/users/:user_id/set_chain',
+        alias: 'set_chain_b_v2_users__user_id__set_chain_post',
+        description: `Open chat flow (chat menu)`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'body',
+            type: 'Body',
+            schema: SetChainData,
+          },
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/users/:user_id/tokens',
+        alias: 'user_tokens_b_v2_users__user_id__tokens_get',
+        description: `Get token balances of a user`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_id',
+            type: 'Path',
+            schema: user_id,
+          },
+          {
+            name: 'noBalanceCache',
+            type: 'Query',
+            schema: z.boolean().optional(),
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.array(TokenBalanceInfo),
+        errors: [
+          {
+            status: 404,
+            description: `User not found`,
+            schema: z.object({ detail: z.string() }).passthrough(),
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
+        path: '/b/v2/users/sign_in',
+        alias: 'signin_b_v2_users_sign_in_post',
+        description: `Sign-in user finishing bot setup flow
+
+This endpoint stores user info and moves telegram chat to main menu.`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'body',
+            type: 'Body',
+            schema: SignInData,
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+          {
+            name: 'X-TG-Web-App-Init-Data',
+            type: 'Header',
+            schema: X_TG_Web_App_Init_Data,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/wallets/:wallet_addr/native_balance',
+        alias: 'wallet_native_balance_b_v2_wallets__wallet_addr__native_balance_get',
+        description: `Get native balances of a wallet`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'wallet_addr',
+            type: 'Path',
+            schema: z.string(),
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: NativeBalanceInfo,
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'get',
+        path: '/b/v2/wallets/:wallet_addr/tokens',
+        alias: 'wallet_balances_b_v2_wallets__wallet_addr__tokens_get',
+        description: `Get token balances of a wallet`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'wallet_addr',
+            type: 'Path',
+            schema: z.string(),
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.array(TokenBalanceInfo),
         errors: [
           {
             status: 422,
