@@ -360,7 +360,7 @@ const APITGTransferInfo = z
     amount: z.positiveHexString(),
     amountNormalized: z.number(),
     amountUsd: z.union([z.number(), z.null()]),
-    receiver: z.union([z.string(), z.null()]),
+    receiver: z.union([z.address(), z.null()]),
   })
   .passthrough();
 
@@ -809,6 +809,33 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           },
         ],
         response: APISessionKeyAccount,
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'delete',
+        path: '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
+        alias: 'delete_session_key_b_v2_session_key_account_manager_service_session_key_account__user_address__delete',
+        description: `Delete session key account`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'user_address',
+            type: 'Path',
+            schema: z.string(),
+          },
+          {
+            name: 'chainId',
+            type: 'Query',
+            schema: chainId,
+          },
+        ],
+        response: z.unknown(),
         errors: [
           {
             status: 422,

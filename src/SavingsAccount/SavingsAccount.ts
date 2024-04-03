@@ -74,7 +74,7 @@ export class SavingsAccount {
       return;
     }
     await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
-    //   TODO: @merlin add delete request to backend
+    await this.savingsBackendClient.deleteWalletSessionKeyAccount(this.aaAddress);
   }
 
   // //   =========== DEPOSITS ==========

@@ -9,7 +9,7 @@ interface SavingsBackendClientParams {
   apiClient: SessionKeyAccountServiceClient;
 }
 
-interface UpdateWalletSessionKetAccountParams {
+interface UpdateWalletSessionKeyAccountParams {
   userAddress: Address;
   depositStrategyIds: DepositStrategyId[];
   serializedSessionKey: string;
@@ -25,7 +25,7 @@ export class SavingsBackendClient {
   async getWalletSessionKeyAccount(userAddress: Address) {
     // TODO: @merlin maybe we can use cache here
     try {
-      return this.apiClient.get('/b/v2/session_key_account_manager_service/session_key_account/:user_address', {
+      return await this.apiClient.get('/b/v2/session_key_account_manager_service/session_key_account/:user_address', {
         params: {
           user_address: userAddress,
         },
@@ -52,13 +52,25 @@ export class SavingsBackendClient {
     userAddress,
     depositStrategyIds,
     serializedSessionKey,
-  }: UpdateWalletSessionKetAccountParams) {
+  }: UpdateWalletSessionKeyAccountParams) {
     return this.apiClient.patch(
       '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
       {
         serializedSessionKey,
         depositStrategyIds,
       },
+      {
+        params: {
+          user_address: userAddress,
+        },
+      },
+    );
+  }
+
+  async deleteWalletSessionKeyAccount(userAddress: Address) {
+    return this.apiClient.delete(
+      '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
+      undefined,
       {
         params: {
           user_address: userAddress,
