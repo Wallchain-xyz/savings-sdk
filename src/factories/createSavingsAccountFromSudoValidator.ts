@@ -1,8 +1,8 @@
 import { KernelValidator } from '@zerodev/sdk';
 
 import { AAManager } from '../AAManager/AAManager';
-import { createApiClient } from '../api/createApiClient';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
+import { createApiClient } from '../api/thecat/__generated__/createApiClient';
 import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 
 interface CreateSavingsAccountFromKernelValidatorParams {

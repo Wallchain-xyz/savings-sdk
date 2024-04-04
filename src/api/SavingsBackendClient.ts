@@ -1,6 +1,6 @@
 import { Address } from 'viem';
 
-import { createApiClient } from './createApiClient';
+import { createApiClient } from './thecat/__generated__/createApiClient';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 

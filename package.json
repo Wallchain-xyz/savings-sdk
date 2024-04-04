@@ -3,12 +3,14 @@
   "version": "1.1.0-alpha.1",
   "main": "dist/index.js",
   "files": [
-    "dist/**"
+    "dist/**",
+    "src/api/thecat/openapi.json"
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
     "eslint:all": "eslint .",
     "eslint:fix-all": "eslint --fix .",
+    "generate-thecate-client": "openapi-zod-client src/api/thecat/openapi.json -o src/api/thecat/__generated__/createApiClient.ts -t src/api/thecat/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/thecat/__generated__/createApiClient.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest"
@@ -53,6 +55,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^27.9.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unused-imports": "^3.1.0",
     "husky": "^8.0.3",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",

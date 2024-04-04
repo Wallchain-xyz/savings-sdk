@@ -7,3 +7,5 @@ coverage/
 
 .env.local
 .npmrc
+
+src/api/**/openapi.json
