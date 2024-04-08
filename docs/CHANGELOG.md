@@ -1,3 +1,9 @@
+# [1.1.0-alpha.1](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.0.0...v1.1.0-alpha.1) (2024-04-08)
+
+### Features
+
+- **SKA:** delete revoked ska from backend ([c249615](https://gitlab.com/wallchain/wallet/yield-sdk/commit/c2496157686a32cccd9546c0d0e0bc55410b7f5a))
+
 # 1.0.0 (2024-04-03)
 
 ### Bug Fixes
