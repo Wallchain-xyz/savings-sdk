@@ -10,7 +10,7 @@
     "build": "rimraf dist && tsc",
     "eslint:all": "eslint .",
     "eslint:fix-all": "eslint --fix .",
-    "generate-thecate-client": "openapi-zod-client src/api/thecat/openapi.json -o src/api/thecat/__generated__/createApiClient.ts -t src/api/thecat/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/thecat/__generated__/createApiClient.ts",
+    "generate-thecat-client": "openapi-zod-client src/api/thecat/openapi.json -o src/api/thecat/__generated__/createApiClient.ts -t src/api/thecat/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/thecat/__generated__/createApiClient.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest"
