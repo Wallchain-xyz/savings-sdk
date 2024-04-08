@@ -3,13 +3,15 @@ import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidat
 
 import { Address, type Transport, createPublicClient, http } from 'viem';
 
+import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
 interface ConstructorParams {
   sudoValidator: KernelValidator;
-  bundlerAPIKey: string;
+  bundlerChainAPIKey: string;
+  chainId: NetworkEnum;
 }
 
 interface PrepareSessionKeyAccountParams {
@@ -26,9 +28,9 @@ export class AAManager {
 
   private readonly transport: Transport;
 
-  constructor({ sudoValidator, bundlerAPIKey }: ConstructorParams) {
+  constructor({ sudoValidator, bundlerChainAPIKey }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
-    this.transport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerAPIKey}`);
+    this.transport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
     this.publicClient = createPublicClient({
       transport: this.transport,
     });

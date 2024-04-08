@@ -2,8 +2,8 @@
 // they will be removed once we move to microservices and have
 // separate API for SDK - it will have it's own
 // openapi scheme which we will use to generate this client
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable camelcase */
+/* eslint-disable camelcase,import/no-unused-modules,@typescript-eslint/naming-convention */
+// to fix TS7056 - remove GET '/b/v2/transactions from client
 
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
@@ -11,8 +11,8 @@ import { TypeOf, zod as z } from '../../zod';
 
 const UserKeyType = z.enum(['web3auth', 'wallet', 'account_abstraction']);
 
-const UserKeyTypeSchema = UserKeyType;
-type UserKeyType = TypeOf<typeof UserKeyTypeSchema>;
+export const UserKeyTypeSchema = UserKeyType;
+export type UserKeyType = TypeOf<typeof UserKeyTypeSchema>;
 
 const SignInData = z
   .object({
@@ -24,38 +24,38 @@ const SignInData = z
   })
   .passthrough();
 
-const SignInDataSchema = SignInData;
-type SignInData = TypeOf<typeof SignInDataSchema>;
+export const SignInDataSchema = SignInData;
+export type SignInData = TypeOf<typeof SignInDataSchema>;
 
 const NetworkEnum = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
 
-const NetworkEnumSchema = NetworkEnum;
-type NetworkEnum = TypeOf<typeof NetworkEnumSchema>;
+export const NetworkEnumSchema = NetworkEnum;
+export type NetworkEnum = TypeOf<typeof NetworkEnumSchema>;
 
 const chainId = z.union([NetworkEnum, z.null()]).optional();
 
-const chainIdSchema = chainId;
-type chainId = TypeOf<typeof chainIdSchema>;
+export const chainIdSchema = chainId;
+export type chainId = TypeOf<typeof chainIdSchema>;
 
 const X_TG_Web_App_Init_Data = z.union([z.string(), z.null()]).optional();
 
-const X_TG_Web_App_Init_DataSchema = X_TG_Web_App_Init_Data;
-type X_TG_Web_App_Init_Data = TypeOf<typeof X_TG_Web_App_Init_DataSchema>;
+export const X_TG_Web_App_Init_DataSchema = X_TG_Web_App_Init_Data;
+export type X_TG_Web_App_Init_Data = TypeOf<typeof X_TG_Web_App_Init_DataSchema>;
 
 const ValidationError = z
   .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
   .passthrough();
 
-const ValidationErrorSchema = ValidationError;
-type ValidationError = TypeOf<typeof ValidationErrorSchema>;
+export const ValidationErrorSchema = ValidationError;
+export type ValidationError = TypeOf<typeof ValidationErrorSchema>;
 
 const HTTPValidationError = z
   .object({ detail: z.array(ValidationError) })
   .partial()
   .passthrough();
 
-const HTTPValidationErrorSchema = HTTPValidationError;
-type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
+export const HTTPValidationErrorSchema = HTTPValidationError;
+export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
 const APIUserInfo = z
   .object({
@@ -71,28 +71,28 @@ const APIUserInfo = z
   })
   .passthrough();
 
-const APIUserInfoSchema = APIUserInfo;
-type APIUserInfo = TypeOf<typeof APIUserInfoSchema>;
+export const APIUserInfoSchema = APIUserInfo;
+export type APIUserInfo = TypeOf<typeof APIUserInfoSchema>;
 
 const user_id = z.union([z.number(), z.literal('me')]);
 
-const user_idSchema = user_id;
-type user_id = TypeOf<typeof user_idSchema>;
+export const user_idSchema = user_id;
+export type user_id = TypeOf<typeof user_idSchema>;
 
 const ChatFlow = z.enum(['main', 'buy', 'sell', 'balance', 'transfer']);
 
-const ChatFlowSchema = ChatFlow;
-type ChatFlow = TypeOf<typeof ChatFlowSchema>;
+export const ChatFlowSchema = ChatFlow;
+export type ChatFlow = TypeOf<typeof ChatFlowSchema>;
 
 const NavigateChatData = z.object({ flow: ChatFlow }).passthrough();
 
-const NavigateChatDataSchema = NavigateChatData;
-type NavigateChatData = TypeOf<typeof NavigateChatDataSchema>;
+export const NavigateChatDataSchema = NavigateChatData;
+export type NavigateChatData = TypeOf<typeof NavigateChatDataSchema>;
 
 const SetChainData = z.object({ chainId: NetworkEnum }).passthrough();
 
-const SetChainDataSchema = SetChainData;
-type SetChainData = TypeOf<typeof SetChainDataSchema>;
+export const SetChainDataSchema = SetChainData;
+export type SetChainData = TypeOf<typeof SetChainDataSchema>;
 
 const TokenBalanceInfo = z
   .object({
@@ -109,13 +109,13 @@ const TokenBalanceInfo = z
   })
   .passthrough();
 
-const TokenBalanceInfoSchema = TokenBalanceInfo;
-type TokenBalanceInfo = TypeOf<typeof TokenBalanceInfoSchema>;
+export const TokenBalanceInfoSchema = TokenBalanceInfo;
+export type TokenBalanceInfo = TypeOf<typeof TokenBalanceInfoSchema>;
 
 const DetailError = z.object({ detail: z.string() }).passthrough();
 
-const DetailErrorSchema = DetailError;
-type DetailError = TypeOf<typeof DetailErrorSchema>;
+export const DetailErrorSchema = DetailError;
+export type DetailError = TypeOf<typeof DetailErrorSchema>;
 
 const NativeBalanceInfo = z
   .object({
@@ -131,13 +131,13 @@ const NativeBalanceInfo = z
   })
   .passthrough();
 
-const NativeBalanceInfoSchema = NativeBalanceInfo;
-type NativeBalanceInfo = TypeOf<typeof NativeBalanceInfoSchema>;
+export const NativeBalanceInfoSchema = NativeBalanceInfo;
+export type NativeBalanceInfo = TypeOf<typeof NativeBalanceInfoSchema>;
 
 const APIPointsInfo = z.object({ points: z.number().int() }).passthrough();
 
-const APIPointsInfoSchema = APIPointsInfo;
-type APIPointsInfo = TypeOf<typeof APIPointsInfoSchema>;
+export const APIPointsInfoSchema = APIPointsInfo;
+export type APIPointsInfo = TypeOf<typeof APIPointsInfoSchema>;
 
 const SetupSwapData = z
   .object({
@@ -148,18 +148,18 @@ const SetupSwapData = z
   })
   .passthrough();
 
-const SetupSwapDataSchema = SetupSwapData;
-type SetupSwapData = TypeOf<typeof SetupSwapDataSchema>;
+export const SetupSwapDataSchema = SetupSwapData;
+export type SetupSwapData = TypeOf<typeof SetupSwapDataSchema>;
 
 const TxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT']);
 
-const TxnStatusSchema = TxnStatus;
-type TxnStatus = TypeOf<typeof TxnStatusSchema>;
+export const TxnStatusSchema = TxnStatus;
+export type TxnStatus = TypeOf<typeof TxnStatusSchema>;
 
 const TxnSubmissionType = z.enum(['web3_rpc', 'aa_bundler']);
 
-const TxnSubmissionTypeSchema = TxnSubmissionType;
-type TxnSubmissionType = TypeOf<typeof TxnSubmissionTypeSchema>;
+export const TxnSubmissionTypeSchema = TxnSubmissionType;
+export type TxnSubmissionType = TypeOf<typeof TxnSubmissionTypeSchema>;
 
 const APITXNData = z
   .object({
@@ -170,8 +170,8 @@ const APITXNData = z
   })
   .passthrough();
 
-const APITXNDataSchema = APITXNData;
-type APITXNData = TypeOf<typeof APITXNDataSchema>;
+export const APITXNDataSchema = APITXNData;
+export type APITXNData = TypeOf<typeof APITXNDataSchema>;
 
 const APISwapInfo = z
   .object({
@@ -184,8 +184,8 @@ const APISwapInfo = z
   })
   .passthrough();
 
-const APISwapInfoSchema = APISwapInfo;
-type APISwapInfo = TypeOf<typeof APISwapInfoSchema>;
+export const APISwapInfoSchema = APISwapInfo;
+export type APISwapInfo = TypeOf<typeof APISwapInfoSchema>;
 
 const APITokenInfo = z
   .object({
@@ -198,15 +198,15 @@ const APITokenInfo = z
   })
   .passthrough();
 
-const APITokenInfoSchema = APITokenInfo;
-type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
+export const APITokenInfoSchema = APITokenInfo;
+export type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
 
 const APITokenPrice = z
   .object({ usdPrice: z.number(), change24HPercent: z.union([z.number(), z.null()]) })
   .passthrough();
 
-const APITokenPriceSchema = APITokenPrice;
-type APITokenPrice = TypeOf<typeof APITokenPriceSchema>;
+export const APITokenPriceSchema = APITokenPrice;
+export type APITokenPrice = TypeOf<typeof APITokenPriceSchema>;
 
 const APIToken = z
   .object({
@@ -217,8 +217,8 @@ const APIToken = z
   })
   .passthrough();
 
-const APITokenSchema = APIToken;
-type APIToken = TypeOf<typeof APITokenSchema>;
+export const APITokenSchema = APIToken;
+export type APIToken = TypeOf<typeof APITokenSchema>;
 
 const APINativeToken = z
   .object({
@@ -229,8 +229,8 @@ const APINativeToken = z
   })
   .passthrough();
 
-const APINativeTokenSchema = APINativeToken;
-type APINativeToken = TypeOf<typeof APINativeTokenSchema>;
+export const APINativeTokenSchema = APINativeToken;
+export type APINativeToken = TypeOf<typeof APINativeTokenSchema>;
 
 const APIBalance = z
   .object({
@@ -240,8 +240,8 @@ const APIBalance = z
   })
   .passthrough();
 
-const APIBalanceSchema = APIBalance;
-type APIBalance = TypeOf<typeof APIBalanceSchema>;
+export const APIBalanceSchema = APIBalance;
+export type APIBalance = TypeOf<typeof APIBalanceSchema>;
 
 const APIGasData = z
   .object({
@@ -252,8 +252,8 @@ const APIGasData = z
   })
   .passthrough();
 
-const APIGasDataSchema = APIGasData;
-type APIGasData = TypeOf<typeof APIGasDataSchema>;
+export const APIGasDataSchema = APIGasData;
+export type APIGasData = TypeOf<typeof APIGasDataSchema>;
 
 const APISwapData = z
   .object({
@@ -276,13 +276,13 @@ const APISwapData = z
   })
   .passthrough();
 
-const APISwapDataSchema = APISwapData;
-type APISwapData = TypeOf<typeof APISwapDataSchema>;
+export const APISwapDataSchema = APISwapData;
+export type APISwapData = TypeOf<typeof APISwapDataSchema>;
 
 const FundUsageEnum = z.enum(['FOR_AMOUNT', 'FOR_GAS', 'FOR_AMOUNT_AND_GAS']);
 
-const FundUsageEnumSchema = FundUsageEnum;
-type FundUsageEnum = TypeOf<typeof FundUsageEnumSchema>;
+export const FundUsageEnumSchema = FundUsageEnum;
+export type FundUsageEnum = TypeOf<typeof FundUsageEnumSchema>;
 
 const APIInsufficientFundsError = z
   .object({
@@ -295,8 +295,8 @@ const APIInsufficientFundsError = z
   })
   .passthrough();
 
-const APIInsufficientFundsErrorSchema = APIInsufficientFundsError;
-type APIInsufficientFundsError = TypeOf<typeof APIInsufficientFundsErrorSchema>;
+export const APIInsufficientFundsErrorSchema = APIInsufficientFundsError;
+export type APIInsufficientFundsError = TypeOf<typeof APIInsufficientFundsErrorSchema>;
 
 const SetupTransferData = z
   .object({
@@ -306,8 +306,8 @@ const SetupTransferData = z
   })
   .passthrough();
 
-const SetupTransferDataSchema = SetupTransferData;
-type SetupTransferData = TypeOf<typeof SetupTransferDataSchema>;
+export const SetupTransferDataSchema = SetupTransferData;
+export type SetupTransferData = TypeOf<typeof SetupTransferDataSchema>;
 
 const APITransferInfo = z
   .object({
@@ -318,8 +318,8 @@ const APITransferInfo = z
   })
   .passthrough();
 
-const APITransferInfoSchema = APITransferInfo;
-type APITransferInfo = TypeOf<typeof APITransferInfoSchema>;
+export const APITransferInfoSchema = APITransferInfo;
+export type APITransferInfo = TypeOf<typeof APITransferInfoSchema>;
 
 const APITransferData = z
   .object({
@@ -340,20 +340,20 @@ const APITransferData = z
   })
   .passthrough();
 
-const APITransferDataSchema = APITransferData;
-type APITransferData = TypeOf<typeof APITransferDataSchema>;
+export const APITransferDataSchema = APITransferData;
+export type APITransferData = TypeOf<typeof APITransferDataSchema>;
 
 const SetupTGTransferData = z
   .object({ token: z.union([z.string(), z.null()]), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupTGTransferDataSchema = SetupTGTransferData;
-type SetupTGTransferData = TypeOf<typeof SetupTGTransferDataSchema>;
+export const SetupTGTransferDataSchema = SetupTGTransferData;
+export type SetupTGTransferData = TypeOf<typeof SetupTGTransferDataSchema>;
 
 const TGTransferTxnStatus = z.enum(['SUCCESS', 'FAIL', 'PENDING', 'UNSENT', 'WAITING_FOR_ACCEPT']);
 
-const TGTransferTxnStatusSchema = TGTransferTxnStatus;
-type TGTransferTxnStatus = TypeOf<typeof TGTransferTxnStatusSchema>;
+export const TGTransferTxnStatusSchema = TGTransferTxnStatus;
+export type TGTransferTxnStatus = TypeOf<typeof TGTransferTxnStatusSchema>;
 
 const APITGTransferInfo = z
   .object({
@@ -364,8 +364,8 @@ const APITGTransferInfo = z
   })
   .passthrough();
 
-const APITGTransferInfoSchema = APITGTransferInfo;
-type APITGTransferInfo = TypeOf<typeof APITGTransferInfoSchema>;
+export const APITGTransferInfoSchema = APITGTransferInfo;
+export type APITGTransferInfo = TypeOf<typeof APITGTransferInfoSchema>;
 
 const APITGTransferData = z
   .object({
@@ -389,20 +389,20 @@ const APITGTransferData = z
   })
   .passthrough();
 
-const APITGTransferDataSchema = APITGTransferData;
-type APITGTransferData = TypeOf<typeof APITGTransferDataSchema>;
+export const APITGTransferDataSchema = APITGTransferData;
+export type APITGTransferData = TypeOf<typeof APITGTransferDataSchema>;
 
 const SetupAddDepositData = z
   .object({ depositStrategyId: z.number().int(), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupAddDepositDataSchema = SetupAddDepositData;
-type SetupAddDepositData = TypeOf<typeof SetupAddDepositDataSchema>;
+export const SetupAddDepositDataSchema = SetupAddDepositData;
+export type SetupAddDepositData = TypeOf<typeof SetupAddDepositDataSchema>;
 
 const APIDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
-const APIDepositInfoSchema = APIDepositInfo;
-type APIDepositInfo = TypeOf<typeof APIDepositInfoSchema>;
+export const APIDepositInfoSchema = APIDepositInfo;
+export type APIDepositInfo = TypeOf<typeof APIDepositInfoSchema>;
 
 const APIAddDepositData = z
   .object({
@@ -423,20 +423,20 @@ const APIAddDepositData = z
   })
   .passthrough();
 
-const APIAddDepositDataSchema = APIAddDepositData;
-type APIAddDepositData = TypeOf<typeof APIAddDepositDataSchema>;
+export const APIAddDepositDataSchema = APIAddDepositData;
+export type APIAddDepositData = TypeOf<typeof APIAddDepositDataSchema>;
 
 const SetupWithdrawDepositData = z
   .object({ depositStrategyId: z.number().int(), amount: z.union([z.string(), z.null()]) })
   .passthrough();
 
-const SetupWithdrawDepositDataSchema = SetupWithdrawDepositData;
-type SetupWithdrawDepositData = TypeOf<typeof SetupWithdrawDepositDataSchema>;
+export const SetupWithdrawDepositDataSchema = SetupWithdrawDepositData;
+export type SetupWithdrawDepositData = TypeOf<typeof SetupWithdrawDepositDataSchema>;
 
 const APIWithdrawDepositInfo = z.object({ amount: z.positiveHexString() }).passthrough();
 
-const APIWithdrawDepositInfoSchema = APIWithdrawDepositInfo;
-type APIWithdrawDepositInfo = TypeOf<typeof APIWithdrawDepositInfoSchema>;
+export const APIWithdrawDepositInfoSchema = APIWithdrawDepositInfo;
+export type APIWithdrawDepositInfo = TypeOf<typeof APIWithdrawDepositInfoSchema>;
 
 const APIWithdrawDepositData = z
   .object({
@@ -455,8 +455,8 @@ const APIWithdrawDepositData = z
   })
   .passthrough();
 
-const APIWithdrawDepositDataSchema = APIWithdrawDepositData;
-type APIWithdrawDepositData = TypeOf<typeof APIWithdrawDepositDataSchema>;
+export const APIWithdrawDepositDataSchema = APIWithdrawDepositData;
+export type APIWithdrawDepositData = TypeOf<typeof APIWithdrawDepositDataSchema>;
 
 const TxnType = z.enum([
   'SWAP',
@@ -467,23 +467,23 @@ const TxnType = z.enum([
   'EXTERNAL_TRANSFER',
 ]);
 
-const TxnTypeSchema = TxnType;
-type TxnType = TypeOf<typeof TxnTypeSchema>;
+export const TxnTypeSchema = TxnType;
+export type TxnType = TypeOf<typeof TxnTypeSchema>;
 
 const txnType = z.union([TxnType, z.null()]).optional();
 
-const txnTypeSchema = txnType;
-type txnType = TypeOf<typeof txnTypeSchema>;
+export const txnTypeSchema = txnType;
+export type txnType = TypeOf<typeof txnTypeSchema>;
 
 const TxnSortingOptions = z.enum(['unspecified', 'by_built_at']);
 
-const TxnSortingOptionsSchema = TxnSortingOptions;
-type TxnSortingOptions = TypeOf<typeof TxnSortingOptionsSchema>;
+export const TxnSortingOptionsSchema = TxnSortingOptions;
+export type TxnSortingOptions = TypeOf<typeof TxnSortingOptionsSchema>;
 
 const sortBy = TxnSortingOptions.optional().default('unspecified');
 
-const sortBySchema = sortBy;
-type sortBy = TypeOf<typeof sortBySchema>;
+export const sortBySchema = sortBy;
+export type sortBy = TypeOf<typeof sortBySchema>;
 
 const APIIncomingTransferData = z
   .object({
@@ -505,8 +505,8 @@ const APIIncomingTransferData = z
   })
   .passthrough();
 
-const APIIncomingTransferDataSchema = APIIncomingTransferData;
-type APIIncomingTransferData = TypeOf<typeof APIIncomingTransferDataSchema>;
+export const APIIncomingTransferDataSchema = APIIncomingTransferData;
+export type APIIncomingTransferData = TypeOf<typeof APIIncomingTransferDataSchema>;
 
 const APITGIncomingTransferData = z
   .object({
@@ -528,8 +528,8 @@ const APITGIncomingTransferData = z
   })
   .passthrough();
 
-const APITGIncomingTransferDataSchema = APITGIncomingTransferData;
-type APITGIncomingTransferData = TypeOf<typeof APITGIncomingTransferDataSchema>;
+export const APITGIncomingTransferDataSchema = APITGIncomingTransferData;
+export type APITGIncomingTransferData = TypeOf<typeof APITGIncomingTransferDataSchema>;
 
 const APIExternalTransferData = z
   .object({
@@ -550,16 +550,16 @@ const APIExternalTransferData = z
   })
   .passthrough();
 
-const APIExternalTransferDataSchema = APIExternalTransferData;
-type APIExternalTransferData = TypeOf<typeof APIExternalTransferDataSchema>;
+export const APIExternalTransferDataSchema = APIExternalTransferData;
+export type APIExternalTransferData = TypeOf<typeof APIExternalTransferDataSchema>;
 
 const SubmittedTransactionData = z
   .object({ txnHash: z.union([z.string(), z.null()]), userOpHash: z.union([z.string(), z.null()]) })
   .partial()
   .passthrough();
 
-const SubmittedTransactionDataSchema = SubmittedTransactionData;
-type SubmittedTransactionData = TypeOf<typeof SubmittedTransactionDataSchema>;
+export const SubmittedTransactionDataSchema = SubmittedTransactionData;
+export type SubmittedTransactionData = TypeOf<typeof SubmittedTransactionDataSchema>;
 
 const APISwapDraftData = z
   .object({
@@ -572,28 +572,28 @@ const APISwapDraftData = z
   })
   .passthrough();
 
-const APISwapDraftDataSchema = APISwapDraftData;
-type APISwapDraftData = TypeOf<typeof APISwapDraftDataSchema>;
+export const APISwapDraftDataSchema = APISwapDraftData;
+export type APISwapDraftData = TypeOf<typeof APISwapDraftDataSchema>;
 
 const popular = z.union([z.boolean(), z.null()]).optional();
 
-const popularSchema = popular;
-type popular = TypeOf<typeof popularSchema>;
+export const popularSchema = popular;
+export type popular = TypeOf<typeof popularSchema>;
 
 const TokenSortingOptions = z.enum(['unspecified', 'by_addr', 'by_name', 'by_symbol', 'by_match_score']);
 
-const TokenSortingOptionsSchema = TokenSortingOptions;
-type TokenSortingOptions = TypeOf<typeof TokenSortingOptionsSchema>;
+export const TokenSortingOptionsSchema = TokenSortingOptions;
+export type TokenSortingOptions = TypeOf<typeof TokenSortingOptionsSchema>;
 
 const sortBy__2 = TokenSortingOptions.optional().default('by_match_score');
 
-const sortBy__2Schema = sortBy__2;
-type sortBy__2 = TypeOf<typeof sortBy__2Schema>;
+export const sortBy__2Schema = sortBy__2;
+export type sortBy__2 = TypeOf<typeof sortBy__2Schema>;
 
 const APIPnL = z.object({ token: APIToken, balance: APIBalance, usdPaid: z.number() }).passthrough();
 
-const APIPnLSchema = APIPnL;
-type APIPnL = TypeOf<typeof APIPnLSchema>;
+export const APIPnLSchema = APIPnL;
+export type APIPnL = TypeOf<typeof APIPnLSchema>;
 
 const APIPnLBuyTrade = z
   .object({
@@ -610,8 +610,8 @@ const APIPnLBuyTrade = z
   })
   .passthrough();
 
-const APIPnLBuyTradeSchema = APIPnLBuyTrade;
-type APIPnLBuyTrade = TypeOf<typeof APIPnLBuyTradeSchema>;
+export const APIPnLBuyTradeSchema = APIPnLBuyTrade;
+export type APIPnLBuyTrade = TypeOf<typeof APIPnLBuyTradeSchema>;
 
 const APIPnLSellTrade = z
   .object({
@@ -628,8 +628,8 @@ const APIPnLSellTrade = z
   })
   .passthrough();
 
-const APIPnLSellTradeSchema = APIPnLSellTrade;
-type APIPnLSellTrade = TypeOf<typeof APIPnLSellTradeSchema>;
+export const APIPnLSellTradeSchema = APIPnLSellTrade;
+export type APIPnLSellTrade = TypeOf<typeof APIPnLSellTradeSchema>;
 
 const APIPnLDetailed = z
   .object({
@@ -640,8 +640,8 @@ const APIPnLDetailed = z
   })
   .passthrough();
 
-const APIPnLDetailedSchema = APIPnLDetailed;
-type APIPnLDetailed = TypeOf<typeof APIPnLDetailedSchema>;
+export const APIPnLDetailedSchema = APIPnLDetailed;
+export type APIPnLDetailed = TypeOf<typeof APIPnLDetailedSchema>;
 
 const APIDepositStrategy = z
   .object({
@@ -654,8 +654,8 @@ const APIDepositStrategy = z
   })
   .passthrough();
 
-const APIDepositStrategySchema = APIDepositStrategy;
-type APIDepositStrategy = TypeOf<typeof APIDepositStrategySchema>;
+export const APIDepositStrategySchema = APIDepositStrategy;
+export type APIDepositStrategy = TypeOf<typeof APIDepositStrategySchema>;
 
 const APISessionKeyAccount = z
   .object({
@@ -666,15 +666,15 @@ const APISessionKeyAccount = z
   })
   .passthrough();
 
-const APISessionKeyAccountSchema = APISessionKeyAccount;
-type APISessionKeyAccount = TypeOf<typeof APISessionKeyAccountSchema>;
+export const APISessionKeyAccountSchema = APISessionKeyAccount;
+export type APISessionKeyAccount = TypeOf<typeof APISessionKeyAccountSchema>;
 
 const UpdateSessionKeyData = z
   .object({ serializedSessionKey: z.string(), depositStrategyIds: z.array(z.string()) })
   .passthrough();
 
-const UpdateSessionKeyDataSchema = UpdateSessionKeyData;
-type UpdateSessionKeyData = TypeOf<typeof UpdateSessionKeyDataSchema>;
+export const UpdateSessionKeyDataSchema = UpdateSessionKeyData;
+export type UpdateSessionKeyData = TypeOf<typeof UpdateSessionKeyDataSchema>;
 
 const MinimumExecutableTxn = z
   .object({
@@ -684,8 +684,8 @@ const MinimumExecutableTxn = z
   })
   .passthrough();
 
-const MinimumExecutableTxnSchema = MinimumExecutableTxn;
-type MinimumExecutableTxn = TypeOf<typeof MinimumExecutableTxnSchema>;
+export const MinimumExecutableTxnSchema = MinimumExecutableTxn;
+export type MinimumExecutableTxn = TypeOf<typeof MinimumExecutableTxnSchema>;
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
@@ -735,7 +735,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             name: 'chainId',
             type: 'Query',
-            schema: chainId,
+            schema: NetworkEnum,
           },
         ],
         response: APISessionKeyAccount,

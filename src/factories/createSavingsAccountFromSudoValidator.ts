@@ -2,23 +2,25 @@ import { KernelValidator } from '@zerodev/sdk';
 
 import { AAManager } from '../AAManager/AAManager';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
-import { createApiClient } from '../api/thecat/__generated__/createApiClient';
+import { NetworkEnum, createApiClient } from '../api/thecat/__generated__/createApiClient';
 import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 
-interface CreateSavingsAccountFromKernelValidatorParams {
+export interface CreateSavingsAccountFromKernelValidatorParams {
   sudoValidator: KernelValidator;
-  bundlerAPIKey: string;
+  bundlerChainAPIKey: string;
+  chainId: NetworkEnum;
   savingsBackendUrl: string;
   savingsBackendHeaders: { [p: string]: string };
 }
 
 export async function createSavingsAccountFromSudoValidator({
   sudoValidator,
-  bundlerAPIKey,
+  bundlerChainAPIKey,
+  chainId,
   savingsBackendUrl,
   savingsBackendHeaders,
 }: CreateSavingsAccountFromKernelValidatorParams) {
-  const aaManager = new AAManager({ sudoValidator, bundlerAPIKey });
+  const aaManager = new AAManager({ sudoValidator, bundlerChainAPIKey, chainId });
   await aaManager.init();
 
   const apiClient = createApiClient(savingsBackendUrl, {
@@ -29,6 +31,7 @@ export async function createSavingsAccountFromSudoValidator({
 
   return new SavingsAccount({
     aaManager,
-    savingsBackendClient: new SavingsBackendClient({ apiClient }),
+    savingsBackendClient: new SavingsBackendClient({ apiClient, chainId }),
+    chainId,
   });
 }

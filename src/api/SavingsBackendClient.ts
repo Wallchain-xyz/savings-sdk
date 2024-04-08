@@ -1,18 +1,20 @@
 import { Address } from 'viem';
 
-import { createApiClient } from './thecat/__generated__/createApiClient';
+import { NetworkEnum, createApiClient } from './thecat/__generated__/createApiClient';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
 type SessionKeyAccountServiceClient = ReturnType<typeof createApiClient>;
 interface SavingsBackendClientParams {
   apiClient: SessionKeyAccountServiceClient;
+  chainId: NetworkEnum;
 }
 
 interface UpdateWalletSessionKeyAccountParams {
   userAddress: Address;
   depositStrategyIds: DepositStrategyId[];
   serializedSessionKey: string;
+  chainId: NetworkEnum;
 }
 
 export class SavingsBackendClient {
@@ -22,10 +24,13 @@ export class SavingsBackendClient {
     this.apiClient = apiClient;
   }
 
-  async getWalletSessionKeyAccount(userAddress: Address) {
+  async getWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
     // TODO: @merlin maybe we can use cache here
     try {
       return await this.apiClient.get('/b/v2/session_key_account_manager_service/session_key_account/:user_address', {
+        queries: {
+          chainId,
+        },
         params: {
           user_address: userAddress,
         },
@@ -36,11 +41,14 @@ export class SavingsBackendClient {
     }
   }
 
-  async createWalletSessionKeyAccount(userAddress: Address) {
+  async createWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
     return this.apiClient.post(
       '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
       undefined,
       {
+        queries: {
+          chainId,
+        },
         params: {
           user_address: userAddress,
         },
@@ -52,6 +60,7 @@ export class SavingsBackendClient {
     userAddress,
     depositStrategyIds,
     serializedSessionKey,
+    chainId,
   }: UpdateWalletSessionKeyAccountParams) {
     return this.apiClient.patch(
       '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
@@ -60,6 +69,9 @@ export class SavingsBackendClient {
         depositStrategyIds,
       },
       {
+        queries: {
+          chainId,
+        },
         params: {
           user_address: userAddress,
         },
@@ -67,11 +79,14 @@ export class SavingsBackendClient {
     );
   }
 
-  async deleteWalletSessionKeyAccount(userAddress: Address) {
+  async deleteWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
     return this.apiClient.delete(
       '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
       undefined,
       {
+        queries: {
+          chainId,
+        },
         params: {
           user_address: userAddress,
         },

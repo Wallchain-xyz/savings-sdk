@@ -2,6 +2,7 @@ import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 
 import { AAManager } from '../AAManager/AAManager';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
+import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
@@ -11,6 +12,7 @@ import type { Address, Chain, Transport } from 'viem';
 interface ConstructorParams {
   aaManager: AAManager;
   savingsBackendClient: SavingsBackendClient;
+  chainId: NetworkEnum;
 }
 
 export class SavingsAccount {
@@ -18,9 +20,12 @@ export class SavingsAccount {
 
   private aaManager: AAManager;
 
-  constructor({ aaManager, savingsBackendClient }: ConstructorParams) {
+  chainId: NetworkEnum;
+
+  constructor({ aaManager, savingsBackendClient, chainId }: ConstructorParams) {
     this.savingsBackendClient = savingsBackendClient;
     this.aaManager = aaManager;
+    this.chainId = chainId;
   }
 
   get aaAddress(): Address {
@@ -34,12 +39,18 @@ export class SavingsAccount {
   }
 
   async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
-    let walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    let walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
+      this.aaAddress,
+      this.chainId,
+    );
     if (walletSessionKeyAccount) {
       // TODO: @merlin think about transactions here, what if chain fails in the middle
       await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
     } else {
-      walletSessionKeyAccount = await this.savingsBackendClient.createWalletSessionKeyAccount(this.aaAddress);
+      walletSessionKeyAccount = await this.savingsBackendClient.createWalletSessionKeyAccount(
+        this.aaAddress,
+        this.chainId,
+      );
     }
 
     const { sessionKeyAccountAddress } = walletSessionKeyAccount;
@@ -55,6 +66,7 @@ export class SavingsAccount {
       userAddress: this.aaAddress,
       depositStrategyIds: newStrategyIds,
       serializedSessionKey,
+      chainId: this.chainId,
     });
   }
 
@@ -64,17 +76,23 @@ export class SavingsAccount {
   }
 
   async getActiveStrategies(): Promise<DepositStrategy[]> {
-    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
+      this.aaAddress,
+      this.chainId,
+    );
     return walletSessionKeyAccount?.depositStrategyIds.map(getDepositStrategyById) ?? [];
   }
 
   async deactivateAllStrategies() {
-    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(this.aaAddress);
+    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
+      this.aaAddress,
+      this.chainId,
+    );
     if (!walletSessionKeyAccount) {
       return;
     }
     await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
-    await this.savingsBackendClient.deleteWalletSessionKeyAccount(this.aaAddress);
+    await this.savingsBackendClient.deleteWalletSessionKeyAccount(this.aaAddress, this.chainId);
   }
 
   // //   =========== DEPOSITS ==========
