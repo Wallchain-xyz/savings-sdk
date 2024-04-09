@@ -1,3 +1,9 @@
+# [1.1.0-alpha.2](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.1...v1.1.0-alpha.2) (2024-04-09)
+
+### Features
+
+- eng-1920: multichain support ([60c5b7b](https://gitlab.com/wallchain/wallet/yield-sdk/commit/60c5b7bab1779ef6f2427c46d71a6ae4085b27e9))
+
 # [1.1.0-alpha.1](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.0.0...v1.1.0-alpha.1) (2024-04-08)
 
 ### Features
