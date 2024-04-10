@@ -1,3 +1,10 @@
+# [1.1.0-alpha.3](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.2...v1.1.0-alpha.3) (2024-04-10)
+
+### Features
+
+- eng-1941: add sponsored withdrawal ([efef3f2](https://gitlab.com/wallchain/wallet/yield-sdk/commit/efef3f2baf1f7c3f7c338308eb8ef7d9a8590608))
+- eng-1941: add sponsored withdrawal ([0f14275](https://gitlab.com/wallchain/wallet/yield-sdk/commit/0f14275b0d3be526e20944eae00d3e18e0530a77))
+
 # [1.1.0-alpha.2](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.1...v1.1.0-alpha.2) (2024-04-09)
 
 ### Features
