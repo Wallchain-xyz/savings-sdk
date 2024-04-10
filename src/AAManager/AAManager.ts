@@ -1,17 +1,31 @@
 import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
 import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
-import { Address, type Transport, createPublicClient, http } from 'viem';
+import { Address, Hex, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
 
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
+
+import { UserOperation, createSponsorUserOperation } from './createSponsorUserOperation';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
 interface ConstructorParams {
   sudoValidator: KernelValidator;
   bundlerChainAPIKey: string;
+  sponsorshipAPIKey: string;
   chainId: NetworkEnum;
+}
+
+interface MinTxn {
+  to: Address;
+  value: bigint;
+  data: Hex;
+}
+
+export interface WithdrawParams {
+  depositStrategyId: DepositStrategyId;
+  amount: bigint;
 }
 
 interface PrepareSessionKeyAccountParams {
@@ -20,7 +34,11 @@ interface PrepareSessionKeyAccountParams {
 }
 
 export class AAManager {
+  // this account is provided outside as AA account to use
   private _aaAccountClient: ReturnType<typeof createKernelAccountClient> | undefined;
+
+  // this account is used only to withdraw deposits
+  private sponsoredAccountClient: ReturnType<typeof createKernelAccountClient> | undefined;
 
   private readonly sudoValidator: KernelValidator;
 
@@ -28,11 +46,21 @@ export class AAManager {
 
   private readonly transport: Transport;
 
-  constructor({ sudoValidator, bundlerChainAPIKey }: ConstructorParams) {
+  private readonly sponsorUserOperation: ({
+    userOperation,
+  }: {
+    userOperation: UserOperation;
+  }) => Promise<UserOperation>;
+
+  constructor({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
     this.transport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
     this.publicClient = createPublicClient({
       transport: this.transport,
+    });
+    this.sponsorUserOperation = createSponsorUserOperation({
+      pimlicoApiKey: sponsorshipAPIKey,
+      chainId,
     });
   }
 
@@ -45,6 +73,13 @@ export class AAManager {
     this._aaAccountClient = createKernelAccountClient({
       account: aaAccount,
       transport: this.transport,
+    });
+
+    this.sponsoredAccountClient = createKernelAccountClient({
+      account: aaAccount,
+      transport: this.transport,
+      // @ts-expect-error @merlin fix
+      sponsorUserOperation: this.sponsorUserOperation,
     });
   }
 
@@ -96,5 +131,49 @@ export class AAManager {
     });
 
     return serializeSessionKeyAccount(sessionKeyAccount);
+  }
+
+  private async executeUserOperation(txn: MinTxn) {
+    if (!this.sponsoredAccountClient) {
+      throw new Error('Call init() before using executeUserOperation');
+    }
+
+    const { account } = this.sponsoredAccountClient;
+    return this.sponsoredAccountClient.sendUserOperation({
+      // TODO: @merlin fix typing
+      // @ts-expect-error it doesn't know here that we have account inside
+      account,
+      userOperation: {
+        // TODO: @merlin fix typing
+        // @ts-expect-error it doesn't know here that we have account inside
+        callData: await account.encodeCallData({
+          ...txn,
+        }),
+      },
+    });
+  }
+
+  async withdraw({ depositStrategyId, amount }: WithdrawParams) {
+    const functionName = 'withdrawBNB'; // This is the same for all native coins, not just BNB
+    const depositStrategy = getDepositStrategyById(depositStrategyId);
+    const withdrawDepositPermission = depositStrategy.permissions.find(
+      permission => permission.functionName === functionName,
+    );
+    if (!withdrawDepositPermission) {
+      throw new Error('Permission is not found');
+    }
+
+    const txn = {
+      to: withdrawDepositPermission.target,
+      value: BigInt(0),
+      data: encodeFunctionData({
+        // @ts-expect-error @merlin to fix
+        abi: withdrawDepositPermission.abi,
+        functionName,
+        args: [amount],
+      }),
+    };
+
+    return this.executeUserOperation(txn);
   }
 }

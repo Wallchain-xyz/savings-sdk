@@ -34,6 +34,7 @@
     "@zerodev/session-key": "^5.1.1",
     "@zodios/core": "^10.9.6",
     "axios": "^1.5.1",
+    "permissionless": "^0.0.34",
     "viem": "^2.5.0",
     "zod": "^3.22.4"
   },

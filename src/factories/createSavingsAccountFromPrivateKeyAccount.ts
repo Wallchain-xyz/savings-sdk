@@ -15,6 +15,7 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   // TODO: @merlin think how to pass these not via params
   // since external wallet code doesn't need to know about this
   bundlerChainAPIKey,
+  sponsorshipAPIKey,
   chainId,
   savingsBackendUrl,
   savingsBackendHeaders,
@@ -31,6 +32,7 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   return createSavingsAccountFromSudoValidator({
     sudoValidator,
     bundlerChainAPIKey,
+    sponsorshipAPIKey,
     chainId,
     savingsBackendUrl,
     savingsBackendHeaders,

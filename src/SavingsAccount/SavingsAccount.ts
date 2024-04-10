@@ -1,13 +1,15 @@
 import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 
-import { AAManager } from '../AAManager/AAManager';
+import { Address, Chain, Transport } from 'viem';
+
+import { AAManager, WithdrawParams } from '../AAManager/AAManager';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
+
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
-import type { Address, Chain, Transport } from 'viem';
 
 interface ConstructorParams {
   aaManager: AAManager;
@@ -93,6 +95,10 @@ export class SavingsAccount {
     }
     await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
     await this.savingsBackendClient.deleteWalletSessionKeyAccount(this.aaAddress, this.chainId);
+  }
+
+  async withdraw(params: WithdrawParams) {
+    return this.aaManager.withdraw(params);
   }
 
   // //   =========== DEPOSITS ==========

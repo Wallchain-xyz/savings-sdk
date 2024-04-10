@@ -8,6 +8,7 @@ import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 export interface CreateSavingsAccountFromKernelValidatorParams {
   sudoValidator: KernelValidator;
   bundlerChainAPIKey: string;
+  sponsorshipAPIKey: string;
   chainId: NetworkEnum;
   savingsBackendUrl: string;
   savingsBackendHeaders: { [p: string]: string };
@@ -16,11 +17,12 @@ export interface CreateSavingsAccountFromKernelValidatorParams {
 export async function createSavingsAccountFromSudoValidator({
   sudoValidator,
   bundlerChainAPIKey,
+  sponsorshipAPIKey,
   chainId,
   savingsBackendUrl,
   savingsBackendHeaders,
 }: CreateSavingsAccountFromKernelValidatorParams) {
-  const aaManager = new AAManager({ sudoValidator, bundlerChainAPIKey, chainId });
+  const aaManager = new AAManager({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId });
   await aaManager.init();
 
   const apiClient = createApiClient(savingsBackendUrl, {
