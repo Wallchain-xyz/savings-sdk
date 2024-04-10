@@ -1,6 +1,7 @@
 import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
 import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
+import { bundlerActions } from 'permissionless';
 import { Address, Hex, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
 
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
@@ -17,7 +18,7 @@ interface ConstructorParams {
   chainId: NetworkEnum;
 }
 
-interface MinTxn {
+interface MinimumTxn {
   to: Address;
   value: bigint;
   data: Hex;
@@ -133,7 +134,7 @@ export class AAManager {
     return serializeSessionKeyAccount(sessionKeyAccount);
   }
 
-  private async executeUserOperation(txn: MinTxn) {
+  private async executeUserOperation(txn: MinimumTxn) {
     if (!this.sponsoredAccountClient) {
       throw new Error('Call init() before using executeUserOperation');
     }
@@ -154,6 +155,10 @@ export class AAManager {
   }
 
   async withdraw({ depositStrategyId, amount }: WithdrawParams) {
+    if (!this.sponsoredAccountClient) {
+      throw new Error('Call init() before using withdraw');
+    }
+
     const functionName = 'withdrawBNB'; // This is the same for all native coins, not just BNB
     const depositStrategy = getDepositStrategyById(depositStrategyId);
     const withdrawDepositPermission = depositStrategy.permissions.find(
@@ -174,6 +179,10 @@ export class AAManager {
       }),
     };
 
-    return this.executeUserOperation(txn);
+    const userOpHash = await this.executeUserOperation(txn);
+
+    return this.sponsoredAccountClient.extend(bundlerActions).waitForUserOperationReceipt({
+      hash: userOpHash,
+    });
   }
 }
