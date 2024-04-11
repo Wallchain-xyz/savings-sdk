@@ -1,0 +1,44 @@
+[
+  {
+    "id": "018ecbc3-597e-739c-bfac-80d534743e3e",
+    "chainId": 8453,
+    "tokenAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "bondTokenAddress": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
+    "permissions": [
+      {
+        "target": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
+        "functionName": "depositBNB",
+        "valueLimit": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "abi": [
+          {
+            "inputs": [],
+            "name": "depositBNB",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+          }
+        ]
+      },
+      {
+        "target": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
+        "functionName": "withdrawBNB",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "_shares",
+                "type": "uint256"
+              }
+            ],
+            "name": "withdrawBNB",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ]
+      }
+    ]
+  }
+]
