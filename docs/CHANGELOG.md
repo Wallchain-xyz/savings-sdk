@@ -1,3 +1,9 @@
+# [1.1.0-alpha.4](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.3...v1.1.0-alpha.4) (2024-04-12)
+
+### Features
+
+- eng-1980: replace js with json strategies ([ba1b127](https://gitlab.com/wallchain/wallet/yield-sdk/commit/ba1b1277b7c9a45dc6049c076e1c49246528fbb3))
+
 # [1.1.0-alpha.3](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.2...v1.1.0-alpha.3) (2024-04-10)
 
 ### Features
