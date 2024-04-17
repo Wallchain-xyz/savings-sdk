@@ -8,6 +8,8 @@ import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
+import { createAuthMessage } from './createAuthMessage';
+
 import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
 
@@ -40,34 +42,36 @@ export class SavingsAccount {
     return this.aaManager.aaAccountClient as KernelAccountClient<Transport, Chain, KernelSmartAccount>;
   }
 
-  async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
-    let walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
-      this.aaAddress,
-      this.chainId,
-    );
-    if (walletSessionKeyAccount) {
-      // TODO: @merlin think about transactions here, what if chain fails in the middle
-      await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
-    } else {
-      walletSessionKeyAccount = await this.savingsBackendClient.createWalletSessionKeyAccount(
-        this.aaAddress,
-        this.chainId,
-      );
-    }
+  async auth() {
+    const authMessage = createAuthMessage(this.aaAddress);
+    const signedMessage = await this.aaManager.signMessage(authMessage);
+    await this.savingsBackendClient.auth({
+      signedMessage,
+      message: authMessage,
+      chainId: this.chainId,
+    });
+  }
 
-    const { sessionKeyAccountAddress } = walletSessionKeyAccount;
+  async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
+    const skaAddressPromise = this.savingsBackendClient.getSKAPublicKey(this.chainId);
+    const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
+    if (walletSKA) {
+      // TODO: @merlin think about transactions here, what if chain fails in the middle
+      await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
+    }
 
     const newStrategyIds = await this.mergeWithActiveStrategyIds(strategyIds);
 
-    const serializedSessionKey = await this.aaManager.signSKA({
-      sessionKeyAccountAddress,
+    const skaAddress = await skaAddressPromise;
+    const serializedSKA = await this.aaManager.signSKA({
+      sessionKeyAccountAddress: skaAddress,
       depositStrategyIds: newStrategyIds,
     });
 
-    await this.savingsBackendClient.updateWalletSessionKeyAccount({
+    await this.savingsBackendClient.createWalletSKA({
       userAddress: this.aaAddress,
       depositStrategyIds: newStrategyIds,
-      serializedSessionKey,
+      serializedSKA,
       chainId: this.chainId,
     });
   }
@@ -78,23 +82,17 @@ export class SavingsAccount {
   }
 
   async getActiveStrategies(): Promise<DepositStrategy[]> {
-    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
-      this.aaAddress,
-      this.chainId,
-    );
-    return walletSessionKeyAccount?.depositStrategyIds.map(getDepositStrategyById) ?? [];
+    const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
+    return walletSKA?.depositStrategyIds.map(getDepositStrategyById) ?? [];
   }
 
   async deactivateAllStrategies() {
-    const walletSessionKeyAccount = await this.savingsBackendClient.getWalletSessionKeyAccount(
-      this.aaAddress,
-      this.chainId,
-    );
-    if (!walletSessionKeyAccount) {
+    const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
+    if (!walletSKA) {
       return;
     }
-    await this.aaManager.revokeSKA(walletSessionKeyAccount.sessionKeyAccountAddress);
-    await this.savingsBackendClient.deleteWalletSessionKeyAccount(this.aaAddress, this.chainId);
+    await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
+    await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
   }
 
   async withdraw(params: WithdrawParams) {

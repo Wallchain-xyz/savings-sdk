@@ -2,10 +2,12 @@ import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKern
 import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
 import { bundlerActions } from 'permissionless';
-import { Address, Hex, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
+import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
 
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
+
+import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
 import { UserOperation, createSponsorUserOperation } from './createSponsorUserOperation';
 
@@ -13,6 +15,7 @@ import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
 interface ConstructorParams {
   sudoValidator: KernelValidator;
+  privateKeyAccount: PrivateKeyAccount;
   bundlerChainAPIKey: string;
   sponsorshipAPIKey: string;
   chainId: NetworkEnum;
@@ -43,6 +46,8 @@ export class AAManager {
 
   private readonly sudoValidator: KernelValidator;
 
+  private readonly privateKeyAccount: PrivateKeyAccount;
+
   private readonly publicClient: ReturnType<typeof createPublicClient>;
 
   private readonly transport: Transport;
@@ -53,7 +58,7 @@ export class AAManager {
     userOperation: UserOperation;
   }) => Promise<UserOperation>;
 
-  constructor({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId }: ConstructorParams) {
+  constructor({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId, privateKeyAccount }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
     this.transport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
     this.publicClient = createPublicClient({
@@ -63,6 +68,7 @@ export class AAManager {
       pimlicoApiKey: sponsorshipAPIKey,
       chainId,
     });
+    this.privateKeyAccount = privateKeyAccount;
   }
 
   async init() {
@@ -84,15 +90,6 @@ export class AAManager {
     });
   }
 
-  get aaAddress(): Address {
-    if (!this._aaAccountClient) {
-      throw new Error('Call init() before using aaAccountClient');
-    }
-    // TODO: @merlin fix typing
-    // @ts-expect-error it doesn't know here that we have account inside
-    return this._aaAccountClient.account.address;
-  }
-
   get aaAccountClient() {
     if (!this._aaAccountClient) {
       throw new Error('Call init() before using aaAccountClient');
@@ -100,14 +97,39 @@ export class AAManager {
     return this._aaAccountClient;
   }
 
-  async revokeSKA(sessionKeyAccountAddress: Address) {
-    if (!this._aaAccountClient) {
-      throw new Error('Call init() before using aaAccountClient');
-    }
-
+  get aaAddress(): Address {
     // TODO: @merlin fix typing
     // @ts-expect-error it doesn't know here that we have account inside
-    await revokeSessionKey(this._aaAccountClient, sessionKeyAccountAddress);
+    return this.aaAccountClient.account.address;
+  }
+
+  async signMessage(message: WallchainAuthMessage) {
+    return this.privateKeyAccount.signTypedData({
+      // TODO: @merlin fix typing
+      // @ts-expect-error it doesn't know here that we have account inside
+      account: this.aaAccountClient.account,
+      domain: {
+        name: 'WallchainAuthMessage',
+      },
+      types: {
+        WallchainAuthMessage: [
+          { name: 'info', type: 'string' },
+          { name: 'aa_address', type: 'address' },
+          { name: 'expires', type: 'uint256' },
+        ],
+      },
+      primaryType: 'WallchainAuthMessage',
+      message: {
+        ...message,
+        expires: BigInt(message.expires),
+      },
+    });
+  }
+
+  async revokeSKA(sessionKeyAccountAddress: Address) {
+    // TODO: @merlin fix typing
+    // @ts-expect-error it doesn't know here that we have account inside
+    await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
   }
 
   async signSKA({ sessionKeyAccountAddress, depositStrategyIds }: PrepareSessionKeyAccountParams) {

@@ -18,7 +18,6 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   sponsorshipAPIKey,
   chainId,
   savingsBackendUrl,
-  savingsBackendHeaders,
 }: CreateYieldAccountParams) {
   const aaBundlerTransport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
   const publicClient = createPublicClient({
@@ -35,6 +34,6 @@ export async function createSavingsAccountFromPrivateKeyAccount({
     sponsorshipAPIKey,
     chainId,
     savingsBackendUrl,
-    savingsBackendHeaders,
+    privateKeyAccount,
   });
 }

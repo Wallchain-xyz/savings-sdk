@@ -1,37 +1,66 @@
-import { Address } from 'viem';
+import { Address, Hex } from 'viem';
 
-import { NetworkEnum, createApiClient } from './thecat/__generated__/createApiClient';
+import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
+
+import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
+import { createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
-type SessionKeyAccountServiceClient = ReturnType<typeof createApiClient>;
+type SKAClient = ReturnType<typeof createSKAClient>;
+type AuthClient = ReturnType<typeof createAuthClient>;
+
 interface SavingsBackendClientParams {
-  apiClient: SessionKeyAccountServiceClient;
-  chainId: NetworkEnum;
+  skaClient: SKAClient;
+  authClient: AuthClient;
+  chainId: ChainId;
 }
 
-interface UpdateWalletSessionKeyAccountParams {
+interface CreateWalletSKAParams {
   userAddress: Address;
   depositStrategyIds: DepositStrategyId[];
-  serializedSessionKey: string;
-  chainId: NetworkEnum;
+  serializedSKA: string;
+  chainId: ChainId;
+}
+
+interface AuthParams {
+  chainId: ChainId;
+  signedMessage: Hex;
+  message: WallchainAuthMessage;
 }
 
 export class SavingsBackendClient {
-  private apiClient: SessionKeyAccountServiceClient;
+  private skaClient: SKAClient;
 
-  constructor({ apiClient }: SavingsBackendClientParams) {
-    this.apiClient = apiClient;
+  private authClient: AuthClient;
+
+  constructor({ skaClient, authClient }: SavingsBackendClientParams) {
+    this.skaClient = skaClient;
+    this.authClient = authClient;
   }
 
-  async getWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
+  async auth({ chainId, signedMessage, message }: AuthParams) {
+    const { token } = await this.authClient.login(
+      {
+        ...message,
+        signature: signedMessage,
+      },
+      {
+        params: {
+          chain_id: chainId,
+        },
+      },
+    );
+    this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+  }
+
+  async getWalletSKA(userAddress: Address, chainId: ChainId) {
     // TODO: @merlin maybe we can use cache here
     try {
-      return await this.apiClient.get('/b/v2/session_key_account_manager_service/session_key_account/:user_address', {
-        queries: {
-          chainId,
-        },
+      return await this.skaClient.getSKA({
         params: {
+          chain_id: chainId,
           user_address: userAddress,
         },
       });
@@ -41,56 +70,35 @@ export class SavingsBackendClient {
     }
   }
 
-  async createWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
-    return this.apiClient.post(
-      '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
-      undefined,
-      {
-        queries: {
-          chainId,
-        },
-        params: {
-          user_address: userAddress,
-        },
+  async getSKAPublicKey(chainId: ChainId) {
+    return this.skaClient.getSKAAddress({
+      params: {
+        chain_id: chainId,
       },
-    );
+    });
   }
 
-  async updateWalletSessionKeyAccount({
-    userAddress,
-    depositStrategyIds,
-    serializedSessionKey,
-    chainId,
-  }: UpdateWalletSessionKeyAccountParams) {
-    return this.apiClient.patch(
-      '/b/v2/session_key_account_manager_service/session_key_account/:user_address/serialized_session_key',
+  async createWalletSKA({ userAddress, depositStrategyIds, serializedSKA, chainId }: CreateWalletSKAParams) {
+    return this.skaClient.createSKA(
       {
-        serializedSessionKey,
+        serializedSka: serializedSKA,
         depositStrategyIds,
       },
       {
-        queries: {
-          chainId,
-        },
         params: {
+          chain_id: chainId,
           user_address: userAddress,
         },
       },
     );
   }
 
-  async deleteWalletSessionKeyAccount(userAddress: Address, chainId: NetworkEnum) {
-    return this.apiClient.delete(
-      '/b/v2/session_key_account_manager_service/session_key_account/:user_address',
-      undefined,
-      {
-        queries: {
-          chainId,
-        },
-        params: {
-          user_address: userAddress,
-        },
+  async deleteWalletSKA(userAddress: Address, chainId: ChainId) {
+    return this.skaClient.deleteSKA(undefined, {
+      params: {
+        chain_id: chainId,
+        user_address: userAddress,
       },
-    );
+    });
   }
 }
