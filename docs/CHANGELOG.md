@@ -1,3 +1,9 @@
+# [1.1.0-alpha.5](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.4...v1.1.0-alpha.5) (2024-04-22)
+
+### Features
+
+- eng-1936: extract ska ([06c64c5](https://gitlab.com/wallchain/wallet/yield-sdk/commit/06c64c5d9c2631af97d7f1c80e63f58c7eeec163))
+
 # [1.1.0-alpha.4](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.3...v1.1.0-alpha.4) (2024-04-12)
 
 ### Features
