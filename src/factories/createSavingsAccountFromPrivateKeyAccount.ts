@@ -12,12 +12,8 @@ interface CreateYieldAccountParams extends Omit<CreateSavingsAccountFromKernelVa
 
 export async function createSavingsAccountFromPrivateKeyAccount({
   privateKeyAccount,
-  // TODO: @merlin think how to pass these not via params
-  // since external wallet code doesn't need to know about this
   bundlerChainAPIKey,
-  sponsorshipAPIKey,
-  chainId,
-  savingsBackendUrl,
+  ...props
 }: CreateYieldAccountParams) {
   const aaBundlerTransport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
   const publicClient = createPublicClient({
@@ -29,11 +25,9 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   });
 
   return createSavingsAccountFromSudoValidator({
-    sudoValidator,
-    bundlerChainAPIKey,
-    sponsorshipAPIKey,
-    chainId,
-    savingsBackendUrl,
     privateKeyAccount,
+    bundlerChainAPIKey,
+    sudoValidator,
+    ...props,
   });
 }
