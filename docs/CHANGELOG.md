@@ -1,3 +1,9 @@
+# [1.1.0-alpha.6](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.5...v1.1.0-alpha.6) (2024-04-22)
+
+### Features
+
+- eng-1936: add zodiosOptions ([f72e165](https://gitlab.com/wallchain/wallet/yield-sdk/commit/f72e1656147bc7f23d39b9b017e73a3eb408133b))
+
 # [1.1.0-alpha.5](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.4...v1.1.0-alpha.5) (2024-04-22)
 
 ### Features
