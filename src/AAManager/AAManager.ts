@@ -1,5 +1,5 @@
 import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
-import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
+import { serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
 import { bundlerActions } from 'permissionless';
 import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
@@ -7,12 +7,21 @@ import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, en
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
+import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
 import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
+import { AllowanceParams, ERC_20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './createAllowanceTxn';
+import { createERC20AddDepositTxn } from './createERC20AddDepositTxn';
+import { createNativeAddDepositTxn } from './createNativeAddDepositTxn';
+import { createRequestAllowanceTxn } from './createRequestAllowanceTxn';
 import { UserOperation, createSponsorUserOperation } from './createSponsorUserOperation';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
+const ERC20_DEPOSIT_FUNCTION_NAME = 'deposit';
+// This is the same for all native coins, not just BNB
+const NATIVE_ADD_DEPOSIT_FUNCTION_NAME = 'depositBNB';
+const NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdrawBNB';
 interface ConstructorParams {
   sudoValidator: KernelValidator;
   privateKeyAccount: PrivateKeyAccount;
@@ -27,7 +36,7 @@ interface MinimumTxn {
   data: Hex;
 }
 
-export interface WithdrawParams {
+export interface WithdrawOrDepositParams {
   depositStrategyId: DepositStrategyId;
   amount: bigint;
 }
@@ -156,9 +165,9 @@ export class AAManager {
     return serializeSessionKeyAccount(sessionKeyAccount);
   }
 
-  private async executeUserOperation(txn: MinimumTxn) {
+  private async sendUserOp(txns: MinimumTxn[]) {
     if (!this.sponsoredAccountClient) {
-      throw new Error('Call init() before using executeUserOperation');
+      throw new Error('Call init() before using sendUserOp');
     }
 
     const { account } = this.sponsoredAccountClient;
@@ -169,23 +178,85 @@ export class AAManager {
       userOperation: {
         // TODO: @merlin fix typing
         // @ts-expect-error it doesn't know here that we have account inside
-        callData: await account.encodeCallData({
-          ...txn,
-        }),
+        callData: await account.encodeCallData(txns),
       },
     });
   }
 
-  async withdraw({ depositStrategyId, amount }: WithdrawParams) {
-    if (!this.sponsoredAccountClient) {
-      throw new Error('Call init() before using withdraw');
-    }
+  private async getHasAllowance({ token, owner, spender, amount }: AllowanceParams): Promise<boolean> {
+    const requestAllowanceTxn = createRequestAllowanceTxn({ owner, token, spender });
+    const allowance: string = await this.aaAccountClient.transport.request(requestAllowanceTxn);
+    return BigInt(allowance) >= amount;
+  }
 
-    const functionName = 'withdrawBNB'; // This is the same for all native coins, not just BNB
+  async deposit({ depositStrategyId, amount }: WithdrawOrDepositParams) {
     const depositStrategy = getDepositStrategyById(depositStrategyId);
-    const withdrawDepositPermission = depositStrategy.permissions.find(
+
+    const isNativeStrategy = getIsNativeStrategy(depositStrategy);
+    const functionName = isNativeStrategy ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME : ERC20_DEPOSIT_FUNCTION_NAME;
+
+    const addDepositPermission = depositStrategy.permissions.find(
       permission => permission.functionName === functionName,
     );
+    if (!addDepositPermission) {
+      throw new Error('Add deposit permission is not found');
+    }
+
+    const txns = [];
+    if (isNativeStrategy) {
+      const nativeAddDepositTxn = createNativeAddDepositTxn({ addDepositPermission, amount });
+      txns.push(nativeAddDepositTxn);
+    } else {
+      const allowancePermission = depositStrategy.permissions.find(
+        permission => permission.functionName === ERC_20_ALLOWANCE_FUNCTION_NAME,
+      );
+
+      if (!allowancePermission) {
+        throw new Error('Allowance permission is not found');
+      }
+
+      const allowanceParams = {
+        spender: addDepositPermission.target,
+        owner: this.aaAddress,
+        token: allowancePermission.target,
+        amount,
+      };
+      const hasAllowance = await this.getHasAllowance(allowanceParams);
+
+      if (!hasAllowance) {
+        const allowanceTxn = createAllowanceTxn(allowanceParams);
+        txns.push(allowanceTxn);
+      }
+
+      const erc20AddDepositTxn = createERC20AddDepositTxn({ addDepositPermission, amount });
+      txns.push(erc20AddDepositTxn);
+    }
+
+    return this.executeTxns(txns);
+  }
+
+  async executeTxns(txns: MinimumTxn[]) {
+    if (!this.sponsoredAccountClient) {
+      throw new Error('Call init() before using sendTxnsAndWaitForReceipt');
+    }
+    const userOpHash = await this.sendUserOp(txns);
+
+    return this.sponsoredAccountClient.extend(bundlerActions).waitForUserOperationReceipt({
+      hash: userOpHash,
+    });
+  }
+
+  async withdraw({ depositStrategyId, amount }: WithdrawOrDepositParams) {
+    const depositStrategy = getDepositStrategyById(depositStrategyId);
+    const withdrawDepositPermission = depositStrategy.permissions.find(
+      permission => permission.functionName === NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME,
+    );
+
+    const isNativeStrategy = getIsNativeStrategy(depositStrategy);
+    if (!isNativeStrategy) {
+      throw new Error('Withdrawal for ERC20 tokens is not yet supported');
+    }
+
     if (!withdrawDepositPermission) {
       throw new Error('Permission is not found');
     }
@@ -196,15 +267,11 @@ export class AAManager {
       data: encodeFunctionData({
         // @ts-expect-error @merlin to fix
         abi: withdrawDepositPermission.abi,
-        functionName,
+        functionName: withdrawDepositPermission.functionName,
         args: [amount],
       }),
     };
 
-    const userOpHash = await this.executeUserOperation(txn);
-
-    return this.sponsoredAccountClient.extend(bundlerActions).waitForUserOperationReceipt({
-      hash: userOpHash,
-    });
+    return this.executeTxns([txn]);
   }
 }

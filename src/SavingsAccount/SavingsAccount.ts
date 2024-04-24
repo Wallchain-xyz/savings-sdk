@@ -2,7 +2,7 @@ import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 
 import { Address, Chain, Transport } from 'viem';
 
-import { AAManager, WithdrawParams } from '../AAManager/AAManager';
+import { AAManager, WithdrawOrDepositParams } from '../AAManager/AAManager';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 
@@ -58,6 +58,7 @@ export class SavingsAccount {
     if (walletSKA) {
       // TODO: @merlin think about transactions here, what if chain fails in the middle
       await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
+      await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
     }
 
     const newStrategyIds = await this.mergeWithActiveStrategyIds(strategyIds);
@@ -95,8 +96,12 @@ export class SavingsAccount {
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
   }
 
-  async withdraw(params: WithdrawParams) {
+  async withdraw(params: WithdrawOrDepositParams) {
     return this.aaManager.withdraw(params);
+  }
+
+  async deposit(params: WithdrawOrDepositParams) {
+    return this.aaManager.deposit(params);
   }
 
   // //   =========== DEPOSITS ==========
