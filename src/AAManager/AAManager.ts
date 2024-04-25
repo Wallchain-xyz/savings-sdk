@@ -1,5 +1,5 @@
 import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
-import { serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
+import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
 import { bundlerActions } from 'permissionless';
 import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
@@ -18,7 +18,8 @@ import { UserOperation, createSponsorUserOperation } from './createSponsorUserOp
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
-const ERC20_DEPOSIT_FUNCTION_NAME = 'deposit';
+const ERC20_ADD_DEPOSIT_FUNCTION_NAME = 'deposit';
+const ERC20_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdraw';
 // This is the same for all native coins, not just BNB
 const NATIVE_ADD_DEPOSIT_FUNCTION_NAME = 'depositBNB';
 const NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdrawBNB';
@@ -193,7 +194,7 @@ export class AAManager {
     const depositStrategy = getDepositStrategyById(depositStrategyId);
 
     const isNativeStrategy = getIsNativeStrategy(depositStrategy);
-    const functionName = isNativeStrategy ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME : ERC20_DEPOSIT_FUNCTION_NAME;
+    const functionName = isNativeStrategy ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME : ERC20_ADD_DEPOSIT_FUNCTION_NAME;
 
     const addDepositPermission = depositStrategy.permissions.find(
       permission => permission.functionName === functionName,
@@ -248,14 +249,13 @@ export class AAManager {
 
   async withdraw({ depositStrategyId, amount }: WithdrawOrDepositParams) {
     const depositStrategy = getDepositStrategyById(depositStrategyId);
-    const withdrawDepositPermission = depositStrategy.permissions.find(
-      permission => permission.functionName === NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME,
-    );
-
     const isNativeStrategy = getIsNativeStrategy(depositStrategy);
-    if (!isNativeStrategy) {
-      throw new Error('Withdrawal for ERC20 tokens is not yet supported');
-    }
+    const functionName = isNativeStrategy
+      ? NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME
+      : ERC20_WITHDRAW_DEPOSIT_FUNCTION_NAME;
+    const withdrawDepositPermission = depositStrategy.permissions.find(
+      permission => permission.functionName === functionName,
+    );
 
     if (!withdrawDepositPermission) {
       throw new Error('Permission is not found');
