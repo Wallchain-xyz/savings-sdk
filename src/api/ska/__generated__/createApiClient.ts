@@ -4,21 +4,28 @@ import { Zodios, type ZodiosOptions } from '@zodios/core';
 
 import { TypeOf, zod as z } from '../../zod';
 
-const APISKA = z
+const SKA = z
   .object({
-    userAddress: z.address(),
+    userId: z.string(),
+    aaAddress: z.address(),
     sessionKeyAccountAddress: z.address(),
     depositStrategyIds: z.array(z.string()),
   })
   .passthrough();
 
-export const APISKASchema = APISKA;
-export type APISKA = TypeOf<typeof APISKASchema>;
+export const SKASchema = SKA;
+export type SKA = TypeOf<typeof SKASchema>;
 
-const user_address = z.string();
+const CreateSKAData = z
+  .object({
+    aaAddress: z.address(),
+    serializedSka: z.string(),
+    depositStrategyIds: z.array(z.string()),
+  })
+  .passthrough();
 
-export const user_addressSchema = user_address;
-export type user_address = TypeOf<typeof user_addressSchema>;
+export const CreateSKADataSchema = CreateSKAData;
+export type CreateSKAData = TypeOf<typeof CreateSKADataSchema>;
 
 const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
 
@@ -40,10 +47,10 @@ const HTTPValidationError = z
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
-const CreateSKAData = z.object({ serializedSka: z.string(), depositStrategyIds: z.array(z.string()) }).passthrough();
+const aa_address = z.string();
 
-export const CreateSKADataSchema = CreateSKAData;
-export type CreateSKAData = TypeOf<typeof CreateSKADataSchema>;
+export const aa_addressSchema = aa_address;
+export type aa_address = TypeOf<typeof aa_addressSchema>;
 
 const MinimumExecutableTxn = z
   .object({
@@ -56,21 +63,46 @@ const MinimumExecutableTxn = z
 export const MinimumExecutableTxnSchema = MinimumExecutableTxn;
 export type MinimumExecutableTxn = TypeOf<typeof MinimumExecutableTxnSchema>;
 
+const execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body =
+  z.array(MinimumExecutableTxn);
+
+export const execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_BodySchema =
+  execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body;
+export type execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body = TypeOf<
+  typeof execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_BodySchema
+>;
+
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
     baseUrl,
     [
       {
         method: 'get',
-        path: '/yield/ska/:chain_id/:user_address',
-        alias: 'getSKA',
-        description: `Creates session key account`,
+        path: '/yield/ska/:chain_id/ska_address',
+        alias: 'getSKAAddress',
+        description: `Returns session key account address`,
+        requestFormat: 'json',
+        response: z.address(),
+      },
+      {
+        method: 'get',
+        path: '/yield/ska/:chain_id/skas',
+        alias: 'listSKA',
+        description: `Returns all session key accounts`,
+        requestFormat: 'json',
+        response: z.array(SKA),
+      },
+      {
+        method: 'post',
+        path: '/yield/ska/:chain_id/skas',
+        alias: 'createSKA',
+        description: `Create session key account`,
         requestFormat: 'json',
         parameters: [
           {
-            name: 'user_address',
-            type: 'Path',
-            schema: user_address,
+            name: 'body',
+            type: 'Body',
+            schema: CreateSKAData,
           },
           {
             name: 'chain_id',
@@ -78,7 +110,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             schema: chain_id,
           },
         ],
-        response: APISKA,
+        response: SKA,
         errors: [
           {
             status: 422,
@@ -88,21 +120,16 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
       },
       {
-        method: 'post',
-        path: '/yield/ska/:chain_id/:user_address',
-        alias: 'createSKA',
-        description: `Updates session key for account`,
+        method: 'get',
+        path: '/yield/ska/:chain_id/skas/:aa_address',
+        alias: 'getSKA',
+        description: `Get session key account`,
         requestFormat: 'json',
         parameters: [
           {
-            name: 'body',
-            type: 'Body',
-            schema: CreateSKAData,
-          },
-          {
-            name: 'user_address',
+            name: 'aa_address',
             type: 'Path',
-            schema: user_address,
+            schema: aa_address,
           },
           {
             name: 'chain_id',
@@ -110,7 +137,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             schema: chain_id,
           },
         ],
-        response: APISKA,
+        response: SKA,
         errors: [
           {
             status: 422,
@@ -121,15 +148,15 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'delete',
-        path: '/yield/ska/:chain_id/:user_address',
+        path: '/yield/ska/:chain_id/skas/:aa_address',
         alias: 'deleteSKA',
         description: `Delete session key account`,
         requestFormat: 'json',
         parameters: [
           {
-            name: 'user_address',
+            name: 'aa_address',
             type: 'Path',
-            schema: user_address,
+            schema: aa_address,
           },
           {
             name: 'chain_id',
@@ -148,20 +175,20 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'post',
-        path: '/yield/ska/:chain_id/:user_address/user_operation',
-        alias: 'execute_user_operation_using_ska_yield_ska__chain_id___user_address__user_operation_post',
-        description: `Executes transaction`,
+        path: '/yield/ska/:chain_id/skas/:aa_address/user_operation',
+        alias: 'execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post',
+        description: `Execute transactions`,
         requestFormat: 'json',
         parameters: [
           {
             name: 'body',
             type: 'Body',
-            schema: MinimumExecutableTxn,
+            schema: execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body,
           },
           {
-            name: 'user_address',
+            name: 'aa_address',
             type: 'Path',
-            schema: user_address,
+            schema: aa_address,
           },
           {
             name: 'chain_id',
@@ -177,22 +204,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             schema: HTTPValidationError,
           },
         ],
-      },
-      {
-        method: 'get',
-        path: '/yield/ska/:chain_id/list',
-        alias: 'list_session_key_accounts_yield_ska__chain_id__list_get',
-        description: `Returns all session key accounts`,
-        requestFormat: 'json',
-        response: z.array(APISKA),
-      },
-      {
-        method: 'get',
-        path: '/yield/ska/:chain_id/ska_address',
-        alias: 'getSKAAddress',
-        description: `Returns session key account address`,
-        requestFormat: 'json',
-        response: z.address(),
       },
     ],
     options,
