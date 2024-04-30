@@ -1,3 +1,12 @@
+# [1.1.0-alpha.7](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.6...v1.1.0-alpha.7) (2024-04-30)
+
+### Features
+
+- eng-2012: add erc20 manual deposit ([ac238dc](https://gitlab.com/wallchain/wallet/yield-sdk/commit/ac238dc60327d3ba8748f6093d9f493d91ff8f34))
+- eng-2013: add erc20 manual withdrawal ([4be84fb](https://gitlab.com/wallchain/wallet/yield-sdk/commit/4be84fb26aa8a4af94818ff3c11502827cfdb817))
+- eng-2024: integrate pause for manual withdraw ([3f0ac8b](https://gitlab.com/wallchain/wallet/yield-sdk/commit/3f0ac8b34b70c51870e71b49599913ae7afa7aaf))
+- eng-2028: update auth and ska api clients ([e723201](https://gitlab.com/wallchain/wallet/yield-sdk/commit/e723201878bd6b3c774c118329703a65a41bb7a2))
+
 # [1.1.0-alpha.6](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.5...v1.1.0-alpha.6) (2024-04-22)
 
 ### Features
