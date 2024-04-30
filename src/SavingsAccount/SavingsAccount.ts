@@ -3,7 +3,7 @@ import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 import { Address, Chain, Transport } from 'viem';
 
 import { AAManager, WithdrawOrDepositParams } from '../AAManager/AAManager';
-import { SavingsBackendClient } from '../api/SavingsBackendClient';
+import { PauseDepositingParams, SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
 
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
@@ -18,6 +18,8 @@ interface ConstructorParams {
   savingsBackendClient: SavingsBackendClient;
   chainId: NetworkEnum;
 }
+
+interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
 
 export class SavingsAccount {
   private savingsBackendClient: SavingsBackendClient;
@@ -45,7 +47,7 @@ export class SavingsAccount {
   async auth() {
     const authMessage = createAuthMessage(this.aaAddress);
     const signedMessage = await this.aaManager.signMessage(authMessage);
-    await this.savingsBackendClient.auth({
+    return this.savingsBackendClient.auth({
       signedMessage,
       message: authMessage,
       chainId: this.chainId,
@@ -96,7 +98,14 @@ export class SavingsAccount {
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
   }
 
-  async withdraw(params: WithdrawOrDepositParams) {
+  async withdraw(params: WithdrawParams) {
+    const { depositStrategyId } = params;
+    const depositStrategy = getDepositStrategyById(depositStrategyId);
+
+    await this.savingsBackendClient.pauseDepositing({
+      chainId: depositStrategy.chainId,
+      ...params,
+    });
     return this.aaManager.withdraw(params);
   }
 

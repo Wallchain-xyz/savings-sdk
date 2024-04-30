@@ -2,7 +2,7 @@ import { Address, Hex } from 'viem';
 
 import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
-import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
+import { chain_id as ChainId, User, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
 import { createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
@@ -25,6 +25,14 @@ interface CreateWalletSKAParams {
   chainId: ChainId;
 }
 
+export type SavingsAccountUserId = string;
+
+export interface PauseDepositingParams {
+  chainId: ChainId;
+  userId: SavingsAccountUserId;
+  pauseUntilDatetime?: Date | string;
+}
+
 interface AuthParams {
   chainId: ChainId;
   signedMessage: Hex;
@@ -41,7 +49,7 @@ export class SavingsBackendClient {
     this.authClient = authClient;
   }
 
-  async auth({ chainId, signedMessage, message }: AuthParams) {
+  async auth({ chainId, signedMessage, message }: AuthParams): Promise<User> {
     const authData = {
       ...message,
       signature: signedMessage,
@@ -51,12 +59,13 @@ export class SavingsBackendClient {
         chain_id: chainId,
       },
     };
-    let token: string;
+
+    let authResponse;
     try {
-      token = (await this.authClient.login(authData, authParams)).token;
+      authResponse = await this.authClient.login(authData, authParams);
     } catch (error) {
       if (getIsUserNotRegisteredError({ error })) {
-        token = (await this.authClient.register(authData, authParams)).token;
+        authResponse = await this.authClient.register(authData, authParams);
       }
 
       if (getIsNonAAAddressError({ error })) {
@@ -65,8 +74,23 @@ export class SavingsBackendClient {
 
       throw error;
     }
-    this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-    this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
+    this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
+    return authResponse.user;
+  }
+
+  async pauseDepositing({ chainId, userId, pauseUntilDatetime }: PauseDepositingParams) {
+    return this.authClient.pauseDepositing(
+      {
+        pause_until: pauseUntilDatetime ? new Date(pauseUntilDatetime).toISOString() : null,
+      },
+      {
+        params: {
+          user_id: userId,
+          chain_id: chainId,
+        },
+      },
+    );
   }
 
   async getWalletSKA(userAddress: Address, chainId: ChainId) {
