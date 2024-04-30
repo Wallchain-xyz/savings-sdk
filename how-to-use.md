@@ -13,12 +13,14 @@ auto-withdrawing of funds to some yielding protocols.
   behalf of AA by signing it.
 - Session Key - special message, signed by owner of AA, that allows another EOA to execute specific
   transactions on behalf of AA. What exactly can be done is defined by Session Key permissions.
-- Deposit Protocol - a smart contracts that allows depositing of funds to get interest-based profit.
+- Vault - a smart contracts which allows depositing of funds to get interest-based profit.
+- Deposit Strategy - an abstract entity that defines how a specific token in a particular chain can be deposited to a specific protocol.
+Think of it as a `<ChainId, TokenAddress, Vault>` tuple. It also carries the necessary permissions to do its job.
 
 ## How Wallchain API works
 
-For each registered user, Wallchain algorithms deside the moment to deposit (or withdraw) user's money
-to some Deposit Protocol. To be able to do so, funds should be on some AA address, and Wallchain should
+For each registered user, Wallchain algorithms decide the moment to deposit (or withdraw) the user's money
+to some Vault. To be able to do so, funds should be on some AA address, and Wallchain should
 have correct Session Key to execute this specific transactions.
 
 So, to when you use SDK always control some AA address and create, sign and provide Session Key to
@@ -75,8 +77,8 @@ const savingsAccount = await createSavingsAccountFromSudoValidator({
 
 ### Login into Wallchain API
 
-Before calling any other method, user should login into API. This is done be able to track address
-to do auto-depositing, and to track who is owner of SKA account. To login, do the following:
+Before calling any other method, the user should log into the API. This is done to track the address
+to do auto-depositing, and to track who owns the SKA account. To login, do the following:
 
 ```ts
 await savingsAccount.auth();
@@ -88,7 +90,7 @@ inside SDK to do subsequent requests.
 ### Enabling Auto-Depositing
 
 To allow API to do auto-depositing, you should generate Session Key with proper permissions. Generation
-of it allows gradual control over permissions - you can enable only Deposit Protocol you trust, only
+of it allows fine-grained control over permissions - you can enable only the Deposit Protocol you trust, only
 for tokens you want to be auto-deposited. The following code enables all protocols supported by API:
 
 ```ts
@@ -97,10 +99,10 @@ await savingsAccount.activateStrategies(strategiesIds);
 ```
 
 Each `DepositStrategy` (combination of Deposit Protocol + specific token on some chain) has unique id,
-that is immutable. You can hardcode list of ids you whitelisted, or do some additional checks to be
-make sure you sign correct permissions.
+that is immutable. You can hardcode list of ids you whitelisted, or do some additional checks to
+make sure you sign the correct permissions.
 
-After this call auto-depositing is enabled, and API will start looking for oportunity to auto-deposit.
+After this call auto-depositing is enabled, and API will start looking for an oportunity to auto-deposit.
 
 You can retreive list of activated strategies by calling the following code:
 
@@ -110,7 +112,7 @@ const activeStrategies = await savingsAccount.getActiveStrategies(strategiesIds)
 
 ### Do manual Withdraw/Deposit
 
-To withdraw funds that are currently deposit to be able to use them use the following code:
+To withdraw funds that are currently deposited for an immediate use, do the following:
 
 ```ts
 await savingsAccount.withdraw({
