@@ -29,7 +29,6 @@ export type SavingsAccountUserId = string;
 
 export interface PauseDepositingParams {
   chainId: ChainId;
-  userId: SavingsAccountUserId;
   pauseUntilDatetime?: Date | string;
 }
 
@@ -66,27 +65,26 @@ export class SavingsBackendClient {
     } catch (error) {
       if (getIsUserNotRegisteredError({ error })) {
         authResponse = await this.authClient.register(authData, authParams);
+      } else {
+        if (getIsNonAAAddressError({ error })) {
+          throw new NonAAAddressError();
+        }
+        throw error;
       }
-
-      if (getIsNonAAAddressError({ error })) {
-        throw new NonAAAddressError();
-      }
-
-      throw error;
     }
     this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
     this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
     return authResponse.user;
   }
 
-  async pauseDepositing({ chainId, userId, pauseUntilDatetime }: PauseDepositingParams) {
+  async pauseDepositing({ chainId, pauseUntilDatetime }: PauseDepositingParams) {
     return this.authClient.pauseDepositing(
       {
         pause_until: pauseUntilDatetime ? new Date(pauseUntilDatetime).toISOString() : null,
       },
       {
         params: {
-          user_id: userId,
+          user_id: 'me',
           chain_id: chainId,
         },
       },
