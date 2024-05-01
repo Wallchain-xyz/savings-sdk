@@ -1,3 +1,9 @@
+# [1.1.0-alpha.10](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.9...v1.1.0-alpha.10) (2024-05-01)
+
+### Bug Fixes
+
+- eng-2042: fix readme.md ([3d5792a](https://gitlab.com/wallchain/wallet/yield-sdk/commit/3d5792adf90143bf497518a7773e2889eb475ce4))
+
 # [1.1.0-alpha.9](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.8...v1.1.0-alpha.9) (2024-05-01)
 
 ### Bug Fixes
