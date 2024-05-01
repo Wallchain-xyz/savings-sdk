@@ -1,3 +1,9 @@
+# [1.1.0-alpha.11](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.10...v1.1.0-alpha.11) (2024-05-01)
+
+### Bug Fixes
+
+- eng-2042: remove thecat backend and leftovers ([c82f497](https://gitlab.com/wallchain/wallet/yield-sdk/commit/c82f497135166e3947b027347723af01d3a32b55))
+
 # [1.1.0-alpha.10](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.9...v1.1.0-alpha.10) (2024-05-01)
 
 ### Bug Fixes
