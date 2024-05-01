@@ -1,3 +1,9 @@
+# [1.1.0-alpha.8](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.7...v1.1.0-alpha.8) (2024-05-01)
+
+### Features
+
+- eng-2042: add readme.md to published files ([882d67b](https://gitlab.com/wallchain/wallet/yield-sdk/commit/882d67bf1ca98c01ebdbcdb8727efced4193aa7f))
+
 # [1.1.0-alpha.7](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.6...v1.1.0-alpha.7) (2024-04-30)
 
 ### Features
