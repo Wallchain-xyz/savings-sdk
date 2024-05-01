@@ -4,7 +4,6 @@
   "main": "dist/index.js",
   "files": [
     "dist/**",
-    "src/api/thecat/openapi.json",
     "readme.md"
   ],
   "scripts": {
@@ -14,7 +13,6 @@
     "eslint:fix-all": "eslint --fix .",
     "generate-auth-client": "openapi-zod-client src/api/auth/openapi.json --complexity-threshold=1 -o src/api/auth/__generated__/createApiClient.ts -t src/api/auth/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/auth/__generated__/createApiClient.ts",
     "generate-ska-client": "openapi-zod-client src/api/ska/openapi.json --complexity-threshold=1 -o src/api/ska/__generated__/createApiClient.ts -t src/api/ska/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/ska/__generated__/createApiClient.ts",
-    "generate-thecat-client": "openapi-zod-client src/api/thecat/openapi.json -o src/api/thecat/__generated__/createApiClient.ts -t src/api/thecat/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/thecat/__generated__/createApiClient.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest"

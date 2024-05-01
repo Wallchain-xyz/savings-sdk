@@ -1,4 +1,4 @@
-import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
+import { ChainId } from '../api/auth/__generated__/createApiClient';
 
 import type { Permission } from '@zerodev/session-key';
 import type { Abi, Address } from 'viem';
@@ -8,7 +8,7 @@ export interface DepositStrategy {
   id: DepositStrategyId;
   permissions: Permission<Abi, string>[];
 
-  chainId: NetworkEnum;
+  chainId: ChainId;
   tokenAddress: Address;
   bondTokenAddress: Address;
 }

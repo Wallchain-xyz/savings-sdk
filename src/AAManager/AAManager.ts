@@ -4,7 +4,7 @@ import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidat
 import { bundlerActions } from 'permissionless';
 import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
 
-import { NetworkEnum } from '../api/thecat/__generated__/createApiClient';
+import { ChainId } from '../api/auth/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
@@ -28,7 +28,7 @@ interface ConstructorParams {
   privateKeyAccount: PrivateKeyAccount;
   bundlerChainAPIKey: string;
   sponsorshipAPIKey: string;
-  chainId: NetworkEnum;
+  chainId: ChainId;
 }
 
 interface MinimumTxn {
