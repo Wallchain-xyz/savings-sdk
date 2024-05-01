@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "files": [
     "dist/**",
-    "src/api/thecat/openapi.json"
+    "src/api/thecat/openapi.json",
+    "readme.md"
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
