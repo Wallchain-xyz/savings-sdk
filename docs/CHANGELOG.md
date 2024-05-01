@@ -1,3 +1,9 @@
+# [1.1.0-alpha.12](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.11...v1.1.0-alpha.12) (2024-05-01)
+
+### Bug Fixes
+
+- eng-2042: add prepublish script ([e3090a7](https://gitlab.com/wallchain/wallet/yield-sdk/commit/e3090a72f9f5f659249759d798be9954ff7d4e00))
+
 # [1.1.0-alpha.11](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.10...v1.1.0-alpha.11) (2024-05-01)
 
 ### Bug Fixes
