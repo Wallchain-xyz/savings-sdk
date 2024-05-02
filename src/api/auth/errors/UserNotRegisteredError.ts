@@ -17,5 +17,5 @@ interface GetIsUserNotRegisteredErrorParams {
 export const getIsUserNotRegisteredError = ({ error }: GetIsUserNotRegisteredErrorParams) =>
   error instanceof AxiosError &&
   nonAAAddressErrorMessageParts.every(part => {
-    return error.response?.data.detail.includes(part);
+    return error.response?.data?.detail?.includes(part);
   });

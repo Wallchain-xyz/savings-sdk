@@ -13,4 +13,4 @@ interface GetIsNonAAAddressErrorParams {
 }
 
 export const getIsNonAAAddressError = ({ error }: GetIsNonAAAddressErrorParams) =>
-  error instanceof AxiosError && error.response?.data.detail.includes(nonAAAddressErrorMessagePart);
+  error instanceof AxiosError && error.response?.data?.detail?.includes(nonAAAddressErrorMessagePart);
