@@ -1,6 +1,4 @@
-import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
-
-import { Address, Chain, Transport } from 'viem';
+import { Address, Chain } from 'viem';
 
 import { AAManager, WithdrawOrDepositParams } from '../AAManager/AAManager';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
@@ -11,24 +9,23 @@ import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyB
 import { createAuthMessage } from './createAuthMessage';
 
 import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
-import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
 
-interface ConstructorParams {
-  aaManager: AAManager;
+interface ConstructorParams<TChain extends Chain> {
+  aaManager: AAManager<TChain>;
   savingsBackendClient: SavingsBackendClient;
   chainId: ChainId;
 }
 
 interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
 
-export class SavingsAccount {
+export class SavingsAccount<TChain extends Chain> {
   private savingsBackendClient: SavingsBackendClient;
 
-  private aaManager: AAManager;
+  private aaManager: AAManager<TChain>;
 
   chainId: ChainId;
 
-  constructor({ aaManager, savingsBackendClient, chainId }: ConstructorParams) {
+  constructor({ aaManager, savingsBackendClient, chainId }: ConstructorParams<TChain>) {
     this.savingsBackendClient = savingsBackendClient;
     this.aaManager = aaManager;
     this.chainId = chainId;
@@ -40,8 +37,7 @@ export class SavingsAccount {
 
   // TODO: @melrin not sure we want to expose this
   get aaAccountClient() {
-    // TODO: @merlin find better typing here
-    return this.aaManager.aaAccountClient as KernelAccountClient<Transport, Chain, KernelSmartAccount>;
+    return this.aaManager.aaAccountClient;
   }
 
   async auth() {

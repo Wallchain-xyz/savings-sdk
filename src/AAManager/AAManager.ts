@@ -1,8 +1,28 @@
-import { KernelValidator, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
+import {
+  KernelAccountAbi,
+  KernelValidator,
+  addressToEmptyAccount,
+  createKernelAccount,
+  createKernelAccountClient,
+} from '@zerodev/sdk';
+import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
 
 import { bundlerActions } from 'permissionless';
-import { Address, Hex, PrivateKeyAccount, type Transport, createPublicClient, encodeFunctionData, http } from 'viem';
+import {
+  Address,
+  Chain,
+  type Client,
+  Hex,
+  HttpTransport,
+  PrivateKeyAccount,
+  createPublicClient,
+  encodeFunctionData,
+  getAbiItem,
+  http,
+  toFunctionSelector,
+  zeroAddress,
+} from 'viem';
 
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
@@ -14,17 +34,23 @@ import { AllowanceParams, ERC_20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } f
 import { createERC20AddDepositTxn } from './createERC20AddDepositTxn';
 import { createNativeAddDepositTxn } from './createNativeAddDepositTxn';
 import { createRequestAllowanceTxn } from './createRequestAllowanceTxn';
-import { UserOperation, createSponsorUserOperation } from './createSponsorUserOperation';
+import { createSponsorUserOperation } from './createSponsorUserOperation';
+
+import { AAManagerEntryPoint, entryPoint } from './EntryPoint';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
 
 const ERC20_ADD_DEPOSIT_FUNCTION_NAME = 'deposit';
 const ERC20_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdraw';
 // This is the same for all native coins, not just BNB
 const NATIVE_ADD_DEPOSIT_FUNCTION_NAME = 'depositBNB';
 const NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdrawBNB';
+
+type AAManagerTransport = HttpTransport;
+type AAManagerSmartAccount = KernelSmartAccount<AAManagerEntryPoint>;
 interface ConstructorParams {
-  sudoValidator: KernelValidator;
+  sudoValidator: KernelValidator<AAManagerEntryPoint>;
   privateKeyAccount: PrivateKeyAccount;
   bundlerChainAPIKey: string;
   sponsorshipAPIKey: string;
@@ -47,26 +73,26 @@ interface PrepareSessionKeyAccountParams {
   depositStrategyIds: DepositStrategyId[];
 }
 
-export class AAManager {
+export class AAManager<TChain extends Chain> {
   // this account is provided outside as AA account to use
-  private _aaAccountClient: ReturnType<typeof createKernelAccountClient> | undefined;
+  private _aaAccountClient:
+    | KernelAccountClient<AAManagerEntryPoint, AAManagerTransport, TChain, AAManagerSmartAccount>
+    | undefined;
 
   // this account is used only to withdraw deposits
-  private sponsoredAccountClient: ReturnType<typeof createKernelAccountClient> | undefined;
+  private sponsoredAccountClient:
+    | KernelAccountClient<AAManagerEntryPoint, AAManagerTransport, TChain, AAManagerSmartAccount>
+    | undefined;
 
-  private readonly sudoValidator: KernelValidator;
+  private readonly sudoValidator: KernelValidator<AAManagerEntryPoint>;
 
   private readonly privateKeyAccount: PrivateKeyAccount;
 
-  private readonly publicClient: ReturnType<typeof createPublicClient>;
+  private readonly publicClient: Client<AAManagerTransport, TChain, undefined>;
 
-  private readonly transport: Transport;
+  private readonly transport: AAManagerTransport;
 
-  private readonly sponsorUserOperation: ({
-    userOperation,
-  }: {
-    userOperation: UserOperation;
-  }) => Promise<UserOperation>;
+  private readonly sponsorUserOperation: ReturnType<typeof createSponsorUserOperation>;
 
   constructor({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId, privateKeyAccount }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
@@ -83,20 +109,24 @@ export class AAManager {
 
   async init() {
     const aaAccount = await createKernelAccount(this.publicClient, {
+      entryPoint,
       plugins: {
         sudo: this.sudoValidator,
       },
     });
     this._aaAccountClient = createKernelAccountClient({
+      entryPoint,
       account: aaAccount,
-      transport: this.transport,
+      bundlerTransport: this.transport,
     });
 
     this.sponsoredAccountClient = createKernelAccountClient({
+      entryPoint,
       account: aaAccount,
-      transport: this.transport,
-      // @ts-expect-error @merlin fix
-      sponsorUserOperation: this.sponsorUserOperation,
+      bundlerTransport: this.transport,
+      middleware: {
+        sponsorUserOperation: this.sponsorUserOperation,
+      },
     });
   }
 
@@ -108,8 +138,6 @@ export class AAManager {
   }
 
   get aaAddress(): Address {
-    // TODO: @merlin fix typing
-    // @ts-expect-error it doesn't know here that we have account inside
     return this.aaAccountClient.account.address;
   }
 
@@ -150,6 +178,7 @@ export class AAManager {
     const combinedPermissions = strategies.flatMap(strategy => strategy.permissions);
 
     const sessionKeyValidator = await signerToSessionKeyValidator(this.publicClient, {
+      entryPoint,
       signer: emptySessionKeySigner,
       validatorData: {
         permissions: combinedPermissions,
@@ -157,9 +186,14 @@ export class AAManager {
     });
 
     const sessionKeyAccount = await createKernelAccount(this.publicClient, {
+      entryPoint,
       plugins: {
         sudo: this.sudoValidator,
         regular: sessionKeyValidator,
+        action: {
+          address: zeroAddress,
+          selector: toFunctionSelector(getAbiItem({ abi: KernelAccountAbi, name: 'executeBatch' })),
+        },
       },
     });
 
@@ -173,12 +207,8 @@ export class AAManager {
 
     const { account } = this.sponsoredAccountClient;
     return this.sponsoredAccountClient.sendUserOperation({
-      // TODO: @merlin fix typing
-      // @ts-expect-error it doesn't know here that we have account inside
       account,
       userOperation: {
-        // TODO: @merlin fix typing
-        // @ts-expect-error it doesn't know here that we have account inside
         callData: await account.encodeCallData(txns),
       },
     });
@@ -242,7 +272,7 @@ export class AAManager {
     }
     const userOpHash = await this.sendUserOp(txns);
 
-    return this.sponsoredAccountClient.extend(bundlerActions).waitForUserOperationReceipt({
+    return this.sponsoredAccountClient.extend(bundlerActions(entryPoint)).waitForUserOperationReceipt({
       hash: userOpHash,
     });
   }

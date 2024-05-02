@@ -3,6 +3,7 @@ import { KernelValidator } from '@zerodev/sdk';
 import { PrivateKeyAccount } from 'viem';
 
 import { AAManager } from '../AAManager/AAManager';
+import { AAManagerEntryPoint } from '../AAManager/EntryPoint';
 import { chain_id as ChainId, createApiClient as createAuthClient } from '../api/auth/__generated__/createApiClient';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { createApiClient as createSKAClient } from '../api/ska/__generated__/createApiClient';
@@ -11,7 +12,7 @@ import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 import type { ZodiosOptions } from '@zodios/core';
 
 export interface CreateSavingsAccountFromKernelValidatorParams {
-  sudoValidator: KernelValidator;
+  sudoValidator: KernelValidator<AAManagerEntryPoint>;
   privateKeyAccount: PrivateKeyAccount; // TODO: @merlin maybe we should not store this for sec reasons
   bundlerChainAPIKey: string;
   sponsorshipAPIKey: string;

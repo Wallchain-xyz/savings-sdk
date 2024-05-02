@@ -1,6 +1,8 @@
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
 import { PrivateKeyAccount, createPublicClient, http } from 'viem';
 
+import { entryPoint } from '../AAManager/EntryPoint';
+
 import {
   CreateSavingsAccountFromKernelValidatorParams,
   createSavingsAccountFromSudoValidator,
@@ -21,6 +23,7 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   });
 
   const sudoValidator = await signerToEcdsaValidator(publicClient, {
+    entryPoint,
     signer: privateKeyAccount,
   });
 

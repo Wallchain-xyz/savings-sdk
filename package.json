@@ -31,12 +31,12 @@
     ]
   },
   "dependencies": {
-    "@zerodev/ecdsa-validator": "^5.0.3",
-    "@zerodev/sdk": "^5.0.8",
-    "@zerodev/session-key": "^5.1.1",
+    "@zerodev/ecdsa-validator": "^5.2.3",
+    "@zerodev/sdk": "^5.2.11",
+    "@zerodev/session-key": "^5.3.0",
     "@zodios/core": "^10.9.6",
     "axios": "^1.5.1",
-    "permissionless": "^0.0.34",
+    "permissionless": "^0.1.22",
     "viem": "^2.5.0",
     "zod": "^3.22.4"
   },
@@ -71,7 +71,7 @@
     "semantic-release": "^21.0.2",
     "sort-package-json": "^2.4.1",
     "ts-jest": "^29.1.0",
-    "typescript": "^5.0.4",
+    "typescript": "~5.0.4",
     "typescript-eslint": "^7.4.0"
   },
   "publishConfig": {

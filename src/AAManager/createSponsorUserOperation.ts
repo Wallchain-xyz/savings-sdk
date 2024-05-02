@@ -1,17 +1,15 @@
+import { UserOperation } from 'permissionless';
 import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
 import { http as web3HTTPTransport } from 'viem';
 
-const ENTRYPOINT_ADDRESS_V06 = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789';
+import { KernelVersion, entryPoint } from './EntryPoint';
 
-export interface UserOperation {
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
-  nonce: bigint;
-  signature: `0x${string}`;
-  sender: `0x${string}`;
-  initCode: `0x${string}`;
-  callData: `0x${string}`;
-}
+import type { PartialBy } from 'viem/types/utils';
+
+type UserOperationToSponsor = PartialBy<
+  UserOperation<KernelVersion>,
+  'callGasLimit' | 'preVerificationGas' | 'verificationGasLimit'
+>;
 
 function getSponsorshipPolicyIdByChainId(chainId: number) {
   switch (chainId) {
@@ -50,14 +48,14 @@ export function createSponsorUserOperation({ pimlicoApiKey, chainId }: { pimlico
   const pimlicoPaymasterTransport = web3HTTPTransport(pimlicoPaymasterURL);
 
   const pimlicoPaymasterClient = createPimlicoPaymasterClient({
+    entryPoint,
     transport: pimlicoPaymasterTransport,
   });
 
-  return async ({ userOperation }: { userOperation: UserOperation }) => {
+  return async ({ userOperation }: { userOperation: UserOperationToSponsor }) => {
     const sponsoredUserOperation = await pimlicoPaymasterClient.sponsorUserOperation({
       userOperation,
       sponsorshipPolicyId,
-      entryPoint: ENTRYPOINT_ADDRESS_V06,
     });
 
     return {
