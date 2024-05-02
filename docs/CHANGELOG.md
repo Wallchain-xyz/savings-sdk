@@ -1,3 +1,9 @@
+# [1.1.0-alpha.13](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.12...v1.1.0-alpha.13) (2024-05-02)
+
+### Bug Fixes
+
+- eng-2045: fix 404 not from service ([a4e8017](https://gitlab.com/wallchain/wallet/yield-sdk/commit/a4e801758fec3ce8d9b8f85a6cec1df9b93298b8))
+
 # [1.1.0-alpha.12](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0-alpha.11...v1.1.0-alpha.12) (2024-05-01)
 
 ### Bug Fixes
