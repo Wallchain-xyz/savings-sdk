@@ -1,6 +1,7 @@
 import { UserOperation } from 'permissionless';
-import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
-import { http as web3HTTPTransport } from 'viem';
+import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
+
+import { Transport } from 'viem';
 
 import { KernelVersion, entryPoint } from './EntryPoint';
 
@@ -26,40 +27,38 @@ function getSponsorshipPolicyIdByChainId(chainId: number) {
   }
 }
 
-function getChainPrefixByChainId(chainId: number) {
-  switch (chainId) {
-    case 1:
-      return 'ethereum';
-    case 8453:
-      return 'base';
-    case 56:
-      return 'binance';
-    case 42161:
-      return 'arbitrum';
-    default:
-      throw new Error(`Unsupported chainId - ${chainId}`);
-  }
+interface CreateSponsorUserOperationParams {
+  paymasterTransport: Transport;
+  chainId: number;
 }
 
-export function createSponsorUserOperation({ pimlicoApiKey, chainId }: { pimlicoApiKey: string; chainId: number }) {
+export function createSponsorUserOperation({ paymasterTransport, chainId }: CreateSponsorUserOperationParams) {
   const sponsorshipPolicyId = getSponsorshipPolicyIdByChainId(chainId);
-  const chainPrefix = getChainPrefixByChainId(chainId);
-  const pimlicoPaymasterURL = `https://api.pimlico.io/v2/${chainPrefix}/rpc?apikey=${pimlicoApiKey}`;
-  const pimlicoPaymasterTransport = web3HTTPTransport(pimlicoPaymasterURL);
 
   const pimlicoPaymasterClient = createPimlicoPaymasterClient({
     entryPoint,
-    transport: pimlicoPaymasterTransport,
+    transport: paymasterTransport,
+  });
+
+  const bundlerClient = createPimlicoBundlerClient({
+    entryPoint,
+    transport: paymasterTransport,
   });
 
   return async ({ userOperation }: { userOperation: UserOperationToSponsor }) => {
+    const gasPrices = await bundlerClient.getUserOperationGasPrice();
+    const sponsorableUserOperation = {
+      ...userOperation,
+      maxFeePerGas: gasPrices.standard.maxFeePerGas, // if using Pimlico
+      maxPriorityFeePerGas: gasPrices.standard.maxPriorityFeePerGas,
+    };
     const sponsoredUserOperation = await pimlicoPaymasterClient.sponsorUserOperation({
-      userOperation,
+      userOperation: sponsorableUserOperation,
       sponsorshipPolicyId,
     });
 
     return {
-      ...userOperation,
+      ...sponsorableUserOperation,
       ...sponsoredUserOperation,
     };
   };

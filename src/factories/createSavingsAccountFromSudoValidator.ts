@@ -14,8 +14,7 @@ import type { ZodiosOptions } from '@zodios/core';
 export interface CreateSavingsAccountFromKernelValidatorParams {
   sudoValidator: KernelValidator<AAManagerEntryPoint>;
   privateKeyAccount: PrivateKeyAccount; // TODO: @merlin maybe we should not store this for sec reasons
-  bundlerChainAPIKey: string;
-  sponsorshipAPIKey: string;
+  apiKey: string;
   chainId: ChainId;
   savingsBackendUrl: string;
   zodiosOptions?: Partial<ZodiosOptions>;
@@ -27,14 +26,18 @@ export async function createSavingsAccountFromSudoValidator({
 
   // TODO: @merlin think how to pass these not via params
   // since external wallet code doesn't need to know about this
-  bundlerChainAPIKey,
-  sponsorshipAPIKey,
+  apiKey,
   chainId,
   savingsBackendUrl,
 
   zodiosOptions,
 }: CreateSavingsAccountFromKernelValidatorParams) {
-  const aaManager = new AAManager({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId, privateKeyAccount });
+  const aaManager = new AAManager({
+    sudoValidator,
+    apiKey,
+    chainId,
+    privateKeyAccount,
+  });
   await aaManager.init();
 
   const authClient = createAuthClient(savingsBackendUrl, zodiosOptions);

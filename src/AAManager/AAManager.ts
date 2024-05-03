@@ -19,7 +19,6 @@ import {
   createPublicClient,
   encodeFunctionData,
   getAbiItem,
-  http,
   toFunctionSelector,
   zeroAddress,
 } from 'viem';
@@ -33,7 +32,9 @@ import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 import { AllowanceParams, ERC_20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './createAllowanceTxn';
 import { createERC20AddDepositTxn } from './createERC20AddDepositTxn';
 import { createNativeAddDepositTxn } from './createNativeAddDepositTxn';
+import { createPimlicoTransport } from './createPimlicoTransport';
 import { createRequestAllowanceTxn } from './createRequestAllowanceTxn';
+import { createRPCTransport } from './createRPCTransport';
 import { createSponsorUserOperation } from './createSponsorUserOperation';
 
 import { AAManagerEntryPoint, entryPoint } from './EntryPoint';
@@ -52,8 +53,7 @@ type AAManagerSmartAccount = KernelSmartAccount<AAManagerEntryPoint>;
 interface ConstructorParams {
   sudoValidator: KernelValidator<AAManagerEntryPoint>;
   privateKeyAccount: PrivateKeyAccount;
-  bundlerChainAPIKey: string;
-  sponsorshipAPIKey: string;
+  apiKey: string;
   chainId: ChainId;
 }
 
@@ -90,21 +90,23 @@ export class AAManager<TChain extends Chain> {
 
   private readonly publicClient: Client<AAManagerTransport, TChain, undefined>;
 
-  private readonly transport: AAManagerTransport;
+  private readonly bundlerTransport: AAManagerTransport;
 
   private readonly sponsorUserOperation: ReturnType<typeof createSponsorUserOperation>;
 
-  constructor({ sudoValidator, bundlerChainAPIKey, sponsorshipAPIKey, chainId, privateKeyAccount }: ConstructorParams) {
+  constructor({ sudoValidator, apiKey, chainId, privateKeyAccount }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
-    this.transport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
+    this.privateKeyAccount = privateKeyAccount;
     this.publicClient = createPublicClient({
-      transport: this.transport,
+      transport: createRPCTransport({ chainId }),
     });
+
+    const pimlicoTransport = createPimlicoTransport({ chainId, pimlicoApiKey: apiKey });
+    this.bundlerTransport = pimlicoTransport;
     this.sponsorUserOperation = createSponsorUserOperation({
-      pimlicoApiKey: sponsorshipAPIKey,
+      paymasterTransport: pimlicoTransport,
       chainId,
     });
-    this.privateKeyAccount = privateKeyAccount;
   }
 
   // TODO: A need in calling init() after constructor can create errors. Can we
@@ -121,13 +123,13 @@ export class AAManager<TChain extends Chain> {
     this._aaAccountClient = createKernelAccountClient({
       entryPoint,
       account: aaAccount,
-      bundlerTransport: this.transport,
+      bundlerTransport: this.bundlerTransport,
     });
 
     this.sponsoredAccountClient = createKernelAccountClient({
       entryPoint,
       account: aaAccount,
-      bundlerTransport: this.transport,
+      bundlerTransport: this.bundlerTransport,
       middleware: {
         sponsorUserOperation: this.sponsorUserOperation,
       },

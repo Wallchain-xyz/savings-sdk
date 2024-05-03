@@ -1,7 +1,10 @@
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
-import { PrivateKeyAccount, createPublicClient, http } from 'viem';
+import { PrivateKeyAccount, createPublicClient } from 'viem';
 
+import { createRPCTransport } from '../AAManager/createRPCTransport';
 import { entryPoint } from '../AAManager/EntryPoint';
+
+import { chain_id as ChainId } from '../api/auth/__generated__/createApiClient';
 
 import {
   CreateSavingsAccountFromKernelValidatorParams,
@@ -10,16 +13,16 @@ import {
 
 interface CreateYieldAccountParams extends Omit<CreateSavingsAccountFromKernelValidatorParams, 'sudoValidator'> {
   privateKeyAccount: PrivateKeyAccount;
+  chainId: ChainId;
 }
 
 export async function createSavingsAccountFromPrivateKeyAccount({
   privateKeyAccount,
-  bundlerChainAPIKey,
+  chainId,
   ...props
 }: CreateYieldAccountParams) {
-  const aaBundlerTransport = http(`https://rpc.zerodev.app/api/v2/bundler/${bundlerChainAPIKey}`);
   const publicClient = createPublicClient({
-    transport: aaBundlerTransport,
+    transport: createRPCTransport({ chainId }),
   });
 
   const sudoValidator = await signerToEcdsaValidator(publicClient, {
@@ -29,7 +32,7 @@ export async function createSavingsAccountFromPrivateKeyAccount({
 
   return createSavingsAccountFromSudoValidator({
     privateKeyAccount,
-    bundlerChainAPIKey,
+    chainId,
     sudoValidator,
     ...props,
   });
