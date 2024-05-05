@@ -1,82 +1,13 @@
-default:
-  image: node:20
-  before_script:
-    - npm ci --cache .npm --prefer-offline
-    - |
-      {
-        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
-        echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
-      } | tee -a .npmrc
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - .npm/
-
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
 variables:
-  NPM_TOKEN: ${CI_JOB_TOKEN}
+  RUN_TESTS: true
+  RUN_LINTERS: true
+  BUILD_STORYBOOK: false
+  UI_BASELINE: false
+  BUILD_ZOD: false
+  PUBLISH_PACKAGE: false
 
-stages:
-  - build
-  - test
-  - release
-# ========== SHARED CONFIG ==========
-.base:
-  interruptible: true
-
-.cache-base:
-  extends: .base
-  cache:
-    key: &CACHE_KEY
-      files:
-        - package-lock.json
-      prefix: $CI_PROJECT_NAME
-    policy: pull
-    paths: &CACHE_PATHS
-      - node_modules
-
-.node-base:
-  extends: .cache-base
-  image: node:20-alpine
-
-# ========== BASIC STEPS CONFIG: BUILD ==========
-build_deps:
-  extends: .node-base
-  stage: build
-  cache:
-    - key: *CACHE_KEY
-      policy: push
-      paths: *CACHE_PATHS
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "push"
-      when: always
-    - if: $CI_PIPELINE_SOURCE == "trigger"
-      when: always
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-  script:
-    - npm ci
-
-# ========== BASIC STEPS CONFIG: TEST ==========
-build-prod:
-  extends: .node-base
-  stage: test
-  needs: [build_deps]
-  script:
-    - npm run build
-  artifacts:
-    paths:
-      - dist/
-## while SDK is under active development we would publish and version manually
-#publish:
-#  extends: .base
-#  stage: release
-#  needs: [build-prod]
-#  script:
-#    - npm run semantic-release
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == 'alpha' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#      when: on_success
+include:
+  - project: wallchain/devops/ci-templates
+    ref: v1.3.0
+    file:
+      - next-js/pipelines/package-next-js.gitlab-ci.yaml
