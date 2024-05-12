@@ -1,4 +1,4 @@
-import { Address, encodeFunctionData } from 'viem';
+import { Address, encodeFunctionData, parseAbi } from 'viem';
 
 interface CreateRequestAllowanceTxnParams {
   owner: Address;
@@ -14,23 +14,7 @@ export function createRequestAllowanceTxn({ owner, token, spender }: CreateReque
         from: owner,
         to: token,
         data: encodeFunctionData({
-          functionName: 'allowance',
-          abi: [
-            {
-              name: 'allowance',
-              type: 'function',
-              inputs: [
-                {
-                  type: 'address',
-                  name: 'from',
-                },
-                {
-                  type: 'address',
-                  name: 'to',
-                },
-              ],
-            },
-          ],
+          abi: parseAbi(['function allowance(address owner, address spender) external view returns (uint256)']),
           args: [owner, spender],
         }),
         value: '0x0',
