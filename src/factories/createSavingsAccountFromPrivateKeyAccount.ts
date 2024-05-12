@@ -1,7 +1,7 @@
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
 import { PrivateKeyAccount, createPublicClient } from 'viem';
 
-import { createRPCTransport } from '../AAManager/createRPCTransport';
+import { createRPCTransport } from '../AAManager/transports/createRPCTransport';
 import { entryPoint } from '../AAManager/EntryPoint';
 
 import { chain_id as ChainId } from '../api/auth/__generated__/createApiClient';

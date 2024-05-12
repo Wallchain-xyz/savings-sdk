@@ -29,15 +29,14 @@ import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyB
 import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
 import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
-import { AllowanceParams, ERC20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './createAllowanceTxn';
-import { createERC20AddDepositTxn } from './createERC20AddDepositTxn';
-import { createNativeAddDepositTxn } from './createNativeAddDepositTxn';
-import { createPimlicoTransport } from './createPimlicoTransport';
-import { createRequestAllowanceTxn } from './createRequestAllowanceTxn';
-import { createRPCTransport } from './createRPCTransport';
 import { createSponsorUserOperation } from './createSponsorUserOperation';
-
 import { AAManagerEntryPoint, entryPoint } from './EntryPoint';
+import { createRequestAllowanceTxn } from './requests/createRequestAllowanceTxn';
+import { createPimlicoTransport } from './transports/createPimlicoTransport';
+import { createRPCTransport } from './transports/createRPCTransport';
+import { AllowanceParams, ERC20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './txns/createAllowanceTxn';
+import { createERC20AddDepositTxn } from './txns/createERC20AddDepositTxn';
+import { createNativeAddDepositTxn } from './txns/createNativeAddDepositTxn';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
