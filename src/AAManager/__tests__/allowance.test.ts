@@ -5,6 +5,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
+import { ensureAccountHasWETHTokenAndGas } from '../../testSuite/defiHelpers';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 
 describe('Allowance', () => {
@@ -65,16 +66,10 @@ describe('Allowance', () => {
           });
         }).rejects.toThrowError();
 
-        // Act: deposit allowance
-        const { request: requestDeposit } = await testClient.simulateContract({
+        await ensureAccountHasWETHTokenAndGas({
+          testClient,
           account: eoaAccount,
-          address: tokenAddress,
-          functionName: 'deposit',
-          abi: parseAbi(['function deposit() public payable']),
-          args: [],
-          value: BigInt(10),
         });
-        await testClient.writeContract(requestDeposit);
 
         // Act: approve allowance
         const { request: requestApprove } = await testClient.simulateContract({
