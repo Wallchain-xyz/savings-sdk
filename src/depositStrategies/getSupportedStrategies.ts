@@ -4,6 +4,8 @@ import beefyBaseStrategies from './strategies/base/deposit_strategies.json';
 
 import type { DepositStrategy } from './DepositStrategy';
 
+// TODO: This is a bit hard to read and comprehend. Not sure what the strategy
+// is prepared for
 const prepareBeefyStrategy = (strategy: (typeof beefyBaseStrategies)[number]) =>
   ({
     ...strategy,

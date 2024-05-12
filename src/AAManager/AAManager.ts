@@ -107,6 +107,10 @@ export class AAManager<TChain extends Chain> {
     this.privateKeyAccount = privateKeyAccount;
   }
 
+  // TODO: A need in calling init() after constructor can create errors. Can we
+  // create a static build method and pass already inited objects into
+  // constructor to just write down? This will also make sure constructor will
+  // not throw (which is a preferable way)
   async init() {
     const aaAccount = await createKernelAccount(this.publicClient, {
       entryPoint,
