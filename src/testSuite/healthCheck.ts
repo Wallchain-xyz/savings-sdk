@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
 import { ENTRYPOINT_ADDRESS_V07, createBundlerClient } from 'permissionless';
-import { http } from 'viem';
-import { foundry } from 'viem/chains';
+import { createPublicClient, http } from 'viem';
+import { base } from 'viem/chains';
 
 export const ensureBundlerIsReady = async () => {
   const bundlerClient = createBundlerClient({
-    chain: foundry,
+    chain: base,
     transport: http('http://localhost:4337'),
     entryPoint: ENTRYPOINT_ADDRESS_V07,
   });
@@ -33,6 +33,24 @@ export const ensurePaymasterIsReady = async () => {
         throw new Error('paymaster not ready yet');
       }
 
+      return;
+    } catch {
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+};
+
+export const ensureAnvilIsReady = async () => {
+  const publicClient = createPublicClient({
+    chain: base,
+    transport: http('http://localhost:8545'),
+  });
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      await publicClient.getChainId();
       return;
     } catch {
       // eslint-disable-next-line no-promise-executor-return
