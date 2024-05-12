@@ -42,7 +42,7 @@ const privateKeyAccount: PrivateKeyAccount = ...;
 const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
   privateKeyAccount: account,
   chainId: 8453,
-  savingsBackendUrl: 'api-url',
+  savingsBackendUrl: 'https://api.wallchains.com',
   bundlerChainAPIKey: 'key-1',
   sponsorshipAPIKey: 'key-2',
 });
@@ -69,7 +69,7 @@ const savingsAccount = await createSavingsAccountFromSudoValidator({
   sudoValidator: sudoValidator,
   chainId: 8453,
   privateKeyAccount: account,
-  savingsBackendUrl: 'api-url',
+  savingsBackendUrl: 'https://api.wallchains.com',
   bundlerChainAPIKey: 'key-1',
   sponsorshipAPIKey: 'key-2',
 })
