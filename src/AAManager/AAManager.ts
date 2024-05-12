@@ -232,6 +232,8 @@ export class AAManager<TChain extends Chain> {
     const isNativeStrategy = getIsNativeStrategy(depositStrategy);
     const functionName = isNativeStrategy ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME : ERC20_ADD_DEPOSIT_FUNCTION_NAME;
 
+    // TODO: Looks like depositStrategy better be a class with ability to lookup
+    // permissions by type: addDeposit, allowance, and withdraw.
     const addDepositPermission = depositStrategy.permissions.find(
       permission => permission.functionName === functionName,
     );
