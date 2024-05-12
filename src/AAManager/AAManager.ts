@@ -29,7 +29,7 @@ import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyB
 import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
 import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
-import { AllowanceParams, ERC_20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './createAllowanceTxn';
+import { AllowanceParams, ERC20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './createAllowanceTxn';
 import { createERC20AddDepositTxn } from './createERC20AddDepositTxn';
 import { createNativeAddDepositTxn } from './createNativeAddDepositTxn';
 import { createPimlicoTransport } from './createPimlicoTransport';
@@ -245,7 +245,7 @@ export class AAManager<TChain extends Chain> {
       txns.push(nativeAddDepositTxn);
     } else {
       const allowancePermission = depositStrategy.permissions.find(
-        permission => permission.functionName === ERC_20_ALLOWANCE_FUNCTION_NAME,
+        permission => permission.functionName === ERC20_ALLOWANCE_FUNCTION_NAME,
       );
 
       if (!allowancePermission) {
