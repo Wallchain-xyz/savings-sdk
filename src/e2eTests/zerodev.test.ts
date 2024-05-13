@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
 import { KernelAccountAbi, addressToEmptyAccount, createKernelAccount, createKernelAccountClient } from '@zerodev/sdk';
 import {
@@ -19,8 +21,6 @@ import {
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
-
-import { IntegrationTestConfig, getTestConfig } from './helper';
 
 import type { UserOperation } from 'permissionless/types/userOperation';
 
@@ -61,18 +61,17 @@ const APPROVE_ERC20_ABI: AbiFunction = {
 };
 
 describe('E2E zerodev API tests', () => {
-  const config: IntegrationTestConfig = getTestConfig();
+  const aaOwnerPrivateKey = `0x${crypto.randomBytes(32).toString('hex')}` as `0x{string}`;
 
-  const BUNDLER_RPC = `https://rpc.zerodev.app/api/v2/bundler/${config.apiKey}`;
+  const BUNDLER_RPC = `http://localhost:4337`;
+  const CHAIN_RPC = `http://localhost:8545`;
 
   const chain = base;
   const entryPoint = ENTRYPOINT_ADDRESS_V06;
 
   function createSponsorUserOperation() {
-    const pimlicoPaymasterURL = `https://api.pimlico.io/v2/base/rpc?apikey=${config.apiKey}`;
+    const pimlicoPaymasterURL = `http://localhost:4330`;
     const pimlicoTransport = http(pimlicoPaymasterURL);
-
-    const sponsorshipPolicyId = 'sp_condemned_la_nuit';
 
     const pimlicoPaymasterClient = createPimlicoPaymasterClient({
       transport: pimlicoTransport,
@@ -82,7 +81,6 @@ describe('E2E zerodev API tests', () => {
     return async ({ userOperation }: { userOperation: UserOperation<'v0.6'> }) => {
       const sponsoredUserOperation = await pimlicoPaymasterClient.sponsorUserOperation({
         userOperation,
-        sponsorshipPolicyId,
       });
 
       return {
@@ -93,15 +91,11 @@ describe('E2E zerodev API tests', () => {
   }
 
   it('deposit USDC using batched txns', async () => {
-    if (config.aaOwnerPrivateKey === '') {
-      throw Error('Please set TESTS_AA_OWNER_PRIVATE_KEY to run this test');
-    }
-
     // Step 1: Setup local (owner) validator
 
-    const signer = privateKeyToAccount(config.aaOwnerPrivateKey as `0x{string}`);
+    const signer = privateKeyToAccount(aaOwnerPrivateKey);
     const publicClient = createPublicClient({
-      transport: http(BUNDLER_RPC),
+      transport: http(CHAIN_RPC),
     });
     const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
       signer,
