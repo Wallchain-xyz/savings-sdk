@@ -3,20 +3,18 @@ import crypto from 'crypto';
 import { PrivateKeyAccount } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
+import { base } from 'viem/chains';
+
 import { getSupportedDepositStrategies } from '../depositStrategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../factories/createSavingsAccountFromPrivateKeyAccount';
 
-import { IntegrationTestConfig, getTestConfig } from './helper';
-
 describe('E2E SDK test without onchain transactions', () => {
-  const config: IntegrationTestConfig = getTestConfig();
-
   const makeForAccount = (account: PrivateKeyAccount) =>
     createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: account,
-      chainId: config.chainId,
-      savingsBackendUrl: config.apiUrl,
-      apiKey: config.apiKey,
+      chainId: base.id, // TODO: maybe make it changeable
+      savingsBackendUrl: 'http://localhost:8000', // TODO: Maybe not needed?
+      apiKey: 'api-key-to-be-removed', // TODO: Maybe not needed?
     });
 
   it('auth should register for new private key', async () => {
@@ -26,7 +24,7 @@ describe('E2E SDK test without onchain transactions', () => {
     const user = await savingsAccount.auth();
     expect(user.ownerships[0].signer_address).toBe(account.address);
     expect(user.ownerships[0].aa_address).toBe(savingsAccount.aaAddress);
-    expect(user.ownerships[0].chain_id).toBe(config.chainId);
+    expect(user.ownerships[0].chain_id).toBe(base.id); // TODO: maybe make it changeable
   }, 10_000);
 
   it('auth should login on second request', async () => {
