@@ -1,17 +1,16 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import { tokenAddresses } from '@zerodev/defi';
-import { LocalAccount, PrivateKeyAccount, parseAbi, parseEther } from 'viem';
-import { base } from 'viem/chains';
+import { Address, LocalAccount, PrivateKeyAccount, parseAbi, parseEther } from 'viem';
 
 import { ExtendedTestClient } from './createExtendedTestClient';
 
 // TODO: Support not only `base` chain
 
-export async function ensureAccountHasWETHTokenAndGas({
+export async function ensureAccountHasTokenAndGas({
+  tokenAddress,
   client,
   account,
   shouldMine, // Disabling can speed up test if mine is not necessary. Use with care
 }: {
+  tokenAddress: Address;
   client: ExtendedTestClient;
   account: LocalAccount | PrivateKeyAccount;
   shouldMine?: boolean;
@@ -23,7 +22,7 @@ export async function ensureAccountHasWETHTokenAndGas({
 
   const { request: requestDeposit } = await client.simulateContract({
     account,
-    address: tokenAddresses[base.id].WETH,
+    address: tokenAddress,
     functionName: 'deposit',
     abi: parseAbi(['function deposit() public payable']),
     args: [],

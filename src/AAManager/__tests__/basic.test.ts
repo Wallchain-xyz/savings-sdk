@@ -4,13 +4,13 @@ import { base } from 'viem/chains';
 
 import { ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 
-describe('Test basic bundler functions', () => {
+describe('basic bundler functions', () => {
   beforeAll(async () => {
     await ensurePaymasterIsReady();
     await ensureBundlerIsReady();
-  });
+  }, 10_000);
 
-  it('Can get chainId', async () => {
+  it('can get chainId', async () => {
     const bundlerClient = createBundlerClient({
       chain: base,
       transport: http('http://localhost:4337'),
@@ -22,7 +22,7 @@ describe('Test basic bundler functions', () => {
     expect(chainId).toEqual(base.id);
   });
 
-  it('Can get supported entryPoints', async () => {
+  it('can get supported entryPoints', async () => {
     const bundlerClient = createBundlerClient({
       chain: base,
       transport: http('http://localhost:4337'),

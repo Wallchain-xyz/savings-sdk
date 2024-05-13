@@ -219,7 +219,7 @@ export class AAManager<TChain extends Chain> {
     });
   }
 
-  async getHasAllowance({ token, owner, spender, amount }: AllowanceParams): Promise<boolean> {
+  private async getHasAllowance({ token, owner, spender, amount }: AllowanceParams): Promise<boolean> {
     const requestAllowanceTxn = createRequestAllowanceTxn({ owner, token, spender });
     const allowance: string = await this.publicClient.transport.request(requestAllowanceTxn);
     return BigInt(allowance) >= amount;
