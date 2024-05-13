@@ -52,6 +52,7 @@
     "@semantic-release/npm": "^12.0.1",
     "@semantic-release/release-notes-generator": "^11.0.1",
     "@types/jest": "^29.5.1",
+    "@types/node": "^20.12.11",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "@zerodev/defi": "^0.0.13",

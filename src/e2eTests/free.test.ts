@@ -16,8 +16,7 @@ describe('E2E SDK test without onchain transactions', () => {
       privateKeyAccount: account,
       chainId: config.chainId,
       savingsBackendUrl: config.apiUrl,
-      bundlerChainAPIKey: config.bundlerChainAPIKey,
-      sponsorshipAPIKey: config.sponsorshipAPIKey,
+      apiKey: config.apiKey,
     });
 
   it('auth should register for new private key', async () => {

@@ -63,13 +63,13 @@ const APPROVE_ERC20_ABI: AbiFunction = {
 describe('E2E zerodev API tests', () => {
   const config: IntegrationTestConfig = getTestConfig();
 
-  const BUNDLER_RPC = `https://rpc.zerodev.app/api/v2/bundler/${config.bundlerChainAPIKey}`;
+  const BUNDLER_RPC = `https://rpc.zerodev.app/api/v2/bundler/${config.apiKey}`;
 
   const chain = base;
   const entryPoint = ENTRYPOINT_ADDRESS_V06;
 
   function createSponsorUserOperation() {
-    const pimlicoPaymasterURL = `https://api.pimlico.io/v2/base/rpc?apikey=${config.sponsorshipAPIKey}`;
+    const pimlicoPaymasterURL = `https://api.pimlico.io/v2/base/rpc?apikey=${config.apiKey}`;
     const pimlicoTransport = http(pimlicoPaymasterURL);
 
     const sponsorshipPolicyId = 'sp_condemned_la_nuit';
