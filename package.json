@@ -16,7 +16,7 @@
     "prepare": "which husky && husky install || true",
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "lint-staged": {
     "package.json": [
@@ -31,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "@biconomy/account": "^4.2.0",
     "@zerodev/ecdsa-validator": "^5.2.3",
     "@zerodev/sdk": "^5.2.11",
     "@zerodev/session-key": "^5.3.0",

@@ -19,7 +19,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "removeComments": true,
-
+    "module": "esnext",
     // for lib
     "declaration": true,
     "declarationMap": true,

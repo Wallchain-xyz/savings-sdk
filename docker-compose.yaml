@@ -4,6 +4,8 @@ services:
     ports: [ "8545:8545" ]
     platform: linux/amd64
     entrypoint: [ "anvil", "--host", "0.0.0.0", "--block-time", "0.1", "--silent", "--fork-url", "https://rpc.ankr.com/base"]
+    volumes:
+      - foundry_data:$HOME/.foundry
 
   mock-paymaster:
     image: ghcr.io/pimlicolabs/mock-verifying-paymaster:main
@@ -18,3 +20,9 @@ services:
     environment:
       - ANVIL_RPC=http://anvil:8545
       - SKIP_DEPLOYMENTS=true
+    entrypoint:
+      - "/app/alto-entrypoint.sh"
+    volumes:
+      - "./alto-entrypoint.sh:/app/alto-entrypoint.sh"
+volumes:
+  foundry_data:

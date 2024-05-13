@@ -18,6 +18,13 @@ module.exports = {
   // ======= REACT =======
   // ======= NEXT =======
   // },
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
+      },
+    },
+  },
   extends: [
     // ======= JS =======
     'airbnb-base',
