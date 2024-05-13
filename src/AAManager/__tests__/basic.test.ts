@@ -1,7 +1,6 @@
 import { ENTRYPOINT_ADDRESS_V06, ENTRYPOINT_ADDRESS_V07, createBundlerClient } from 'permissionless';
 import { http } from 'viem';
 import { base } from 'viem/chains';
-import { beforeAll, describe, expect, test } from 'vitest';
 
 import { ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 
@@ -11,7 +10,7 @@ describe('Test basic bundler functions', () => {
     await ensureBundlerIsReady();
   });
 
-  test('Can get chainId', async () => {
+  it('Can get chainId', async () => {
     const bundlerClient = createBundlerClient({
       chain: base,
       transport: http('http://localhost:4337'),
@@ -23,7 +22,7 @@ describe('Test basic bundler functions', () => {
     expect(chainId).toEqual(base.id);
   });
 
-  test('Can get supported entryPoints', async () => {
+  it('Can get supported entryPoints', async () => {
     const bundlerClient = createBundlerClient({
       chain: base,
       transport: http('http://localhost:4337'),

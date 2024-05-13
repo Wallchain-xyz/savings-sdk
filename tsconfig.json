@@ -23,7 +23,7 @@
     // for lib
     "declaration": true,
     "declarationMap": true,
-    "noEmit": false,
+    "noEmit": true,
     "noEmitHelpers": true,
     "importHelpers": true,
 
@@ -32,5 +32,12 @@
     "outDir": "dist"
   },
   "include": ["./src/**/*", "./typings/**/*"],
-  "exclude": ["./node_modules/**/*", "./dist/**/*", "./__tests__/**/*", "./**/*.test.ts", "./vitest.config.ts"]
+  "exclude": [
+    "./node_modules/**/*",
+    "./dist/**/*",
+    "./__tests__/**/*",
+    "**/dist/**/*",
+    "**/__tests__/**/*",
+    "./**/*.test.ts"
+  ]
 }

@@ -1,23 +1,19 @@
 import { faker } from '@faker-js/faker';
 import { tokenAddresses } from '@zerodev/defi';
-import { PrivateKeyAccount, createTestClient, http, parseAbi, parseEther, publicActions, walletActions } from 'viem';
+import { PrivateKeyAccount, parseAbi, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
+import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAccountHasWETHTokenAndGas } from '../../testSuite/defiHelpers';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
+
+type BaseToken = keyof (typeof tokenAddresses)[8453];
 
 describe('Allowance', () => {
   let eoaAccount: PrivateKeyAccount;
   let anotherAccount: PrivateKeyAccount;
-  const testClient = createTestClient({
-    chain: base,
-    mode: 'anvil',
-    transport: http('http://localhost:8545'),
-  })
-    .extend(publicActions)
-    .extend(walletActions);
+  const testClient = createExtendedTestClient();
 
   beforeAll(async () => {
     await ensurePaymasterIsReady();
@@ -43,19 +39,21 @@ describe('Allowance', () => {
   // TODO: Add more tokens by implementing swaps in helpers
   // TODO: Add USDT verification for increased allowance (e.g. allowance should
   // be reset to 0 in meantime), will FAIL
-  ['WETH']
-    .map((tokenName: string) => ({
+  const tokens: BaseToken[] = ['WETH'];
+
+  tokens
+    .map(tokenName => ({
       tokenName,
       tokenAddress: tokenAddresses[base.id][tokenName],
     }))
     .map(({ tokenName, tokenAddress }) =>
-      test(`Can issue allowance properly for '${tokenName}'`, async () => {
+      it(`Can issue allowance properly for '${tokenName}'`, async () => {
         // Setup
         // TODO: Make random, or fetch from anvil. Currently @2 on anvil
 
         // Act: send some funds via transferFrom
-        expect(async () => {
-          await testClient.simulateContract({
+        await expect(
+          testClient.simulateContract({
             account: anotherAccount,
             address: tokenAddress,
             functionName: 'transferFrom',
@@ -63,11 +61,11 @@ describe('Allowance', () => {
               'function transferFrom(address sender, address recipient, uint256 amount) external returns (bool)',
             ]),
             args: [eoaAccount.address, anotherAccount.address, BigInt(1)],
-          });
-        }).rejects.toThrowError();
+          }),
+        ).rejects.toThrow();
 
         await ensureAccountHasWETHTokenAndGas({
-          testClient,
+          client: testClient,
           account: eoaAccount,
         });
 
@@ -97,7 +95,7 @@ describe('Allowance', () => {
           });
 
         // Act: send some funds via transferFrom and expect no funds
-        expect(
+        await expect(
           testClient.simulateContract({
             account: anotherAccount,
             address: tokenAddress,

@@ -1,11 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { tokenAddresses } from '@zerodev/defi';
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
-import { PrivateKeyAccount, createTestClient, http, parseEther, publicActions, walletActions } from 'viem';
+import { Chain, PrivateKeyAccount, createTestClient, http, parseEther, publicActions, walletActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
-
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 import { AAManager } from '../AAManager';
@@ -16,7 +14,7 @@ import { entryPoint } from '../EntryPoint';
 describe('AAManager', () => {
   let eoaAccount: PrivateKeyAccount;
   let anotherAccount: PrivateKeyAccount;
-  let aaManager: AAManager<base>;
+  let aaManager: AAManager<Chain>;
 
   const testClient = createTestClient({
     chain: base,
@@ -60,15 +58,15 @@ describe('AAManager', () => {
       privateKeyAccount: eoaAccount,
     });
     await aaManager.init();
-  });
+  }, 15_000);
 
-  test('Can give aaAddress', async () => {
+  it('Can give aaAddress', async () => {
     const { aaAddress } = aaManager;
     expect(aaAddress).toBeTruthy();
     expect(aaAddress).not.toEqual(eoaAccount.address);
   });
 
-  test('Allowance checker works', async () => {
+  it('Allowance checker works', async () => {
     const hasAllowance = await aaManager.getHasAllowance({
       token: tokenAddresses[base.id].WETH,
       owner: eoaAccount.address,

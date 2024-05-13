@@ -240,8 +240,8 @@ module.exports = {
         },
       },
     ],
-    // //  ============= VITEST RULES SECTION ==============
-    // 'jest/no-focused-tests': ERROR,
+    // //  ============= TEST RULES SECTION ==============
+    'jest/no-focused-tests': ERROR,
 
     // ======= TS =======
     // since with ts usual one is not working
