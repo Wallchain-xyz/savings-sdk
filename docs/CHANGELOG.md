@@ -1,3 +1,15 @@
+# [1.1.0](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.0.0...v1.1.0) (2024-05-13)
+
+### Bug Fixes
+
+- eng-2047: remove vitest, fix tests ([7baa8a2](https://gitlab.com/wallchain/wallet/yield-sdk/commit/7baa8a203068a0e926ef417f57fe81f687077c51))
+
+### Features
+
+- **test:** basic test for aaManager ([25d2015](https://gitlab.com/wallchain/wallet/yield-sdk/commit/25d2015e5898eb638ec1af716760cb0c627fe458))
+- **test:** fix code ([3f987dd](https://gitlab.com/wallchain/wallet/yield-sdk/commit/3f987dd64a792c328e7abc591c2613f0615614ae))
+- **tests:** add tests infra ([69929a3](https://gitlab.com/wallchain/wallet/yield-sdk/commit/69929a3b9886648db592e5fcb874ba68595d11f2))
+
 # 1.0.0 (2024-05-13)
 
 ### Bug Fixes
