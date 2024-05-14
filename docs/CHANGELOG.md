@@ -1,3 +1,13 @@
+# [1.2.0](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.1.0...v1.2.0) (2024-05-14)
+
+### Bug Fixes
+
+- **tests:** adapt changes from recent removal of bundlerChainAPIKey ([fad2fbd](https://gitlab.com/wallchain/wallet/yield-sdk/commit/fad2fbdba2415438ceab5ce4d6f7c1087f323148))
+
+### Features
+
+- **test:** use dev api for e2e tests ([e48b07c](https://gitlab.com/wallchain/wallet/yield-sdk/commit/e48b07cb80d0704fd5ed56a7bdc76fd579ae83f1))
+
 # [1.1.0](https://gitlab.com/wallchain/wallet/yield-sdk/compare/v1.0.0...v1.1.0) (2024-05-13)
 
 ### Bug Fixes
