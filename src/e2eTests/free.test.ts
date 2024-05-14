@@ -13,7 +13,7 @@ describe('E2E SDK test without onchain transactions', () => {
     createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: account,
       chainId: base.id, // TODO: maybe make it changeable
-      savingsBackendUrl: 'http://localhost:8000', // TODO: Maybe not needed?
+      savingsBackendUrl: 'https://dev.api.wallchains.com',
       apiKey: 'api-key-to-be-removed', // TODO: Maybe not needed?
     });
 
