@@ -70,13 +70,13 @@ build-prod:
   artifacts:
     paths:
       - dist/
-
-publish:
-  extends: .base
-  stage: release
-  needs: [build-prod]
-  script:
-    - npm run semantic-release
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'alpha' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: on_success
+## while SDK is under active development we would publish and version manually
+#publish:
+#  extends: .base
+#  stage: release
+#  needs: [build-prod]
+#  script:
+#    - npm run semantic-release
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == 'alpha' || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#      when: on_success
