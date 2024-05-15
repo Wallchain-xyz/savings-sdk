@@ -2,7 +2,9 @@ import { BiconomySmartAccountV2 } from '@biconomy/account';
 
 import { Address, Hash } from 'viem';
 
-import { BaseAAAccount, Txn, WaitParams } from '../types';
+import { BaseAAAccount, Txn, UserOperationV06, WaitParams } from '../types';
+
+import { denormalizeUserOp } from './common';
 
 interface BiconomyBaseAAAccountParams {
   aaAddress: Address;
@@ -19,9 +21,19 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
     this.smartAccount = smartAccount;
   }
 
-  abstract sendTxns(txns: Txn[]): Promise<Hash>;
+  abstract buildUserOp(txns: Txn[]): Promise<UserOperationV06>;
 
-  waitForUserOp(userOpHash: `0x${string}`, params?: WaitParams): Promise<void> {
+  async sendUserOp(userOp: UserOperationV06): Promise<Hash> {
+    const { userOpHash } = await this.smartAccount.sendUserOp(denormalizeUserOp(userOp));
+    return userOpHash as Hash;
+  }
+
+  async sendTxns(txns: Txn[]): Promise<Hash> {
+    const userOp = await this.buildUserOp(txns);
+    return this.sendUserOp(userOp);
+  }
+
+  waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<void> {
     const maxDuration = params?.maxDurationMS || 20000; // default 20 seconds
     const intervalValue = params?.pollingIntervalMS || 500; // default 0.5 seconds
     let totalDuration = 0;

@@ -21,6 +21,20 @@ export interface Permission {
   rules: PermissionRule[];
 }
 
+export interface UserOperationV06 {
+  sender: Address;
+  nonce: bigint;
+  initCode: Hex;
+  callData: Hex;
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+  preVerificationGas: bigint;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+  paymasterAndData: Hex;
+  signature: Hex;
+}
+
 export interface WaitParams {
   maxDurationMS?: number;
   pollingIntervalMS: number;
@@ -28,6 +42,8 @@ export interface WaitParams {
 
 export interface BaseAAAccount {
   aaAddress: Address;
+  buildUserOp: (txns: Txn[]) => Promise<UserOperationV06>;
+  sendUserOp: (userOp: UserOperationV06) => Promise<Hash>;
   sendTxns: (txns: Txn[]) => Promise<Hash>;
   waitForUserOp: (userOpHash: Hash, params?: WaitParams) => Promise<void>;
 }
@@ -48,4 +64,8 @@ export interface AAAccount extends BaseAAAccount {
 export interface AAProvider {
   createAAAccount: (signer: PrivateKeyAccount) => Promise<AAAccount>;
   createSKAccount: (skaSigner: PrivateKeyAccount, serializedSKAData: SerializedSKAData) => Promise<SKAccount>;
+}
+
+export interface Paymaster {
+  addPaymasterIntoUserOp: (userOp: UserOperationV06) => Promise<UserOperationV06>;
 }

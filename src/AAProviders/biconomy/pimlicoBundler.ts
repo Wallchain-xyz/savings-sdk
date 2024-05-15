@@ -12,16 +12,9 @@ import {
   UserOperationStruct,
 } from '@biconomy/account';
 import { BundlerClient, ENTRYPOINT_ADDRESS_V06, createBundlerClient } from 'permissionless';
-import { Address, Chain, Hash, PublicClient, createPublicClient, http, toHex } from 'viem';
+import { Address, Chain, Hash, PublicClient, createPublicClient, http } from 'viem';
 
-import type { ByteArray, Hex } from 'viem/types/misc';
-
-function ensureHex(value: string | number | bigint | boolean | ByteArray): Hex {
-  if (typeof value === 'string' && value.startsWith('0x')) {
-    return value as Hex;
-  }
-  return toHex(value);
-}
+import { ensureHex, normalizeUserOp } from './common';
 
 export class PimlicoBundler implements IBundler {
   private bundlerClient: BundlerClient<typeof ENTRYPOINT_ADDRESS_V06>;
@@ -46,17 +39,7 @@ export class PimlicoBundler implements IBundler {
   ): Promise<UserOpGasResponse> {
     const res = await this.bundlerClient.estimateUserOperationGas(
       {
-        userOperation: {
-          sender: _userOp.sender as Address,
-          nonce: BigInt(_userOp.nonce || 0),
-          initCode: ensureHex(_userOp.initCode || '0x'),
-          callData: ensureHex(_userOp.callData || '0x'),
-          preVerificationGas: BigInt(_userOp.preVerificationGas || 0),
-          maxFeePerGas: BigInt(_userOp.maxFeePerGas || 1),
-          maxPriorityFeePerGas: BigInt(_userOp.maxPriorityFeePerGas || 1),
-          paymasterAndData: ensureHex(_userOp.paymasterAndData || '0x'),
-          signature: ensureHex(_userOp.signature || '0x'),
-        },
+        userOperation: normalizeUserOp(_userOp),
       },
       // Struct is same, but a lot of string -> Hex casts
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

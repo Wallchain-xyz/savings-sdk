@@ -5,6 +5,8 @@ import { createEoaAccount } from '../../__tests__/utils/createEoaAccount';
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady } from '../../testSuite/healthCheck';
 
+import { PimlicoPaymaster } from '../pimlico/paymaster';
+
 import { BiconomyAAProvider } from './provider';
 
 describe('Biconomy Provider Local Anvil', () => {
@@ -17,6 +19,7 @@ describe('Biconomy Provider Local Anvil', () => {
     bundlerUrl: 'http://localhost:4337',
     bundlerType: 'pimlico',
   });
+  const paymaster = new PimlicoPaymaster('http://localhost:4330');
 
   beforeAll(async () => {
     await Promise.all([ensureBundlerIsReady(), ensureAnvilIsReady()]);
@@ -60,5 +63,36 @@ describe('Biconomy Provider Local Anvil', () => {
       address: receiver,
     });
     expect(receiverBalance).toBe(123n);
+  }, 100_000);
+
+  it('send simple txn with paymaster', async () => {
+    // Arrange
+    const aaAccount = await provider.createAAAccount(eoaAccount);
+    const balanceBefore = await testClient.getBalance({ address: aaAccount.aaAddress });
+    await testClient.setBalance({
+      address: aaAccount.aaAddress,
+      value: parseEther('42'),
+    });
+    const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+
+    // Act
+    let userOp = await aaAccount.buildUserOp([
+      {
+        to: receiver,
+        value: 123n,
+        data: '0x',
+      },
+    ]);
+    userOp = await paymaster.addPaymasterIntoUserOp(userOp);
+    const userOpHash = await aaAccount.sendUserOp(userOp);
+    await aaAccount.waitForUserOp(userOpHash);
+
+    // Assert
+    const receiverBalance = await testClient.getBalance({
+      address: receiver,
+    });
+    expect(receiverBalance).toBe(123n);
+    const balanceAfter = await testClient.getBalance({ address: aaAccount.aaAddress });
+    expect(balanceBefore - balanceAfter).toBe(123n);
   }, 100_000);
 });

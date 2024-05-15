@@ -6,12 +6,12 @@ import {
   createSessionKeyManagerModule,
   getABISVMSessionKeyData,
 } from '@biconomy/account';
-import { Address, Hash, Hex, toFunctionSelector } from 'viem';
+import { Address, Hex, toFunctionSelector } from 'viem';
 
-import { AAAccount, CreateSKAResult, Permission, Txn } from '../types';
+import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
 
 import { BaseBiconomyAAAccount } from './baseAccount';
-import { BiconomySKAData, abiSVMAddress } from './common';
+import { BiconomySKAData, abiSVMAddress, normalizeUserOp } from './common';
 import { SessionMemoryStorage } from './memoryStorage';
 import { SessionIdManager } from './sessionIdManager';
 
@@ -83,9 +83,9 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
     };
   }
 
-  async sendTxns(txns: Txn[]): Promise<Hash> {
-    const UserOpResp = await this.smartAccount.sendTransaction(txns);
-    return UserOpResp.userOpHash as Hash;
+  async buildUserOp(txns: Txn[]): Promise<UserOperationV06> {
+    const userOp = await this.smartAccount.buildUserOp(txns);
+    return normalizeUserOp(userOp);
   }
 
   private static async toABISVMSessionKeyData(skaAddress: Address, permission: Permission): Promise<ABISessionData> {
