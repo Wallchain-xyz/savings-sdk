@@ -1,8 +1,6 @@
-import { toFunctionSelector } from 'viem';
-
 import { Permission, Txn } from '../types';
 
-import { SessionIdMap } from './common';
+import { SessionIdMap, permissionToSelector } from './common';
 
 export class SessionIdManager {
   readonly data: SessionIdMap;
@@ -12,7 +10,7 @@ export class SessionIdManager {
   }
 
   storeSessionIdForPermission(permission: Permission, sessionId: string): void {
-    this.data[(permission.target + toFunctionSelector(permission.abi)).toLowerCase()] = sessionId;
+    this.data[(permission.target + permissionToSelector(permission)).toLowerCase()] = sessionId;
   }
 
   getSessionIdForTxn(txn: Txn): string {

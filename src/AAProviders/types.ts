@@ -1,6 +1,4 @@
-import { Address, Hash, Hex, PrivateKeyAccount } from 'viem';
-
-import type { AbiFunction } from 'abitype';
+import { Abi, Address, Hash, Hex, PrivateKeyAccount } from 'viem';
 
 export interface Txn {
   to: Address;
@@ -8,16 +6,26 @@ export interface Txn {
   value: bigint;
 }
 
+enum ParamOperator {
+  EQUAL = 0,
+  GREATER_THAN = 1,
+  LESS_THAN = 2,
+  GREATER_THAN_OR_EQUAL = 3,
+  LESS_THAN_OR_EQUAL = 4,
+  NOT_EQUAL = 5,
+}
+
 interface PermissionRule {
-  operator: 'equal';
-  value: Hex;
+  offset: number;
+  condition: ParamOperator;
+  param: Hex;
 }
 
 export interface Permission {
   target: Address;
   functionName: string;
   valueLimit: bigint;
-  abi: AbiFunction;
+  abi: Abi;
   rules: PermissionRule[];
 }
 

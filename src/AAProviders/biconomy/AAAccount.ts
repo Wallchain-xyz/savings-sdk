@@ -6,12 +6,12 @@ import {
   createSessionKeyManagerModule,
   getABISVMSessionKeyData,
 } from '@biconomy/account';
-import { Address, Hex, toFunctionSelector } from 'viem';
+import { Address, Hex } from 'viem';
 
 import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
 
 import { BaseBiconomyAAAccount } from './baseAccount';
-import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp } from './common';
+import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, permissionToSelector } from './common';
 import { SessionMemoryStorage } from './memoryStorage';
 import { SessionIdManager } from './sessionIdManager';
 
@@ -90,13 +90,13 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
 
   private static async toABISVMSessionKeyData(skaAddress: Address, permission: Permission): Promise<ABISessionData> {
     return getABISVMSessionKeyData(skaAddress, {
-      destContract: permission.target, // destination contract to call
-      functionSelector: toFunctionSelector(permission.abi), // function selector allowed
+      destContract: permission.target,
+      functionSelector: permissionToSelector(permission),
       valueLimit: permission.valueLimit,
       rules: permission.rules.map(it => ({
-        offset: 0, // TODO: implement it
-        condition: 0,
-        referenceValue: it.value,
+        offset: it.offset,
+        condition: it.condition,
+        referenceValue: it.param,
       })),
     });
   }

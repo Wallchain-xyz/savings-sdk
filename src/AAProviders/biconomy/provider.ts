@@ -6,10 +6,9 @@ import {
   createSmartAccountClient,
 } from '@biconomy/account';
 import { SupportedSigner } from '@biconomy/account/dist/_types/account';
-import { Address, PrivateKeyAccount, createWalletClient, http } from 'viem';
+import { Address, Chain, PrivateKeyAccount, createWalletClient, http } from 'viem';
 
 import { toAccount } from 'viem/accounts';
-import { defineChain } from 'viem/utils/chain/defineChain';
 
 import { AAAccount, AAProvider, SKAccount, SerializedSKAData } from '../types';
 
@@ -19,17 +18,17 @@ import { SessionMemoryStorage } from './memoryStorage';
 import { PimlicoBundler } from './pimlicoBundler';
 import { BiconomySKAccount } from './SKAccount';
 
-type ChainDef = ReturnType<typeof defineChain>;
+import type { IBundler } from '@biconomy/account/dist/_types/bundler';
 
 interface BiconomyAAProviderParams {
-  chain: ChainDef;
+  chain: Chain;
   rpcUrl?: string;
   bundlerUrl: string;
   bundlerType?: 'biconomy' | 'pimlico';
 }
 
 export class BiconomyAAProvider implements AAProvider {
-  private readonly chain: ChainDef;
+  private readonly chain: Chain;
 
   private readonly bundlerUrl: string;
 
@@ -49,13 +48,7 @@ export class BiconomyAAProvider implements AAProvider {
       signer,
       rpcUrl: this.rpcUrl,
       chainId: this.chain.id,
-      ...(this.bundlerType === 'pimlico'
-        ? {
-            bundler: new PimlicoBundler(this.bundlerUrl, this.chain),
-          }
-        : {
-            bundlerUrl: this.bundlerUrl,
-          }),
+      ...this.makeBundlerConfigPart(),
     });
     return new BiconomyAAAccount({
       aaAddress: await smartAccount.getAccountAddress(),
@@ -79,8 +72,8 @@ export class BiconomyAAProvider implements AAProvider {
     const smartAccount = await createSmartAccountClient({
       signer: this.createFakeSigner(skaData.eoaOwnerAddress),
       rpcUrl: this.rpcUrl,
-      bundlerUrl: this.bundlerUrl,
       chainId: this.chain.id,
+      ...this.makeBundlerConfigPart(),
     });
     smartAccount.setActiveValidationModule(sessionBatchModule);
 
@@ -108,5 +101,14 @@ export class BiconomyAAProvider implements AAProvider {
       chain: this.chain,
       transport: http(this.rpcUrl),
     });
+  }
+
+  private makeBundlerConfigPart(): { bundler: IBundler } | { bundlerUrl: string } {
+    if (this.bundlerType === 'pimlico') {
+      return {
+        bundler: new PimlicoBundler(this.bundlerUrl, this.chain),
+      };
+    }
+    return { bundlerUrl: this.bundlerUrl };
   }
 }
