@@ -68,12 +68,12 @@ describe('Biconomy Provider Local Anvil', () => {
   it('send simple txn with paymaster', async () => {
     // Arrange
     const aaAccount = await provider.createAAAccount(eoaAccount);
-    const balanceBefore = await testClient.getBalance({ address: aaAccount.aaAddress });
     await testClient.setBalance({
       address: aaAccount.aaAddress,
       value: parseEther('42'),
     });
     const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+    const balanceBefore = await testClient.getBalance({ address: aaAccount.aaAddress });
 
     // Act
     let userOp = await aaAccount.buildUserOp([

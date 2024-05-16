@@ -3,16 +3,21 @@ services:
     image: ghcr.io/foundry-rs/foundry:nightly-f6208d8db68f9acbe4ff8cd76958309efb61ea0b
     ports: [ "8545:8545" ]
     platform: linux/amd64
-    entrypoint: [ "anvil", "--host", "0.0.0.0", "--block-time", "0.1", "--silent", "--fork-url", "https://rpc.ankr.com/base"]
+    entrypoint: [
+      "anvil",
+      "--host", "0.0.0.0",
+      "--block-time", "1",
+      "--silent",
+      "--fork-url", "https://go.getblock.io/df4af3f3a0db4af382f683fdd6e803dd",  # Romasku free getblock
+      "--fork-block-number", "14500000"  # May-15-2024 04:09:07 PM
+    ]
+    healthcheck:
+      test: [ "CMD", "cast", "block-number", "--rpc-url", "http://0.0.0.0:8545"]
+      interval: 5s
+      timeout: 1s
+      retries: 2
     volumes:
       - foundry_data:/root/.foundry
-
-  mock-paymaster:
-    image: ghcr.io/pimlicolabs/mock-verifying-paymaster:main
-    ports: [ "4330:3000" ]
-    environment:
-      - ALTO_RPC=http://alto:4337
-      - ANVIL_RPC=http://anvil:8545
 
   alto:
     image: ghcr.io/pimlicolabs/mock-alto-bundler:main
@@ -24,5 +29,28 @@ services:
       - "/app/alto-entrypoint.sh"
     volumes:
       - "./alto-entrypoint.sh:/app/alto-entrypoint.sh"
+    healthcheck:
+      test: [ "CMD", "wget", "-O", "-", "http://0.0.0.0:4337/health" ]
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 30s
+    depends_on:
+      anvil:
+        condition: service_healthy
+
+  mock-paymaster:
+    image: ghcr.io/pimlicolabs/mock-verifying-paymaster:main
+    ports: [ "4330:3000" ]
+    environment:
+      - ALTO_RPC=http://alto:4337
+      - ANVIL_RPC=http://anvil:8545
+
+    depends_on:
+      anvil:
+        condition: service_healthy
+      alto:
+        condition: service_healthy
 volumes:
   foundry_data:
+
