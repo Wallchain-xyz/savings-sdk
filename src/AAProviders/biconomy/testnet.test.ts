@@ -121,14 +121,14 @@ describe('Biconomy Provider Polygon Amoy', () => {
         target: WETH_ADDR,
         functionName: 'deposit',
         valueLimit: parseEther('100000'),
-        abi: ABI_DEPOSIT,
+        abi: [ABI_DEPOSIT],
         rules: [],
       },
       {
         target: WETH_ADDR,
         functionName: 'withdraw',
         valueLimit: parseEther('0'),
-        abi: ABI_WITHDRAW,
+        abi: [ABI_WITHDRAW],
         rules: [],
       },
     ]);

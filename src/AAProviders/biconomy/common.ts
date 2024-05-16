@@ -1,7 +1,7 @@
 import { UserOperationStruct } from '@biconomy/account';
-import { Address, toHex } from 'viem';
+import { Address, getAbiItem, toFunctionSelector, toHex } from 'viem';
 
-import { UserOperationV06 } from '../types';
+import { Permission, UserOperationV06 } from '../types';
 
 import type { ByteArray, Hex } from 'viem/types/misc';
 
@@ -52,4 +52,12 @@ export function userOpToBiconomyUserOpStruct(userOp: UserOperationV06): UserOper
     maxFeePerGas: ensureHex(userOp.maxFeePerGas),
     maxPriorityFeePerGas: ensureHex(userOp.maxPriorityFeePerGas),
   };
+}
+
+export function permissionToSelector(permission: Permission): Hex {
+  const functionAbi = getAbiItem({ abi: permission.abi, name: permission.functionName });
+  if (!functionAbi || functionAbi.type !== 'function') {
+    throw new Error(`Invalid abi in permission ${permission}`);
+  }
+  return toFunctionSelector(functionAbi);
 }
