@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { tokenAddresses } from '@zerodev/defi';
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
-import { Chain, PrivateKeyAccount, parseEther } from 'viem';
+import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
+import { Chain, PrivateKeyAccount, http, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 
@@ -10,6 +11,7 @@ import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from
 import { AAManager } from '../AAManager';
 import { entryPoint } from '../EntryPoint';
 
+const LOCAL_PAYMASTER_RPC_URL = `http://localhost:4330`;
 describe('AAManager', () => {
   let eoaAccount: PrivateKeyAccount;
   let anotherAccount: PrivateKeyAccount;
@@ -43,15 +45,21 @@ describe('AAManager', () => {
       entryPoint,
       signer: eoaAccount,
     });
-    if (!process.env.PIMLICO_API_KEY) {
-      throw new Error('Please set env variable PIMLICO_API_KEY to run tests');
-    }
 
     aaManager = new AAManager({
       sudoValidator,
-      apiKey: process.env.PIMLICO_API_KEY,
+      apiKey: 'ANY',
       chainId: base.id,
       privateKeyAccount: eoaAccount,
+      async getSponsorshipInfo(userOperation) {
+        const pimlicoPaymasterClient = createPimlicoPaymasterClient({
+          entryPoint,
+          transport: http(LOCAL_PAYMASTER_RPC_URL),
+        });
+        return pimlicoPaymasterClient.sponsorUserOperation({
+          userOperation,
+        });
+      },
     });
     await aaManager.init();
   });

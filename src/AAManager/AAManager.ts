@@ -6,9 +6,15 @@ import {
   createKernelAccountClient,
 } from '@zerodev/sdk';
 import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
-import { revokeSessionKey, serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
+import {
+  SESSION_KEY_VALIDATOR_ADDRESS,
+  SessionKeyValidatorAbi,
+  serializeSessionKeyAccount,
+  signerToSessionKeyValidator,
+} from '@zerodev/session-key';
 
 import { bundlerActions } from 'permissionless';
+import { SponsorUserOperationReturnType } from 'permissionless/actions/smartAccount/prepareUserOperationRequest';
 import {
   Address,
   Chain,
@@ -29,7 +35,6 @@ import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyB
 import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
 import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 
-import { createSponsorUserOperation } from './createSponsorUserOperation';
 import { AAManagerEntryPoint, entryPoint } from './EntryPoint';
 import { createRequestAllowanceTxn } from './requests/createRequestAllowanceTxn';
 import { createPimlicoTransport } from './transports/createPimlicoTransport';
@@ -37,6 +42,8 @@ import { createRPCTransport } from './transports/createRPCTransport';
 import { AllowanceParams, ERC20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './txns/createAllowanceTxn';
 import { createERC20AddDepositTxn } from './txns/createERC20AddDepositTxn';
 import { createNativeAddDepositTxn } from './txns/createNativeAddDepositTxn';
+
+import { UserOperation } from './UserOperation';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
@@ -49,17 +56,22 @@ const NATIVE_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdrawBNB';
 
 type AAManagerTransport = HttpTransport;
 type AAManagerSmartAccount = KernelSmartAccount<AAManagerEntryPoint>;
-interface ConstructorParams {
-  sudoValidator: KernelValidator<AAManagerEntryPoint>;
-  privateKeyAccount: PrivateKeyAccount;
-  apiKey: string;
-  chainId: ChainId;
-}
 
 interface MinimumTxn {
   to: Address;
   value: bigint;
   data: Hex;
+}
+
+type GetSponsorshipInfo = (
+  userOperation: UserOperation,
+) => Promise<SponsorUserOperationReturnType<AAManagerEntryPoint>>;
+interface ConstructorParams {
+  sudoValidator: KernelValidator<AAManagerEntryPoint>;
+  privateKeyAccount: PrivateKeyAccount;
+  apiKey: string;
+  chainId: ChainId;
+  getSponsorshipInfo: GetSponsorshipInfo;
 }
 
 export interface WithdrawOrDepositParams {
@@ -73,15 +85,16 @@ interface PrepareSessionKeyAccountParams {
 }
 
 export class AAManager<TChain extends Chain> {
-  // this account is provided outside as AA account to use
   private _aaAccountClient:
     | KernelAccountClient<AAManagerEntryPoint, AAManagerTransport, TChain, AAManagerSmartAccount>
     | undefined;
 
-  // this account is used only to withdraw deposits
-  private sponsoredAccountClient:
-    | KernelAccountClient<AAManagerEntryPoint, AAManagerTransport, TChain, AAManagerSmartAccount>
-    | undefined;
+  get aaAccountClient() {
+    if (!this._aaAccountClient) {
+      throw new Error('Call init() before using aaAccountClient');
+    }
+    return this._aaAccountClient;
+  }
 
   private readonly sudoValidator: KernelValidator<AAManagerEntryPoint>;
 
@@ -91,21 +104,17 @@ export class AAManager<TChain extends Chain> {
 
   private readonly bundlerTransport: AAManagerTransport;
 
-  private readonly sponsorUserOperation: ReturnType<typeof createSponsorUserOperation>;
+  private readonly getSponsorshipInfo: GetSponsorshipInfo;
 
-  constructor({ sudoValidator, apiKey, chainId, privateKeyAccount }: ConstructorParams) {
+  constructor({ sudoValidator, apiKey, chainId, privateKeyAccount, getSponsorshipInfo }: ConstructorParams) {
     this.sudoValidator = sudoValidator;
     this.privateKeyAccount = privateKeyAccount;
     this.publicClient = createPublicClient({
       transport: createRPCTransport({ chainId }),
     });
 
-    const pimlicoTransport = createPimlicoTransport({ chainId, pimlicoApiKey: apiKey });
-    this.bundlerTransport = pimlicoTransport;
-    this.sponsorUserOperation = createSponsorUserOperation({
-      paymasterTransport: pimlicoTransport,
-      chainId,
-    });
+    this.bundlerTransport = createPimlicoTransport({ chainId, pimlicoApiKey: apiKey });
+    this.getSponsorshipInfo = getSponsorshipInfo;
   }
 
   // TODO: A need in calling init() after constructor can create errors. Can we
@@ -123,23 +132,16 @@ export class AAManager<TChain extends Chain> {
       entryPoint,
       account: aaAccount,
       bundlerTransport: this.bundlerTransport,
-    });
-
-    this.sponsoredAccountClient = createKernelAccountClient({
-      entryPoint,
-      account: aaAccount,
-      bundlerTransport: this.bundlerTransport,
       middleware: {
-        sponsorUserOperation: this.sponsorUserOperation,
+        sponsorUserOperation: async ({ userOperation }) => {
+          const sponsorshipInfo = await this.getSponsorshipInfo(userOperation);
+          return {
+            ...userOperation,
+            ...sponsorshipInfo,
+          };
+        },
       },
     });
-  }
-
-  get aaAccountClient() {
-    if (!this._aaAccountClient) {
-      throw new Error('Call init() before using aaAccountClient');
-    }
-    return this._aaAccountClient;
   }
 
   get aaAddress(): Address {
@@ -170,9 +172,18 @@ export class AAManager<TChain extends Chain> {
   }
 
   async revokeSKA(sessionKeyAccountAddress: Address) {
-    // TODO: @merlin fix typing
-    // @ts-expect-error it doesn't know here that we have account inside
-    await revokeSessionKey(this.aaAccountClient, sessionKeyAccountAddress);
+    // we need more granular control over this
+    return this.executeTxns([
+      {
+        to: SESSION_KEY_VALIDATOR_ADDRESS,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: SessionKeyValidatorAbi,
+          functionName: 'disable',
+          args: [sessionKeyAccountAddress],
+        }),
+      },
+    ]);
   }
 
   async signSKA({ sessionKeyAccountAddress, depositStrategyIds }: PrepareSessionKeyAccountParams) {
@@ -206,15 +217,9 @@ export class AAManager<TChain extends Chain> {
   }
 
   private async sendUserOp(txns: MinimumTxn[]) {
-    if (!this.sponsoredAccountClient) {
-      throw new Error('Call init() before using sendUserOp');
-    }
-
-    const { account } = this.sponsoredAccountClient;
-    return this.sponsoredAccountClient.sendUserOperation({
-      account,
+    return this.aaAccountClient.sendUserOperation({
       userOperation: {
-        callData: await account.encodeCallData(txns),
+        callData: await this.aaAccountClient.account.encodeCallData(txns),
       },
     });
   }
@@ -274,12 +279,9 @@ export class AAManager<TChain extends Chain> {
   }
 
   async executeTxns(txns: MinimumTxn[]) {
-    if (!this.sponsoredAccountClient) {
-      throw new Error('Call init() before using sendTxnsAndWaitForReceipt');
-    }
     const userOpHash = await this.sendUserOp(txns);
 
-    return this.sponsoredAccountClient.extend(bundlerActions(entryPoint)).waitForUserOperationReceipt({
+    return this.aaAccountClient.extend(bundlerActions(entryPoint)).waitForUserOperationReceipt({
       hash: userOpHash,
     });
   }

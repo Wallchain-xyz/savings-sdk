@@ -1,6 +1,6 @@
 import { KernelValidator } from '@zerodev/sdk';
 
-import { PrivateKeyAccount } from 'viem';
+import { Chain, PrivateKeyAccount, hexToBigInt, toHex } from 'viem';
 
 import { AAManager } from '../AAManager/AAManager';
 import { AAManagerEntryPoint } from '../AAManager/EntryPoint';
@@ -32,20 +32,42 @@ export async function createSavingsAccountFromSudoValidator({
 
   zodiosOptions,
 }: CreateSavingsAccountFromKernelValidatorParams) {
-  const aaManager = new AAManager({
+  const authClient = createAuthClient(savingsBackendUrl, zodiosOptions);
+  const skaClient = createSKAClient(savingsBackendUrl, zodiosOptions);
+  const savingsBackendClient = new SavingsBackendClient({ skaClient, authClient, chainId });
+
+  const aaManager: AAManager<Chain> = new AAManager({
     sudoValidator,
     apiKey,
     chainId,
     privateKeyAccount,
+    async getSponsorshipInfo(userOperation) {
+      const sponsorshipInfo = await savingsBackendClient.getSponsorshipInfo({
+        userAddress: aaManager.aaAddress,
+        chainId,
+        userOperation: {
+          ...userOperation,
+          nonce: toHex(userOperation.nonce),
+          maxFeePerGas: toHex(userOperation.maxFeePerGas),
+          maxPriorityFeePerGas: toHex(userOperation.maxPriorityFeePerGas),
+        },
+      });
+      return {
+        paymasterAndData: sponsorshipInfo.paymasterAndData,
+        maxFeePerGas: hexToBigInt(sponsorshipInfo.maxFeePerGas),
+        maxPriorityFeePerGas: hexToBigInt(sponsorshipInfo.maxPriorityFeePerGas),
+        preVerificationGas: hexToBigInt(sponsorshipInfo.preVerificationGas),
+        verificationGasLimit: hexToBigInt(sponsorshipInfo.verificationGasLimit),
+        callGasLimit: hexToBigInt(sponsorshipInfo.callGasLimit),
+      };
+    },
   });
-  await aaManager.init();
 
-  const authClient = createAuthClient(savingsBackendUrl, zodiosOptions);
-  const skaClient = createSKAClient(savingsBackendUrl, zodiosOptions);
+  await aaManager.init();
 
   return new SavingsAccount({
     aaManager,
-    savingsBackendClient: new SavingsBackendClient({ skaClient, authClient, chainId }),
+    savingsBackendClient,
     chainId,
   });
 }

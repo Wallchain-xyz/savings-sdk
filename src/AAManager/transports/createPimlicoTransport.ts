@@ -1,4 +1,4 @@
-import { http as web3HTTPTransport } from 'viem';
+import { http } from 'viem';
 
 function getChainPrefixByChainId(chainId: number) {
   switch (chainId) {
@@ -22,6 +22,6 @@ interface CreatePimlicoTransportParams {
 
 export function createPimlicoTransport({ chainId, pimlicoApiKey }: CreatePimlicoTransportParams) {
   const chainPrefix = getChainPrefixByChainId(chainId);
-  const pimlicoPaymasterURL = `https://api.pimlico.io/v2/${chainPrefix}/rpc?apikey=${pimlicoApiKey}`;
-  return web3HTTPTransport(pimlicoPaymasterURL);
+  const pimlicoURL = `https://api.pimlico.io/v2/${chainPrefix}/rpc?apikey=${pimlicoApiKey}`;
+  return http(pimlicoURL);
 }

@@ -5,7 +5,7 @@ import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
 import { chain_id as ChainId, User, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
-import { createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
+import { UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
@@ -36,6 +36,12 @@ interface AuthParams {
   chainId: ChainId;
   signedMessage: Hex;
   message: WallchainAuthMessage;
+}
+
+interface GetSponsorshipInfoParams {
+  userAddress: Address;
+  chainId: ChainId;
+  userOperation: UserOperation;
 }
 
 export class SavingsBackendClient {
@@ -131,6 +137,15 @@ export class SavingsBackendClient {
 
   async deleteWalletSKA(userAddress: Address, chainId: ChainId) {
     return this.skaClient.deleteSKA(undefined, {
+      params: {
+        chain_id: chainId,
+        aa_address: userAddress,
+      },
+    });
+  }
+
+  async getSponsorshipInfo({ userAddress, chainId, userOperation }: GetSponsorshipInfoParams) {
+    return this.skaClient.sponsorUserOperation(userOperation, {
       params: {
         chain_id: chainId,
         aa_address: userAddress,

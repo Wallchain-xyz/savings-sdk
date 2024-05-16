@@ -63,14 +63,39 @@ const MinimumExecutableTxn = z
 export const MinimumExecutableTxnSchema = MinimumExecutableTxn;
 export type MinimumExecutableTxn = TypeOf<typeof MinimumExecutableTxnSchema>;
 
-const execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body =
-  z.array(MinimumExecutableTxn);
+const executeUserOperation_Body = z.array(MinimumExecutableTxn);
 
-export const execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_BodySchema =
-  execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body;
-export type execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body = TypeOf<
-  typeof execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_BodySchema
->;
+export const executeUserOperation_BodySchema = executeUserOperation_Body;
+export type executeUserOperation_Body = TypeOf<typeof executeUserOperation_BodySchema>;
+
+const UserOperation = z
+  .object({
+    callData: z.positiveHexString(),
+    sender: z.address(),
+    nonce: z.positiveHexString(),
+    signature: z.positiveHexString(),
+    initCode: z.positiveHexString(),
+    maxFeePerGas: z.positiveHexString(),
+    maxPriorityFeePerGas: z.positiveHexString(),
+  })
+  .passthrough();
+
+export const UserOperationSchema = UserOperation;
+export type UserOperation = TypeOf<typeof UserOperationSchema>;
+
+const SponsorshipInfo = z
+  .object({
+    callGasLimit: z.positiveHexString(),
+    verificationGasLimit: z.positiveHexString(),
+    preVerificationGas: z.positiveHexString(),
+    paymasterAndData: z.positiveHexString(),
+    maxFeePerGas: z.positiveHexString(),
+    maxPriorityFeePerGas: z.positiveHexString(),
+  })
+  .passthrough();
+
+export const SponsorshipInfoSchema = SponsorshipInfo;
+export type SponsorshipInfo = TypeOf<typeof SponsorshipInfoSchema>;
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
@@ -175,15 +200,47 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'post',
+        path: '/yield/ska/:chain_id/skas/:aa_address/sponsor_user_operation',
+        alias: 'sponsorUserOperation',
+        description: `Sponsor transactions`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'body',
+            type: 'Body',
+            schema: UserOperation,
+          },
+          {
+            name: 'aa_address',
+            type: 'Path',
+            schema: aa_address,
+          },
+          {
+            name: 'chain_id',
+            type: 'Path',
+            schema: chain_id,
+          },
+        ],
+        response: SponsorshipInfo,
+        errors: [
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
         path: '/yield/ska/:chain_id/skas/:aa_address/user_operation',
-        alias: 'execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post',
+        alias: 'executeUserOperation',
         description: `Execute transactions`,
         requestFormat: 'json',
         parameters: [
           {
             name: 'body',
             type: 'Body',
-            schema: execute_user_operation_using_ska_yield_ska__chain_id__skas__aa_address__user_operation_post_Body,
+            schema: executeUserOperation_Body,
           },
           {
             name: 'aa_address',
