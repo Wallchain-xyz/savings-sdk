@@ -6,7 +6,7 @@ export interface Txn {
   value: bigint;
 }
 
-enum ParamOperator {
+export enum PermissionArgOperator {
   EQUAL = 0,
   GREATER_THAN = 1,
   LESS_THAN = 2,
@@ -15,10 +15,10 @@ enum ParamOperator {
   NOT_EQUAL = 5,
 }
 
-interface PermissionRule {
-  offset: number;
-  condition: ParamOperator;
-  param: Hex;
+interface PermissionArgRule {
+  operator: PermissionArgOperator;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
 }
 
 export interface Permission {
@@ -26,7 +26,7 @@ export interface Permission {
   functionName: string;
   valueLimit: bigint;
   abi: Abi;
-  rules: PermissionRule[];
+  args: PermissionArgRule[];
 }
 
 export interface UserOperationV06 {

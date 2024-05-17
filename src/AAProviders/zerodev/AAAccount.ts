@@ -1,6 +1,10 @@
 import { KernelAccountAbi, addressToEmptyAccount, createKernelAccount } from '@zerodev/sdk';
-import { serializeSessionKeyAccount, signerToSessionKeyValidator } from '@zerodev/session-key';
-import { Address, PublicClient, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
+import {
+  Permission as ZerodevPermission,
+  serializeSessionKeyAccount,
+  signerToSessionKeyValidator,
+} from '@zerodev/session-key';
+import { type Abi, Address, PublicClient, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
 
 import { entryPoint } from '../../AAManager/EntryPoint';
 import { AAAccount, CreateSKAResult, Permission } from '../types';
@@ -24,7 +28,8 @@ export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount 
       entryPoint,
       signer: addressToEmptyAccount(skaAddress),
       validatorData: {
-        permissions,
+        // Next cast requires casting compatible enum, but typescript is not happy about this cast
+        permissions: permissions as unknown as ZerodevPermission<Abi, string>[],
       },
     });
     const sessionKeyAccount = await createKernelAccount(this.publicClient, {
