@@ -93,5 +93,5 @@ describe('manual deposit', () => {
     });
 
     expect(response.receipt.status).toBe('success');
-  }, 2000_000);
+  }, 120_000);
 });

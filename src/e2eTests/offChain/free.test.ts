@@ -47,5 +47,5 @@ describe('E2E SDK test without onchain transactions', () => {
     await savingsAccount.activateStrategies(strategiesIds);
     const activeStrategies = await savingsAccount.getActiveStrategies();
     expect(activeStrategies).toStrictEqual(allStrategies);
-  }, 2000_000);
+  }, 120_000);
 });

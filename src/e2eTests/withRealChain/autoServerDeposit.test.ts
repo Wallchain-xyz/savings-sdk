@@ -76,5 +76,5 @@ wrappedDescribe('auto deposit', () => {
     const nativeTokenAmountAfterDeposit = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);
 
     expect(nativeTokenAmount).toBeGreaterThan(nativeTokenAmountAfterDeposit);
-  }, 2000_000);
+  }, 120_000);
 });
