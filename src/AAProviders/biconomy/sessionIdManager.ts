@@ -8,7 +8,7 @@ export class SessionIdManager {
   readonly data: SessionIdMap;
 
   constructor(data?: SessionIdMap) {
-    this.data = data || {};
+    this.data = data ?? {};
   }
 
   storeSessionIdForPermission(permission: Permission, sessionId: string): void {

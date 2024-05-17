@@ -14,7 +14,7 @@ import {
 import { BundlerClient, ENTRYPOINT_ADDRESS_V06, createBundlerClient } from 'permissionless';
 import { Address, Chain, Hash, PublicClient, createPublicClient, http } from 'viem';
 
-import { ensureHex, normalizeUserOp } from './common';
+import { biconomyUserOpStructToUserOp, ensureHex } from './common';
 
 export class PimlicoBundler implements IBundler {
   private bundlerClient: BundlerClient<typeof ENTRYPOINT_ADDRESS_V06>;
@@ -39,7 +39,12 @@ export class PimlicoBundler implements IBundler {
   ): Promise<UserOpGasResponse> {
     const res = await this.bundlerClient.estimateUserOperationGas(
       {
-        userOperation: normalizeUserOp(_userOp),
+        userOperation: {
+          ...biconomyUserOpStructToUserOp(_userOp),
+          // Estimate requires non-zero gas fees
+          maxFeePerGas: BigInt(_userOp.maxFeePerGas || 1),
+          maxPriorityFeePerGas: BigInt(_userOp.maxPriorityFeePerGas || 1),
+        },
       },
       // Struct is same, but a lot of string -> Hex casts
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,8 +108,8 @@ export class PimlicoBundler implements IBundler {
       actualGasUsed: ensureHex(res.actualGasUsed),
       entryPoint: res.entryPoint,
       logs: res.logs,
-      paymaster: res.paymaster || ADDRESS_ZERO,
-      reason: res.reason || '',
+      paymaster: res.paymaster ?? ADDRESS_ZERO,
+      reason: res.reason ?? '',
       receipt: res.receipt,
       success: res.success ? 'true' : 'false',
       userOpHash: res.userOpHash,
@@ -126,7 +131,7 @@ export class PimlicoBundler implements IBundler {
         actualGasCost: ensureHex(res.actualGasCost),
         actualGasUsed: ensureHex(res.actualGasUsed),
         success: res.success ? 'true' : 'false',
-        reason: res.reason || '',
+        reason: res.reason ?? '',
         logs: res.logs,
         receipt: res.receipt,
       },
@@ -142,11 +147,11 @@ export class PimlicoBundler implements IBundler {
         nonce: BigInt(_userOp.nonce),
         initCode: ensureHex(_userOp.initCode),
         callData: ensureHex(_userOp.callData),
-        callGasLimit: BigInt(_userOp.callGasLimit || 0),
-        verificationGasLimit: BigInt(_userOp.verificationGasLimit || 0),
-        preVerificationGas: BigInt(_userOp.preVerificationGas || 0),
-        maxFeePerGas: BigInt(_userOp.maxFeePerGas || 0),
-        maxPriorityFeePerGas: BigInt(_userOp.maxPriorityFeePerGas || 0),
+        callGasLimit: BigInt(_userOp.callGasLimit ?? 0),
+        verificationGasLimit: BigInt(_userOp.verificationGasLimit ?? 0),
+        preVerificationGas: BigInt(_userOp.preVerificationGas ?? 0),
+        maxFeePerGas: BigInt(_userOp.maxFeePerGas ?? 0),
+        maxPriorityFeePerGas: BigInt(_userOp.maxPriorityFeePerGas ?? 0),
         paymasterAndData: ensureHex(_userOp.paymasterAndData),
         signature: ensureHex(_userOp.signature),
       },

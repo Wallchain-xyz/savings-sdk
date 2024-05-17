@@ -2,7 +2,7 @@ import { BiconomyPaymaster as LibBiconomyPaymaster, PaymasterMode, createPaymast
 
 import { Paymaster, UserOperationV06 } from '../types';
 
-import { denormalizeUserOp, normalizeUserOp } from './common';
+import { biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './common';
 
 export class BiconomyPaymaster implements Paymaster {
   private paymaster: LibBiconomyPaymaster;
@@ -20,10 +20,10 @@ export class BiconomyPaymaster implements Paymaster {
   }
 
   async addPaymasterIntoUserOp(userOp: UserOperationV06): Promise<UserOperationV06> {
-    const getPaymasterAndDataResponse = await this.paymaster.getPaymasterAndData(denormalizeUserOp(userOp), {
+    const getPaymasterAndDataResponse = await this.paymaster.getPaymasterAndData(userOpToBiconomyUserOpStruct(userOp), {
       mode: PaymasterMode.SPONSORED,
     });
-    return normalizeUserOp({
+    return biconomyUserOpStructToUserOp({
       ...userOp,
       ...getPaymasterAndDataResponse,
     });

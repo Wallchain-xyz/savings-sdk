@@ -11,7 +11,7 @@ import { Address, Hex, toFunctionSelector } from 'viem';
 import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
 
 import { BaseBiconomyAAAccount } from './baseAccount';
-import { BiconomySKAData, abiSVMAddress, normalizeUserOp } from './common';
+import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp } from './common';
 import { SessionMemoryStorage } from './memoryStorage';
 import { SessionIdManager } from './sessionIdManager';
 
@@ -85,7 +85,7 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
 
   async buildUserOp(txns: Txn[]): Promise<UserOperationV06> {
     const userOp = await this.smartAccount.buildUserOp(txns);
-    return normalizeUserOp(userOp);
+    return biconomyUserOpStructToUserOp(userOp);
   }
 
   private static async toABISVMSessionKeyData(skaAddress: Address, permission: Permission): Promise<ABISessionData> {

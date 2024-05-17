@@ -1,4 +1,4 @@
-export const BiconomyAccountAbi: readonly [
+export const biconomyAccountAbi: readonly [
   {
     readonly inputs: readonly [
       {

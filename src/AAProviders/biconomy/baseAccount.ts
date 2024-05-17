@@ -4,7 +4,7 @@ import { Address, Hash } from 'viem';
 
 import { BaseAAAccount, Txn, UserOperationV06, WaitParams } from '../types';
 
-import { denormalizeUserOp } from './common';
+import { userOpToBiconomyUserOpStruct } from './common';
 
 interface BiconomyBaseAAAccountParams {
   aaAddress: Address;
@@ -24,7 +24,7 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
   abstract buildUserOp(txns: Txn[]): Promise<UserOperationV06>;
 
   async sendUserOp(userOp: UserOperationV06): Promise<Hash> {
-    const { userOpHash } = await this.smartAccount.sendUserOp(denormalizeUserOp(userOp));
+    const { userOpHash } = await this.smartAccount.sendUserOp(userOpToBiconomyUserOpStruct(userOp));
     return userOpHash as Hash;
   }
 
@@ -34,8 +34,8 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
   }
 
   waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<void> {
-    const maxDuration = params?.maxDurationMS || 20000; // default 20 seconds
-    const intervalValue = params?.pollingIntervalMS || 500; // default 0.5 seconds
+    const maxDuration = params?.maxDurationMS ?? 20000; // default 20 seconds
+    const intervalValue = params?.pollingIntervalMS ?? 500; // default 0.5 seconds
     let totalDuration = 0;
     if (!this.smartAccount.bundler) {
       throw new Error('Bundler is not set');

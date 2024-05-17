@@ -47,12 +47,13 @@ describe('Biconomy Provider Local Anvil', () => {
       value: parseEther('42'),
     });
     const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+    const amount = faker.number.bigInt({ min: 1n, max: 200n });
 
     // Act
     const userOpHash = await aaAccount.sendTxns([
       {
         to: receiver,
-        value: 123n,
+        value: amount,
         data: '0x',
       },
     ]);
@@ -62,7 +63,7 @@ describe('Biconomy Provider Local Anvil', () => {
     const receiverBalance = await testClient.getBalance({
       address: receiver,
     });
-    expect(receiverBalance).toBe(123n);
+    expect(receiverBalance).toBe(amount);
   }, 100_000);
 
   it('send simple txn with paymaster', async () => {
@@ -74,12 +75,13 @@ describe('Biconomy Provider Local Anvil', () => {
     });
     const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
     const balanceBefore = await testClient.getBalance({ address: aaAccount.aaAddress });
+    const amount = faker.number.bigInt({ min: 1n, max: 200n });
 
     // Act
     let userOp = await aaAccount.buildUserOp([
       {
         to: receiver,
-        value: 123n,
+        value: amount,
         data: '0x',
       },
     ]);
@@ -91,8 +93,8 @@ describe('Biconomy Provider Local Anvil', () => {
     const receiverBalance = await testClient.getBalance({
       address: receiver,
     });
-    expect(receiverBalance).toBe(123n);
+    expect(receiverBalance).toBe(amount);
     const balanceAfter = await testClient.getBalance({ address: aaAccount.aaAddress });
-    expect(balanceBefore - balanceAfter).toBe(123n);
+    expect(balanceBefore - balanceAfter).toBe(amount);
   }, 100_000);
 });

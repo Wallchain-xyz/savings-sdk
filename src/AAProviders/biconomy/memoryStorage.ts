@@ -159,7 +159,7 @@ export class SessionMemoryStorage implements ISessionStorage {
     const account = privateKeyToAccount(privateKey);
     const client = createWalletClient({
       account,
-      chain: chain || mainnet,
+      chain: chain ?? mainnet,
       transport: http(),
     });
     return new WalletClientSigner(client, 'viem');

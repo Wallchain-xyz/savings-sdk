@@ -31,14 +31,15 @@ const WETH_ADDR = '0x360ad4f9a9a8efe9a8dcb5f461c4cc1047e1dcf9';
 // Keys here are only for testnet, so this is not a problem to hardcode them.
 const OWNER_PK = '0xa5f01239aaa789d09e7277c6880101902e1dd7f4d51c5388429f0a6b94b02231';
 
-const BUNDLER_URL = 'https://bundler.biconomy.io/api/v2/80002/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44';
-const PAYMASTER_URL = 'https://paymaster.biconomy.io/api/v1/80002/oqEelh2LL.5de0b116-de3e-4084-aa25-5bf6ccd7fbf9';
+const TESTNET_BUNDLER_URL = 'https://bundler.biconomy.io/api/v2/80002/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44';
+const TESTNET_PAYMASTER_URL =
+  'https://paymaster.biconomy.io/api/v1/80002/oqEelh2LL.5de0b116-de3e-4084-aa25-5bf6ccd7fbf9';
 
 describe('Biconomy Provider Polygon Amoy', () => {
   const owner = privateKeyToAccount(OWNER_PK);
   const provider = new BiconomyAAProvider({
     chain: polygonAmoy,
-    bundlerUrl: BUNDLER_URL,
+    bundlerUrl: TESTNET_BUNDLER_URL,
   });
   const publicClient = createPublicClient({
     chain: polygonAmoy,
@@ -47,19 +48,20 @@ describe('Biconomy Provider Polygon Amoy', () => {
   let paymaster: BiconomyPaymaster;
 
   beforeAll(async () => {
-    paymaster = await BiconomyPaymaster.create(PAYMASTER_URL);
+    paymaster = await BiconomyPaymaster.create(TESTNET_PAYMASTER_URL);
   });
 
   it('send simple txn', async () => {
     // Arrange
     const aaAccount = await provider.createAAAccount(owner);
     const receiver = createEoaAccount().address;
+    const amount = faker.number.bigInt({ min: 1n, max: 200n });
 
     // Act
     const userOpHash = await aaAccount.sendTxns([
       {
         to: receiver,
-        value: 123n,
+        value: amount,
         data: '0x',
       },
     ]);
@@ -69,7 +71,7 @@ describe('Biconomy Provider Polygon Amoy', () => {
     const receiverBalance = await publicClient.getBalance({
       address: receiver,
     });
-    expect(receiverBalance).toBe(123n);
+    expect(receiverBalance).toBe(amount);
   }, 30_000);
 
   it('send sponsored simple txn', async () => {
@@ -77,32 +79,35 @@ describe('Biconomy Provider Polygon Amoy', () => {
     const aaAccount = await provider.createAAAccount(owner);
     const balanceBefore = await publicClient.getBalance({ address: aaAccount.aaAddress });
     const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+    const amount = faker.number.bigInt({ min: 1n, max: 200n });
 
     // Act
-    let userOp = await aaAccount.buildUserOp([
+    const userOp = await aaAccount.buildUserOp([
       {
         to: receiver,
-        value: 123n,
+        value: amount,
         data: '0x',
       },
     ]);
-    userOp = await paymaster.addPaymasterIntoUserOp(userOp);
-    const userOpHash = await aaAccount.sendUserOp(userOp);
+    const sponsoredUserOp = await paymaster.addPaymasterIntoUserOp(userOp);
+    const userOpHash = await aaAccount.sendUserOp(sponsoredUserOp);
     await aaAccount.waitForUserOp(userOpHash);
 
     // Assert
     const receiverBalance = await publicClient.getBalance({
       address: receiver,
     });
-    expect(receiverBalance).toBe(123n);
+    expect(receiverBalance).toBe(amount);
     const balanceAfter = await publicClient.getBalance({ address: aaAccount.aaAddress });
-    expect(balanceBefore - balanceAfter).toBe(123n);
+    expect(balanceBefore - balanceAfter).toBe(amount);
   }, 30_000);
 
   it('should create SKA that can deposit and withdraw', async () => {
     // Arrange
     const aaAccount = await provider.createAAAccount(owner);
     const skaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    const amountDeposit = faker.number.bigInt({ min: 101n, max: 200n });
+    const amountWithdraw = faker.number.bigInt({ min: 1n, max: 100n });
 
     const wethContract = getContract({
       address: WETH_ADDR,
@@ -139,14 +144,14 @@ describe('Biconomy Provider Polygon Amoy', () => {
           functionName: 'deposit',
           args: [],
         }),
-        value: 100n,
+        value: amountDeposit,
       },
       {
         to: '0x360ad4f9a9A8EFe9A8DCB5f461c4Cc1047E1Dcf9',
         data: encodeFunctionData({
           abi: [ABI_WITHDRAW],
           functionName: 'withdraw',
-          args: [50n],
+          args: [amountWithdraw],
         }),
         value: 0n,
       },
@@ -155,6 +160,6 @@ describe('Biconomy Provider Polygon Amoy', () => {
 
     // Assert
     const balanceAfter = await wethContract.read.balanceOf([aaAccount.aaAddress]);
-    expect(balanceAfter).toBe(balanceBefore + 50n);
+    expect(balanceAfter).toBe(balanceBefore + amountDeposit - amountWithdraw);
   }, 30_000);
 });

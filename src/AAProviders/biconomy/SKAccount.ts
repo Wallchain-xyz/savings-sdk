@@ -3,9 +3,9 @@ import { Address, Hash, decodeFunctionData } from 'viem';
 
 import { SKAccount, Txn, UserOperationV06 } from '../types';
 
-import { BiconomyAccountAbi } from './abi';
+import { biconomyAccountAbi } from './abi';
 import { BaseBiconomyAAAccount } from './baseAccount';
-import { BiconomySKAData, abiSVMAddress, denormalizeUserOp, normalizeUserOp } from './common';
+import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './common';
 
 import { SessionIdManager } from './sessionIdManager';
 
@@ -30,18 +30,21 @@ export class BiconomySKAccount extends BaseBiconomyAAAccount implements SKAccoun
   }
 
   async buildUserOp(txns: Txn[]): Promise<UserOperationV06> {
-    const userOp = await this.smartAccount.buildUserOp(txns, { params: this.makeParamsForTxns(txns) });
+    const userOp = await this.smartAccount.buildUserOp(txns, { params: this.createParamsForTxns(txns) });
     userOp.verificationGasLimit = '0xfffff'; // Hack because estimate is not correct ATM.
-    return normalizeUserOp(userOp);
+    return biconomyUserOpStructToUserOp(userOp);
   }
 
   async sendUserOp(userOp: UserOperationV06): Promise<Hash> {
     const txns = this.decodeTxnsFromUserOp(userOp);
-    const { userOpHash } = await this.smartAccount.sendUserOp(denormalizeUserOp(userOp), this.makeParamsForTxns(txns));
+    const { userOpHash } = await this.smartAccount.sendUserOp(
+      userOpToBiconomyUserOpStruct(userOp),
+      this.createParamsForTxns(txns),
+    );
     return userOpHash as Hash;
   }
 
-  private makeParamsForTxns(txns: Txn[]) {
+  private createParamsForTxns(txns: Txn[]) {
     return {
       batchSessionParams: txns.map(txn => ({
         sessionSigner: this.skaSigner,
@@ -53,31 +56,33 @@ export class BiconomySKAccount extends BaseBiconomyAAAccount implements SKAccoun
 
   private decodeTxnsFromUserOp(userOp: UserOperationV06): Txn[] {
     const decodeResult = decodeFunctionData({
-      abi: BiconomyAccountAbi,
+      abi: biconomyAccountAbi,
       data: userOp.callData,
     });
-    if (decodeResult.functionName === 'executeBatch_y6U' || decodeResult.functionName === 'executeBatch') {
-      const txns = [];
-      const [toAddresses, values, datas] = decodeResult.args;
-      for (let index = 0; index < toAddresses.length; index++) {
-        txns.push({
-          to: toAddresses[index],
+    const { args, functionName } = decodeResult;
+    switch (functionName) {
+      case 'executeBatch':
+      case 'executeBatch_y6U': {
+        const [addresses, values, datas] = args;
+        return addresses.map((address, index) => ({
+          to: address,
           value: values[index],
           data: datas[index],
-        });
+        }));
       }
-      return txns;
+      case 'execute':
+      case 'execute_ncC': {
+        const [to, value, data] = decodeResult.args;
+        return [
+          {
+            to,
+            value,
+            data,
+          },
+        ];
+      }
+      default:
+        throw new Error('UserOp callData is invalid');
     }
-    if (decodeResult.functionName === 'execute' || decodeResult.functionName === 'execute_ncC') {
-      const [to, value, data] = decodeResult.args;
-      return [
-        {
-          to,
-          value,
-          data,
-        },
-      ];
-    }
-    throw new Error('UserOp callData is invalid');
   }
 }

@@ -18,30 +18,31 @@ export interface BiconomySKAData {
   sessionIdMap: SessionIdMap;
 }
 
-export function ensureHex(value: string | number | bigint | boolean | ByteArray): Hex {
+export function ensureHex(value: Hex | string | number | bigint | boolean | ByteArray): Hex {
+  // toHex re-encodes strings that aare already hex, so we need this wrapper to preserve them
   if (typeof value === 'string' && value.startsWith('0x')) {
     return value as Hex;
   }
   return toHex(value);
 }
 
-export function normalizeUserOp(userOp: Partial<UserOperationStruct>): UserOperationV06 {
+export function biconomyUserOpStructToUserOp(userOp: Partial<UserOperationStruct>): UserOperationV06 {
   return {
     sender: userOp.sender as Address,
-    nonce: BigInt(userOp.nonce || 0),
-    initCode: ensureHex(userOp.initCode || '0x'),
-    callData: ensureHex(userOp.callData || '0x'),
-    callGasLimit: BigInt(userOp.callGasLimit || 0),
-    verificationGasLimit: BigInt(userOp.verificationGasLimit || 0),
-    preVerificationGas: BigInt(userOp.preVerificationGas || 0),
-    maxFeePerGas: BigInt(userOp.maxFeePerGas || 1),
-    maxPriorityFeePerGas: BigInt(userOp.maxPriorityFeePerGas || 1),
-    paymasterAndData: ensureHex(userOp.paymasterAndData || '0x'),
-    signature: ensureHex(userOp.signature || '0x'),
+    nonce: BigInt(userOp.nonce ?? 0),
+    initCode: ensureHex(userOp.initCode ?? '0x'),
+    callData: ensureHex(userOp.callData ?? '0x'),
+    callGasLimit: BigInt(userOp.callGasLimit ?? 0),
+    verificationGasLimit: BigInt(userOp.verificationGasLimit ?? 0),
+    preVerificationGas: BigInt(userOp.preVerificationGas ?? 0),
+    maxFeePerGas: BigInt(userOp.maxFeePerGas ?? 0),
+    maxPriorityFeePerGas: BigInt(userOp.maxPriorityFeePerGas ?? 0),
+    paymasterAndData: ensureHex(userOp.paymasterAndData ?? '0x'),
+    signature: ensureHex(userOp.signature ?? '0x'),
   };
 }
 
-export function denormalizeUserOp(userOp: UserOperationV06): UserOperationStruct {
+export function userOpToBiconomyUserOpStruct(userOp: UserOperationV06): UserOperationStruct {
   return {
     ...userOp,
     nonce: ensureHex(userOp.nonce),

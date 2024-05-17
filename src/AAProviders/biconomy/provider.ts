@@ -39,9 +39,9 @@ export class BiconomyAAProvider implements AAProvider {
 
   constructor({ chain, rpcUrl, bundlerUrl, bundlerType }: BiconomyAAProviderParams) {
     this.chain = chain;
-    this.rpcUrl = rpcUrl || chain.rpcUrls.default.http[0];
+    this.rpcUrl = rpcUrl ?? chain.rpcUrls.default.http[0];
     this.bundlerUrl = bundlerUrl;
-    this.bundlerType = bundlerType || 'biconomy';
+    this.bundlerType = bundlerType ?? 'biconomy';
   }
 
   async createAAAccount(signer: PrivateKeyAccount): Promise<AAAccount> {
