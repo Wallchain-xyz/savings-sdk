@@ -1,26 +1,30 @@
-import { ENTRYPOINT_ADDRESS_V06, bundlerActions } from 'permissionless';
-import { Hash } from 'viem';
+import { BundlerClient, ENTRYPOINT_ADDRESS_V06, bundlerActions } from 'permissionless';
+import { Address, Hash } from 'viem';
 
 import { BaseAAAccount, Txn, UserOperationV06, WaitParams } from '../types';
 
 import { KernelClient } from './common';
 
-interface ZerodevBaseAAAccountParams {
+export interface BaseZerodevAAAccountParams {
   client: KernelClient;
 }
 
 export abstract class BaseZerodevAAAccount implements BaseAAAccount {
-  aaAddress: `0x${string}`;
-
   protected client: KernelClient;
 
-  protected constructor({ client }: ZerodevBaseAAAccountParams) {
+  private bundlerClient: BundlerClient<typeof ENTRYPOINT_ADDRESS_V06>;
+
+  get aaAddress(): Address {
+    return this.client.account.address;
+  }
+
+  protected constructor({ client }: BaseZerodevAAAccountParams) {
     this.client = client;
-    this.aaAddress = client.account.address;
+    this.bundlerClient = this.client.extend(bundlerActions(ENTRYPOINT_ADDRESS_V06));
   }
 
   async buildUserOp(txns: Txn[]): Promise<UserOperationV06> {
-    return this.client.signUserOperation({
+    return this.client.prepareUserOperationRequest({
       userOperation: {
         callData: await this.client.account.encodeCallData(txns),
       },
@@ -34,8 +38,7 @@ export abstract class BaseZerodevAAAccount implements BaseAAAccount {
       ...userOp,
       signature: await this.client.account.signUserOperation(userOp),
     };
-    const bundlerClient = this.client.extend(bundlerActions(ENTRYPOINT_ADDRESS_V06));
-    return bundlerClient.sendUserOperation({ userOperation: signedUserOp });
+    return this.bundlerClient.sendUserOperation({ userOperation: signedUserOp });
   }
 
   async sendTxns(txns: Txn[]): Promise<Hash> {
@@ -44,8 +47,7 @@ export abstract class BaseZerodevAAAccount implements BaseAAAccount {
   }
 
   async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<void> {
-    const bundlerClient = this.client.extend(bundlerActions(ENTRYPOINT_ADDRESS_V06));
-    await bundlerClient.waitForUserOperationReceipt({
+    await this.bundlerClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: params?.pollingIntervalMS,
       timeout: params?.maxDurationMS,

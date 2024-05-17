@@ -1,10 +1,14 @@
 import { SKAccount } from '../types';
 
-import { BaseZerodevAAAccount } from './baseAccount';
+import { BaseZerodevAAAccount } from './BaseAAccount';
 import { KernelClient } from './common';
 
+interface ZerodevSKAccountParams {
+  client: KernelClient;
+}
+
 export class ZerodevSKAccount extends BaseZerodevAAAccount implements SKAccount {
-  constructor(client: KernelClient) {
+  constructor({ client }: ZerodevSKAccountParams) {
     super({ client });
   }
 }
