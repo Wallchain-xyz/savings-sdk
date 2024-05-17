@@ -84,7 +84,8 @@ describe('manual deposit', () => {
         transport: http(LOCAL_PAYMASTER_RPC_URL),
       });
       const sponsorshipInfo = await pimlicoPaymasterClient.sponsorUserOperation({
-        // @ts-expect-error asdfs
+        // @ts-expect-error @merlin double check later paymasterAndData is missing here,
+        // while it is not needed here
         userOperation: userOperationWithGasEstimates,
       });
       return {
