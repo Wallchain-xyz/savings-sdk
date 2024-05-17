@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { PrivateKeyAccount, getAddress, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getHttpRpcClient } from 'viem/utils';
 
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady } from '../../testSuite/healthCheck';
@@ -27,13 +26,6 @@ describe('Biconomy Provider Local Anvil', () => {
   beforeEach(async () => {
     eoaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
     skaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
-
-    await testClient.reset();
-    await getHttpRpcClient('http://localhost:4337').request({
-      body: {
-        method: 'debug_bundler_clearState',
-      },
-    });
 
     await testClient.setBalance({
       address: eoaAccount.address,

@@ -5,7 +5,7 @@ services:
     platform: linux/amd64
     entrypoint: [ "anvil", "--host", "0.0.0.0", "--block-time", "0.1", "--silent", "--fork-url", "https://rpc.ankr.com/base"]
     volumes:
-      - foundry_data:$HOME/.foundry
+      - foundry_data:/root/.foundry
 
   mock-paymaster:
     image: ghcr.io/pimlicolabs/mock-verifying-paymaster:main

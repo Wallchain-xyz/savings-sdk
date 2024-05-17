@@ -8,22 +8,15 @@ import { getSupportedDepositStrategies } from '../../depositStrategies';
 import { getIsNativeStrategy } from '../../depositStrategies/getIsNativeStrategy';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
+const privateKey = process.env.PRIVATE_KEY as Hex;
+const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
+const wrappedDescribe = pimlicoApiKey && privateKey ? describe : describe.skip;
+
 const chain = base; // TODO: maybe make it changeable
 const publicClient = createPublicClient({
   chain,
   transport: http(),
 });
-const createSavingsAccount = (account: PrivateKeyAccount) => {
-  if (!process.env.PIMLICO_API_KEY) {
-    throw new Error('No process.env.PIMLICO_API_KEY');
-  }
-  return createSavingsAccountFromPrivateKeyAccount({
-    privateKeyAccount: account,
-    chainId: chain.id,
-    savingsBackendUrl: 'http://localhost:8000',
-    apiKey: process.env.PIMLICO_API_KEY,
-  });
-};
 
 function getBondTokenAmount(bondTokenAddress: Address, aaAddress: Address) {
   return publicClient.readContract({
@@ -42,14 +35,11 @@ function getBondTokenAmount(bondTokenAddress: Address, aaAddress: Address) {
   });
 }
 
-describe('auto deposit', () => {
+wrappedDescribe('auto deposit', () => {
   let eoaAccount: PrivateKeyAccount;
 
   beforeEach(() => {
-    if (!process.env.PRIVATE_KEY) {
-      throw new Error('Please provide process.env.PRIVATE_KEY, which has AA account with some amount of ETH on base');
-    }
-    eoaAccount = privateKeyToAccount(process.env.PRIVATE_KEY as Hex);
+    eoaAccount = privateKeyToAccount(privateKey);
   });
 
   it('can deposit ETH on Base', async () => {
@@ -59,7 +49,12 @@ describe('auto deposit', () => {
       throw new Error('No native strategy found');
     }
 
-    const savingsAccount = await createSavingsAccount(eoaAccount);
+    const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+      privateKeyAccount: eoaAccount,
+      chainId: chain.id,
+      savingsBackendUrl: 'http://localhost:8000',
+      apiKey: pimlicoApiKey,
+    });
 
     await savingsAccount.auth();
 

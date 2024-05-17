@@ -21,6 +21,6 @@ interface CreateRPCTransportParams {
 
 export function createRPCTransport({ chainId }: CreateRPCTransportParams) {
   const chainPrefix = getChainPrefixByChainId(chainId);
-  const pimlicoPaymasterURL = `https://rpc.ankr.com/${chainPrefix}`;
-  return web3HTTPTransport(pimlicoPaymasterURL);
+  const rpcURL = `https://rpc.ankr.com/${chainPrefix}`;
+  return web3HTTPTransport(rpcURL);
 }

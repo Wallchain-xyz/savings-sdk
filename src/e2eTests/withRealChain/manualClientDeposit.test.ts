@@ -6,25 +6,24 @@ import { base } from 'viem/chains';
 import { getSupportedDepositStrategies } from '../../depositStrategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
+const privateKey = process.env.PRIVATE_KEY as Hex;
+const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
+const wrappedDescribe = pimlicoApiKey && privateKey ? describe : describe.skip;
+
 const createSavingsAccount = (account: PrivateKeyAccount) => {
-  if (!process.env.PIMLICO_API_KEY) {
-    throw new Error('No process.env.PIMLICO_API_KEY');
-  }
   return createSavingsAccountFromPrivateKeyAccount({
     privateKeyAccount: account,
     chainId: base.id, // TODO: maybe make it changeable
     savingsBackendUrl: 'http://localhost:8000',
-    apiKey: process.env.PIMLICO_API_KEY,
+    apiKey: pimlicoApiKey,
   });
 };
-describe('manual deposit', () => {
+
+wrappedDescribe('manual deposit', () => {
   let eoaAccount: PrivateKeyAccount;
 
   beforeEach(() => {
-    if (!process.env.PRIVATE_KEY) {
-      throw new Error('Please provide process.env.PRIVATE_KEY, which has AA account with some amount of ETH on base');
-    }
-    eoaAccount = privateKeyToAccount(process.env.PRIVATE_KEY as Hex);
+    eoaAccount = privateKeyToAccount(privateKey);
   });
 
   it('can deposit ETH on Base', async () => {

@@ -5,8 +5,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { getSupportedDepositStrategies } from '../depositStrategies';
-import { createSavingsAccountFromPrivateKeyAccount } from '../factories/createSavingsAccountFromPrivateKeyAccount';
+import { getSupportedDepositStrategies } from '../../depositStrategies';
+import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 describe('E2E SDK test without onchain transactions', () => {
   const makeForAccount = (account: PrivateKeyAccount) =>
