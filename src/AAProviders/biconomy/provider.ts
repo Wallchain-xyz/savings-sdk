@@ -48,7 +48,7 @@ export class BiconomyAAProvider implements AAProvider {
       signer,
       rpcUrl: this.rpcUrl,
       chainId: this.chain.id,
-      ...this.makeBundlerConfigPart(),
+      ...this.createBundlerConfigPart(),
     });
     return new BiconomyAAAccount({
       aaAddress: await smartAccount.getAccountAddress(),
@@ -73,7 +73,7 @@ export class BiconomyAAProvider implements AAProvider {
       signer: this.createFakeSigner(skaData.eoaOwnerAddress),
       rpcUrl: this.rpcUrl,
       chainId: this.chain.id,
-      ...this.makeBundlerConfigPart(),
+      ...this.createBundlerConfigPart(),
     });
     smartAccount.setActiveValidationModule(sessionBatchModule);
 
@@ -103,7 +103,7 @@ export class BiconomyAAProvider implements AAProvider {
     });
   }
 
-  private makeBundlerConfigPart(): { bundler: IBundler } | { bundlerUrl: string } {
+  private createBundlerConfigPart(): { bundler: IBundler } | { bundlerUrl: string } {
     if (this.bundlerType === 'pimlico') {
       return {
         bundler: new PimlicoBundler(this.bundlerUrl, this.chain),

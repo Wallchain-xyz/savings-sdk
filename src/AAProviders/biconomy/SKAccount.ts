@@ -4,7 +4,7 @@ import { Address, Hash, decodeFunctionData } from 'viem';
 import { SKAccount, Txn, UserOperationV06 } from '../types';
 
 import { biconomyAccountAbi } from './abi';
-import { BaseBiconomyAAAccount } from './baseAccount';
+import { BaseBiconomyAAAccount } from './BaseAAccount';
 import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './common';
 
 import { SessionIdManager } from './sessionIdManager';

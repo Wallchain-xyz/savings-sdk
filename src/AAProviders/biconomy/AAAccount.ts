@@ -11,7 +11,7 @@ import { Address, Hex, getAbiItem, isHex, padHex, toHex } from 'viem';
 
 import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
 
-import { BaseBiconomyAAAccount } from './baseAccount';
+import { BaseBiconomyAAAccount } from './BaseAAccount';
 import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, permissionToSelector } from './common';
 import { SessionMemoryStorage } from './memoryStorage';
 import { SessionIdManager } from './sessionIdManager';

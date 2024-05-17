@@ -49,7 +49,7 @@ export interface WaitParams {
 }
 
 export interface BaseAAAccount {
-  aaAddress: Address;
+  readonly aaAddress: Address;
   buildUserOp: (txns: Txn[]) => Promise<UserOperationV06>;
   sendUserOp: (userOp: UserOperationV06) => Promise<Hash>;
   sendTxns: (txns: Txn[]) => Promise<Hash>;

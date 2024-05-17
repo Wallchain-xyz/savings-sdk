@@ -54,10 +54,10 @@ export function userOpToBiconomyUserOpStruct(userOp: UserOperationV06): UserOper
   };
 }
 
-export function permissionToSelector(permission: Permission): Hex {
-  const functionAbi = getAbiItem({ abi: permission.abi, name: permission.functionName });
+export function permissionToSelector({ abi, functionName }: Pick<Permission, 'abi' | 'functionName'>): Hex {
+  const functionAbi = getAbiItem({ abi, name: functionName });
   if (!functionAbi || functionAbi.type !== 'function') {
-    throw new Error(`Invalid abi in permission ${permission}`);
+    throw new Error(`Invalid abi in permission ${functionName}`);
   }
   return toFunctionSelector(functionAbi);
 }

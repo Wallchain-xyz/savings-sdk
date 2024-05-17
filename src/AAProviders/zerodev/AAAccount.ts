@@ -9,15 +9,20 @@ import { type Abi, Address, PublicClient, getAbiItem, toFunctionSelector, zeroAd
 import { entryPoint } from '../../AAManager/EntryPoint';
 import { AAAccount, CreateSKAResult, Permission } from '../types';
 
-import { BaseZerodevAAAccount } from './baseAccount';
-import { ECDSAValidator, KernelClient } from './common';
+import { BaseZerodevAAAccount, BaseZerodevAAAccountParams } from './BaseAAccount';
+import { ECDSAValidator } from './common';
+
+interface ZerodevAAAccountParams extends BaseZerodevAAAccountParams {
+  publicClient: PublicClient;
+  ecdsaValidator: ECDSAValidator;
+}
 
 export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount {
-  private publicClient: PublicClient;
+  private readonly publicClient: PublicClient;
 
-  private ecdsaValidator: ECDSAValidator;
+  private readonly ecdsaValidator: ECDSAValidator;
 
-  constructor(client: KernelClient, publicClient: PublicClient, ecdsaValidator: ECDSAValidator) {
+  constructor({ client, publicClient, ecdsaValidator }: ZerodevAAAccountParams) {
     super({ client });
     this.publicClient = publicClient;
     this.ecdsaValidator = ecdsaValidator;

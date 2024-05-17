@@ -13,20 +13,20 @@ import { ZerodevSKAccount } from './SKAccount';
 
 interface ZerodevAAProviderParams {
   chain: Chain;
-  rpcUrl?: string;
   bundlerUrl: string;
+  rpcUrl?: string;
 }
 
 export class ZerodevProvider implements AAProvider {
-  private readonly bundlerUrl: string;
-
   private readonly chain: Chain;
+
+  private readonly bundlerUrl: string;
 
   private readonly rpcUrl: string;
 
   constructor({ chain, rpcUrl, bundlerUrl }: ZerodevAAProviderParams) {
     this.chain = chain;
-    this.rpcUrl = rpcUrl || chain.rpcUrls.default.http[0];
+    this.rpcUrl = rpcUrl ?? chain.rpcUrls.default.http[0];
     this.bundlerUrl = bundlerUrl;
   }
 
@@ -49,7 +49,7 @@ export class ZerodevProvider implements AAProvider {
       account: aaAccount,
       bundlerTransport: http(this.bundlerUrl),
     });
-    return new ZerodevAAAccount(aaAccountClient, publicClient, ecdsaValidator);
+    return new ZerodevAAAccount({ client: aaAccountClient, publicClient, ecdsaValidator });
   }
 
   async createSKAccount(skaSigner: PrivateKeyAccount, serializedSKAData: string): Promise<ZerodevSKAccount> {
@@ -68,6 +68,6 @@ export class ZerodevProvider implements AAProvider {
       entryPoint: ENTRYPOINT_ADDRESS_V06,
       bundlerTransport: http(this.bundlerUrl),
     });
-    return new ZerodevSKAccount(kernelClient);
+    return new ZerodevSKAccount({ client: kernelClient });
   }
 }
