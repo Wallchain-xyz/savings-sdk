@@ -9,6 +9,7 @@ import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyB
 import { createAuthMessage } from './createAuthMessage';
 
 import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import type { GetUserOperationReceiptReturnType } from 'permissionless/_types/actions/bundler/getUserOperationReceipt';
 
 interface ConstructorParams<TChain extends Chain> {
   aaManager: AAManager<TChain>;
@@ -105,7 +106,7 @@ export class SavingsAccount<TChain extends Chain> {
     return this.aaManager.withdraw(params);
   }
 
-  async deposit(params: WithdrawOrDepositParams) {
+  async deposit(params: WithdrawOrDepositParams): Promise<GetUserOperationReceiptReturnType> {
     return this.aaManager.deposit(params);
   }
 }

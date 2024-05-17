@@ -47,6 +47,7 @@ import { UserOperation } from './UserOperation';
 
 import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
+import type { GetUserOperationReceiptReturnType } from 'permissionless/_types/actions/bundler/getUserOperationReceipt';
 
 const ERC20_ADD_DEPOSIT_FUNCTION_NAME = 'deposit';
 const ERC20_WITHDRAW_DEPOSIT_FUNCTION_NAME = 'withdraw';
@@ -278,7 +279,7 @@ export class AAManager<TChain extends Chain> {
     return this.executeTxns(txns);
   }
 
-  async executeTxns(txns: MinimumTxn[]) {
+  async executeTxns(txns: MinimumTxn[]): Promise<GetUserOperationReceiptReturnType> {
     const userOpHash = await this.sendUserOp(txns);
 
     return this.aaAccountClient.extend(bundlerActions(entryPoint)).waitForUserOperationReceipt({

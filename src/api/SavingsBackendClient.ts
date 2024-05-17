@@ -39,7 +39,6 @@ interface AuthParams {
 }
 
 interface GetSponsorshipInfoParams {
-  userAddress: Address;
   chainId: ChainId;
   userOperation: UserOperation;
 }
@@ -144,11 +143,11 @@ export class SavingsBackendClient {
     });
   }
 
-  async getSponsorshipInfo({ userAddress, chainId, userOperation }: GetSponsorshipInfoParams) {
+  async getSponsorshipInfo({ chainId, userOperation }: GetSponsorshipInfoParams) {
     return this.skaClient.sponsorUserOperation(userOperation, {
       params: {
         chain_id: chainId,
-        aa_address: userAddress,
+        aa_address: userOperation.sender,
       },
     });
   }

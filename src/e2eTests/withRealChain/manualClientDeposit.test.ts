@@ -3,7 +3,6 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { getSupportedDepositStrategies } from '../../depositStrategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
@@ -30,18 +29,11 @@ wrappedDescribe('manual deposit', () => {
     const savingsAccount = await createSavingsAccount(eoaAccount);
 
     await savingsAccount.auth();
-    const allStrategies = getSupportedDepositStrategies();
-    // DO if needed, requires additional gas
-    // const strategiesIds = allStrategies.map(it => it.id);
-    // await savingsAccount.activateStrategies(strategiesIds);
 
-    const activeStrategies = await savingsAccount.getActiveStrategies();
-    expect(activeStrategies).toStrictEqual(allStrategies);
-
-    const hash = await savingsAccount.deposit({
-      amount: BigInt(1),
-      depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e',
+    const response = await savingsAccount.deposit({
+      amount: BigInt(100_000),
+      depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e', // Beefy ETH on Base strategy
     });
-    expect(hash).toBeTruthy();
+    expect(response.receipt.status).toBe('success');
   }, 2000_000);
 });

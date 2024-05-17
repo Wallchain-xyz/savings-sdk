@@ -1,6 +1,8 @@
-import { http as web3HTTPTransport } from 'viem';
+import { http } from 'viem';
 
-function getChainPrefixByChainId(chainId: number) {
+import { SupportedChainId } from '../SupportedChain';
+
+function getChainPrefixByChainId(chainId: SupportedChainId) {
   switch (chainId) {
     case 1:
       return 'eth';
@@ -16,11 +18,11 @@ function getChainPrefixByChainId(chainId: number) {
 }
 
 interface CreateRPCTransportParams {
-  chainId: number;
+  chainId: SupportedChainId;
 }
 
 export function createRPCTransport({ chainId }: CreateRPCTransportParams) {
   const chainPrefix = getChainPrefixByChainId(chainId);
   const rpcURL = `https://rpc.ankr.com/${chainPrefix}`;
-  return web3HTTPTransport(rpcURL);
+  return http(rpcURL);
 }

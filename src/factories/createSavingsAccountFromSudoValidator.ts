@@ -43,7 +43,6 @@ export async function createSavingsAccountFromSudoValidator({
     privateKeyAccount,
     async getSponsorshipInfo(userOperation) {
       const sponsorshipInfo = await savingsBackendClient.getSponsorshipInfo({
-        userAddress: aaManager.aaAddress,
         chainId,
         userOperation: {
           ...userOperation,
