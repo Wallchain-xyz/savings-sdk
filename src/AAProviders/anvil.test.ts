@@ -8,7 +8,7 @@ import { ensureAnvilIsReady, ensureBundlerIsReady } from '../testSuite/healthChe
 import { BiconomyAAProvider } from './biconomy/provider';
 import { PimlicoPaymaster } from './pimlico/paymaster';
 
-import { AAProvider } from './types';
+import { AAProvider, PermissionArgOperator } from './types';
 import { ZerodevProvider } from './zerodev/provider';
 
 describe.each([
@@ -142,14 +142,19 @@ describe.each([
         functionName: 'deposit',
         valueLimit: parseEther('100000'),
         abi: wethContract.abi,
-        rules: [],
+        args: [],
       },
       {
         target: wethContract.address,
         functionName: 'withdraw',
         valueLimit: parseEther('0'),
         abi: wethContract.abi,
-        rules: [],
+        args: [
+          {
+            operator: PermissionArgOperator.EQUAL,
+            value: amountWithdraw,
+          },
+        ],
       },
     ]);
     if (skaData.txnsToActivate) {
@@ -182,5 +187,68 @@ describe.each([
     // Assert
     const wethBalance = await wethContract.read.balanceOf([aaAccount.aaAddress]);
     expect(wethBalance).toBe(amountDeposit - amountWithdraw);
+  }, 30_000);
+
+  it('SKA permission are validated', async () => {
+    // Arrange
+    const aaAccount = await provider.createAAAccount(eoaAccount);
+    await testClient.setBalance({
+      address: aaAccount.aaAddress,
+      value: parseEther('42'),
+    });
+    const amount = faker.number.bigInt({ min: 101n, max: 200n });
+    const userOpHash = await aaAccount.sendTxns([
+      {
+        to: wethContract.address,
+        data: encodeFunctionData({
+          abi: wethContract.abi,
+          functionName: 'deposit',
+          args: [],
+        }),
+        value: amount,
+      },
+    ]);
+    await aaAccount.waitForUserOp(userOpHash);
+
+    // Act
+    const skaData = await aaAccount.createSessionKey(skaAccount.address, [
+      {
+        target: wethContract.address,
+        functionName: 'withdraw',
+        valueLimit: parseEther('0'),
+        abi: wethContract.abi,
+        args: [
+          {
+            operator: PermissionArgOperator.EQUAL,
+            value: amount - 1n,
+          },
+        ],
+      },
+    ]);
+    if (skaData.txnsToActivate) {
+      const createSKAUserOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
+      await aaAccount.waitForUserOp(createSKAUserOpHash);
+    }
+    const saAccount = await provider.createSKAccount(skaAccount, skaData.serializedSKAData);
+    try {
+      const skaUserOpHash = await saAccount.sendTxns([
+        {
+          to: wethContract.address,
+          data: encodeFunctionData({
+            abi: wethContract.abi,
+            functionName: 'withdraw',
+            args: [amount], // this amount should be disallowed
+          }),
+          value: 0n,
+        },
+      ]);
+      await aaAccount.waitForUserOp(skaUserOpHash);
+    } catch {
+      // Error here may or may not happen - txn may revert on chain
+    }
+
+    // Assert
+    const wethBalance = await wethContract.read.balanceOf([aaAccount.aaAddress]);
+    expect(wethBalance).toBe(amount);
   }, 30_000);
 });

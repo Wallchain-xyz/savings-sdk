@@ -2,11 +2,12 @@ import {
   BiconomySmartAccountV2,
   DEFAULT_BATCHED_SESSION_ROUTER_MODULE,
   DEFAULT_SESSION_KEY_MANAGER_MODULE,
+  Rule,
   createBatchedSessionRouterModule,
   createSessionKeyManagerModule,
   getABISVMSessionKeyData,
 } from '@biconomy/account';
-import { Address, Hex } from 'viem';
+import { Address, Hex, getAbiItem, isHex, padHex, toHex } from 'viem';
 
 import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
 
@@ -93,11 +94,7 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
       destContract: permission.target,
       functionSelector: permissionToSelector(permission),
       valueLimit: permission.valueLimit,
-      rules: permission.rules.map(it => ({
-        offset: it.offset,
-        condition: it.condition,
-        referenceValue: it.param,
-      })),
+      rules: BiconomyAAAccount.getPermissionRules(permission),
     });
   }
 
@@ -113,5 +110,32 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
         value: 0n,
       },
     ];
+  }
+
+  private static getPermissionRules({ abi, args, functionName }: Permission): Rule[] {
+    // This function encodes arg rules into low-level rules.
+    // The main goal is to generate proper `offset` and `referenceValue` values,
+    // that represent exact bytes that should be compared by smart contract
+    // with bytes inside call data
+    const abiItem = getAbiItem({
+      abi,
+      args,
+      name: functionName,
+    });
+    if (abiItem?.type !== 'function') {
+      throw Error(`${functionName} not found in abi`);
+    }
+    return args
+      .map(
+        (arg, i) =>
+          arg && {
+            offset: i * 32,
+            condition: arg.operator,
+            referenceValue: padHex(isHex(arg.value) ? arg.value : toHex(arg.value as Parameters<typeof toHex>[0]), {
+              size: 32,
+            }),
+          },
+      )
+      .filter(rule => rule);
   }
 }
