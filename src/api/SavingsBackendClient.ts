@@ -38,6 +38,11 @@ interface AuthParams {
   message: WallchainAuthMessage;
 }
 
+interface AuthResponses {
+  user: User;
+  token: string;
+}
+
 interface GetSponsorshipInfoParams {
   chainId: ChainId;
   userOperation: UserOperation;
@@ -53,7 +58,12 @@ export class SavingsBackendClient {
     this.authClient = authClient;
   }
 
-  async auth({ chainId, signedMessage, message }: AuthParams): Promise<User> {
+  setAuthHeader(token: string): void {
+    this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+  }
+
+  async auth({ chainId, signedMessage, message }: AuthParams): Promise<AuthResponses> {
     const authData = {
       ...message,
       signature: signedMessage,
@@ -77,9 +87,12 @@ export class SavingsBackendClient {
         throw error;
       }
     }
-    this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
-    this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${authResponse.token}`;
-    return authResponse.user;
+    this.setAuthHeader(authResponse.token);
+
+    return {
+      user: authResponse.user,
+      token: authResponse.token,
+    };
   }
 
   async pauseDepositing({ chainId, pauseUntilDatetime }: PauseDepositingParams) {
