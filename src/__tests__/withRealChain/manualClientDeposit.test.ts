@@ -36,4 +36,16 @@ wrappedDescribe('manual deposit', () => {
     });
     expect(response.receipt.status).toBe('success');
   }, 120_000);
+
+  it('can withdraw USDC on Base', async () => {
+    const savingsAccount = await createSavingsAccount(eoaAccount);
+
+    await savingsAccount.auth();
+
+    const response = await savingsAccount.withdraw({
+      amount: 7264277n,
+      depositStrategyId: '018f04e0-73d5-77be-baec-c76bac26b4f3', // Beefy ETH on Base strategy
+    });
+    expect(response.receipt.status).toBe('success');
+  }, 120_000);
 });
