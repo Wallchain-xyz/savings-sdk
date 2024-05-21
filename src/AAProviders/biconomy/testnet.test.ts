@@ -1,17 +1,10 @@
 import { faker } from '@faker-js/faker';
-import {
-  createPublicClient,
-  encodeFunctionData,
-  getAbiItem,
-  getAddress,
-  getContract,
-  http,
-  parseAbi,
-  parseEther,
-} from 'viem';
+import { createPublicClient, encodeFunctionData, getAbiItem, getContract, http, parseAbi, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { polygonAmoy } from 'viem/chains';
+
+import { createEoaAccount } from '../../__tests__/utils/createEoaAccount';
 
 import { BiconomyAAProvider } from './provider';
 
@@ -44,7 +37,7 @@ describe('Biconomy Provider Polygon Amoy', () => {
   it('send simple txn', async () => {
     // Arrange
     const aaAccount = await provider.createAAAccount(owner);
-    const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+    const receiver = createEoaAccount().address;
 
     // Act
     const userOpHash = await aaAccount.sendTxns([

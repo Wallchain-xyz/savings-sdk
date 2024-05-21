@@ -7,6 +7,7 @@ import {
 } from '@zerodev/sdk';
 import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
 import {
+  Permission,
   SESSION_KEY_VALIDATOR_ADDRESS,
   SessionKeyValidatorAbi,
   serializeSessionKeyAccount,
@@ -16,6 +17,7 @@ import {
 import { bundlerActions } from 'permissionless';
 import { SponsorUserOperationReturnType } from 'permissionless/actions/smartAccount/prepareUserOperationRequest';
 import {
+  Abi,
   Address,
   Chain,
   type Client,
@@ -30,10 +32,14 @@ import {
 } from 'viem';
 
 import { ChainId } from '../api/auth/__generated__/createApiClient';
+import { WallchainAuthMessage } from '../api/SavingsBackendClient';
+import { ActiveStrategy, ActiveStrategyParamValuesByKey } from '../api/ska/__generated__/createApiClient';
+import { DepositStrategyId, DepositStrategyType } from '../depositStrategies/DepositStrategy';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
 import { getIsNativeStrategy } from '../depositStrategies/getIsNativeStrategy';
-import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
+
+import { mapValuesDeep } from '../utils/mapValuesDeep';
 
 import { AAManagerEntryPoint, entryPoint } from './EntryPoint';
 import { createRequestAllowanceTxn } from './requests/createRequestAllowanceTxn';
@@ -41,11 +47,12 @@ import { createPimlicoTransport } from './transports/createPimlicoTransport';
 import { createRPCTransport } from './transports/createRPCTransport';
 import { AllowanceParams, ERC20_ALLOWANCE_FUNCTION_NAME, createAllowanceTxn } from './txns/createAllowanceTxn';
 import { createERC20AddDepositTxn } from './txns/createERC20AddDepositTxn';
+import { ERC20_TRANSFER_FUNCTION_NAME, createERC20TransferTxn } from './txns/createERC20TransferTxn';
 import { createNativeAddDepositTxn } from './txns/createNativeAddDepositTxn';
 
+import { TRANSFER_FROM_FUNCTION_NAME, createTransferFromTxn } from './txns/createTransferFromTxn';
 import { UserOperation } from './UserOperation';
 
-import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { KernelSmartAccount } from '@zerodev/sdk/accounts';
 import type { GetUserOperationReceiptReturnType } from 'permissionless/_types/actions/bundler/getUserOperationReceipt';
 
@@ -67,9 +74,13 @@ interface MinimumTxn {
 type GetSponsorshipInfo = (
   userOperation: UserOperation,
 ) => Promise<SponsorUserOperationReturnType<AAManagerEntryPoint>>;
+type PickedPrivateKeyAccount = Pick<PrivateKeyAccount, 'signTypedData'> & {
+  address?: PrivateKeyAccount['address'];
+};
+
 interface ConstructorParams {
   sudoValidator: KernelValidator<AAManagerEntryPoint>;
-  privateKeyAccount: PrivateKeyAccount;
+  privateKeyAccount: PickedPrivateKeyAccount;
   apiKey: string;
   chainId: ChainId;
   getSponsorshipInfo: GetSponsorshipInfo;
@@ -82,7 +93,7 @@ export interface WithdrawOrDepositParams {
 
 interface PrepareSessionKeyAccountParams {
   sessionKeyAccountAddress: Address;
-  depositStrategyIds: DepositStrategyId[];
+  activeStrategies: ActiveStrategy[];
 }
 
 export class AAManager<TChain extends Chain> {
@@ -99,7 +110,7 @@ export class AAManager<TChain extends Chain> {
 
   private readonly sudoValidator: KernelValidator<AAManagerEntryPoint>;
 
-  private readonly privateKeyAccount: PrivateKeyAccount;
+  private readonly privateKeyAccount: PickedPrivateKeyAccount;
 
   private readonly publicClient: Client<AAManagerTransport, TChain, undefined>;
 
@@ -149,6 +160,16 @@ export class AAManager<TChain extends Chain> {
     return this.aaAccountClient.account.address;
   }
 
+  createAuthMessage(): WallchainAuthMessage {
+    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+    const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds
+    return {
+      info: 'Confirm Address for Wallchain Auto-Yield',
+      aa_address: this.aaAddress,
+      expires: expiresInt,
+    };
+  }
+
   async signMessage(message: WallchainAuthMessage) {
     return this.privateKeyAccount.signTypedData({
       // TODO: @merlin fix typing
@@ -187,18 +208,27 @@ export class AAManager<TChain extends Chain> {
     ]);
   }
 
-  async signSKA({ sessionKeyAccountAddress, depositStrategyIds }: PrepareSessionKeyAccountParams) {
+  async signSKA({ sessionKeyAccountAddress, activeStrategies }: PrepareSessionKeyAccountParams) {
     const emptySessionKeySigner = addressToEmptyAccount(sessionKeyAccountAddress);
 
-    const strategies = depositStrategyIds.map(getDepositStrategyById);
     // TODO: @merlin remove permissions duplication
-    const combinedPermissions = strategies.flatMap(strategy => strategy.permissions);
+    const permissions = activeStrategies
+      .map(activeStrategy => {
+        const strategy = getDepositStrategyById(activeStrategy.strategyId);
+        return strategy.permissions.map(permission =>
+          AAManager.replacePlaceholdersInPermission(permission, {
+            eoaAddress: activeStrategy.paramValuesByKey?.eoaAddress ?? null,
+            aaAddress: this.aaAddress,
+          }),
+        );
+      })
+      .flat();
 
     const sessionKeyValidator = await signerToSessionKeyValidator(this.publicClient, {
       entryPoint,
       signer: emptySessionKeySigner,
       validatorData: {
-        permissions: combinedPermissions,
+        permissions,
       },
     });
 
@@ -216,6 +246,25 @@ export class AAManager<TChain extends Chain> {
 
     return serializeSessionKeyAccount(sessionKeyAccount);
   }
+
+  static replacePlaceholdersInPermission = (
+    permission: Permission<Abi, string>,
+    paramValuesByKey: ActiveStrategyParamValuesByKey,
+  ): Permission<Abi, string> => {
+    return mapValuesDeep(permission, valueToInterpolate => {
+      if (typeof valueToInterpolate !== 'string') {
+        return valueToInterpolate;
+      }
+      return Object.entries(paramValuesByKey).reduce((partiallyInterpolatedValue, [key, value]) => {
+        const keyTemplate = `{{${key}}}`;
+
+        if (partiallyInterpolatedValue.includes(keyTemplate) && value === undefined) {
+          throw new Error(`Value is not provided for permissions - ${key}`);
+        }
+        return partiallyInterpolatedValue.replaceAll(keyTemplate, value as string);
+      }, valueToInterpolate as string);
+    }) as Permission<Abi, string>;
+  };
 
   private async sendUserOp(txns: MinimumTxn[]) {
     return this.aaAccountClient.sendUserOperation({
@@ -235,12 +284,14 @@ export class AAManager<TChain extends Chain> {
     const depositStrategy = getDepositStrategyById(depositStrategyId);
 
     const isNativeStrategy = getIsNativeStrategy(depositStrategy);
-    const functionName = isNativeStrategy ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME : ERC20_ADD_DEPOSIT_FUNCTION_NAME;
+    const addDepositFunctionName = isNativeStrategy
+      ? NATIVE_ADD_DEPOSIT_FUNCTION_NAME
+      : ERC20_ADD_DEPOSIT_FUNCTION_NAME;
 
     // TODO: Looks like depositStrategy better be a class with ability to lookup
     // permissions by type: addDeposit, allowance, and withdraw.
     const addDepositPermission = depositStrategy.permissions.find(
-      permission => permission.functionName === functionName,
+      permission => permission.functionName === addDepositFunctionName,
     );
     if (!addDepositPermission) {
       throw new Error('Add deposit permission is not found');
@@ -251,6 +302,30 @@ export class AAManager<TChain extends Chain> {
       const nativeAddDepositTxn = createNativeAddDepositTxn({ addDepositPermission, amount });
       txns.push(nativeAddDepositTxn);
     } else {
+      const { aaAddress } = this;
+      const eoaAddress = this.privateKeyAccount.address;
+      if (depositStrategy.type === DepositStrategyType.beefyEOA) {
+        const transferFromPermission = depositStrategy.permissions.find(
+          permission => permission.functionName === TRANSFER_FROM_FUNCTION_NAME,
+        );
+
+        if (!transferFromPermission) {
+          throw new Error('Transfer from permission is not found on eoa strategy');
+        }
+
+        if (!eoaAddress) {
+          throw new Error('EOA address is not provided in privateKeyAccount, but deposit for EOA is initiated');
+        }
+
+        const transferFromTxn = createTransferFromTxn({
+          token: transferFromPermission.target,
+          from: eoaAddress,
+          to: aaAddress,
+          value: amount,
+        });
+        txns.push(transferFromTxn);
+      }
+
       const allowancePermission = depositStrategy.permissions.find(
         permission => permission.functionName === ERC20_ALLOWANCE_FUNCTION_NAME,
       );
@@ -261,7 +336,7 @@ export class AAManager<TChain extends Chain> {
 
       const allowanceParams = {
         spender: addDepositPermission.target,
-        owner: this.aaAddress,
+        owner: aaAddress,
         token: allowancePermission.target,
         amount,
       };
@@ -311,7 +386,31 @@ export class AAManager<TChain extends Chain> {
         args: [amount],
       }),
     };
+    const txns = [txn];
 
-    return this.executeTxns([txn]);
+    if (depositStrategy.type === DepositStrategyType.beefyEOA) {
+      const eoaAddress = this.privateKeyAccount.address;
+
+      const transferPermission = depositStrategy.permissions.find(
+        permission => permission.functionName === ERC20_TRANSFER_FUNCTION_NAME,
+      );
+
+      if (!transferPermission) {
+        throw new Error('Transfer from permission is not found on eoa strategy');
+      }
+
+      if (!eoaAddress) {
+        throw new Error('EOA address is not provided in privateKeyAccount, but withdraw for EOA is initiated');
+      }
+
+      const transferTxn = createERC20TransferTxn({
+        token: transferPermission.target,
+        to: eoaAddress,
+        value: amount,
+      });
+      txns.push(transferTxn);
+    }
+
+    return this.executeTxns(txns);
   }
 }

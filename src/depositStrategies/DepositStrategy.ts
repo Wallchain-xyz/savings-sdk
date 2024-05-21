@@ -4,8 +4,15 @@ import type { Permission } from '@zerodev/session-key';
 import type { Abi, Address } from 'viem';
 
 export type DepositStrategyId = string;
+
+export enum DepositStrategyType {
+  beefyAA = 'beefyAA',
+  beefyEOA = 'beefyEOA',
+}
+
 export interface DepositStrategy {
   id: DepositStrategyId;
+  type: DepositStrategyType;
   permissions: Permission<Abi, string>[];
 
   chainId: ChainId;

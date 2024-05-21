@@ -1,17 +1,16 @@
-import { faker } from '@faker-js/faker';
 import { tokenAddresses } from '@zerodev/defi';
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
 import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
 import { Chain, PrivateKeyAccount, http, parseEther } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 
+import { LOCAL_PAYMASTER_RPC_URL } from '../../__tests__/utils/consts';
+import { createEoaAccount } from '../../__tests__/utils/createEoaAccount';
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 import { AAManager } from '../AAManager';
 import { entryPoint } from '../EntryPoint';
 
-const LOCAL_PAYMASTER_RPC_URL = `http://localhost:4330`;
 describe('AAManager', () => {
   let eoaAccount: PrivateKeyAccount;
   let anotherAccount: PrivateKeyAccount;
@@ -27,8 +26,8 @@ describe('AAManager', () => {
 
   beforeEach(() => {
     // TODO: Make random, or fetch from anvil. Currently @1 on anvil
-    eoaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
-    anotherAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    eoaAccount = createEoaAccount();
+    anotherAccount = createEoaAccount();
 
     testClient.setBalance({
       address: eoaAccount.address,

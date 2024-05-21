@@ -1,7 +1,5 @@
-import { faker } from '@faker-js/faker';
 import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
 import { PrivateKeyAccount, http, parseEther } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
@@ -11,13 +9,14 @@ import { createRPCTransport } from '../../AAManager/transports/createRPCTranspor
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
+import { LOCAL_PAYMASTER_RPC_URL } from '../utils/consts';
+import { createEoaAccount } from '../utils/createEoaAccount';
 
 import Mock = jest.Mock;
 
 const chain = base; // TODO: maybe make it changeable
-const LOCAL_CHAIN_RPC_URL = `http://localhost:8545`;
+const LOCAL_CHAIN_RPC = `http://localhost:8545`;
 const LOCAL_BUNDLER_URL = 'http://localhost:4337';
-const LOCAL_PAYMASTER_RPC_URL = `http://localhost:4330`;
 jest.mock('../../AAManager/transports/createRPCTransport');
 jest.mock('../../AAManager/transports/createPimlicoTransport');
 
@@ -34,11 +33,12 @@ describe('manual deposit', () => {
   }, 10_000);
 
   beforeEach(() => {
-    eoaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    eoaAccount = createEoaAccount();
   });
 
   beforeEach(() => {
-    (createRPCTransport as Mock).mockReturnValue(http(LOCAL_CHAIN_RPC_URL));
+    (createRPCTransport as Mock).mockReturnValue(http(LOCAL_CHAIN_RPC));
+
     (createPimlicoTransport as Mock).mockReturnValue(bundlerTransport);
   });
 
@@ -49,16 +49,13 @@ describe('manual deposit', () => {
       savingsBackendUrl: 'http://localhost:8000',
       apiKey: 'ANY',
     });
-
     testClient.setBalance({
       address: savingsAccount.aaAddress,
       value: parseEther('42'),
     });
 
     await savingsAccount.auth();
-
     // @ts-expect-error private method to mock
-    // eslint-disable-next-line no-unused-expressions
     savingsAccount.savingsBackendClient.getSponsorshipInfo = async ({ userOperation }) => {
       const bundlerClient = createPimlicoBundlerClient({
         transport: bundlerTransport,
@@ -88,10 +85,9 @@ describe('manual deposit', () => {
       };
     };
     const response = await savingsAccount.deposit({
-      amount: BigInt(10000000),
+      amount: parseEther('1'),
       depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e', // Beefy ETH on Base strategy
     });
-
     expect(response.receipt.status).toBe('success');
   }, 120_000);
 });

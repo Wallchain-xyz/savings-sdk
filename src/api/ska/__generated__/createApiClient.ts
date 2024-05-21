@@ -4,12 +4,27 @@ import { Zodios, type ZodiosOptions } from '@zodios/core';
 
 import { TypeOf, zod as z } from '../../zod';
 
+const ActiveStrategyParamValuesByKey = z
+  .object({ eoaAddress: z.union([z.string(), z.null()]) })
+  .partial()
+  .passthrough();
+
+export const ActiveStrategyParamValuesByKeySchema = ActiveStrategyParamValuesByKey;
+export type ActiveStrategyParamValuesByKey = TypeOf<typeof ActiveStrategyParamValuesByKeySchema>;
+
+const ActiveStrategy = z
+  .object({ strategyId: z.string(), paramValuesByKey: z.union([ActiveStrategyParamValuesByKey, z.null()]).optional() })
+  .passthrough();
+
+export const ActiveStrategySchema = ActiveStrategy;
+export type ActiveStrategy = TypeOf<typeof ActiveStrategySchema>;
+
 const SKA = z
   .object({
     userId: z.string(),
     aaAddress: z.address(),
     sessionKeyAccountAddress: z.address(),
-    depositStrategyIds: z.array(z.string()),
+    activeStrategies: z.array(ActiveStrategy),
   })
   .passthrough();
 
@@ -20,7 +35,7 @@ const CreateSKAData = z
   .object({
     aaAddress: z.address(),
     serializedSka: z.string(),
-    depositStrategyIds: z.array(z.string()),
+    activeStrategies: z.array(ActiveStrategy),
   })
   .passthrough();
 
@@ -209,11 +224,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             name: 'body',
             type: 'Body',
             schema: UserOperation,
-          },
-          {
-            name: 'aa_address',
-            type: 'Path',
-            schema: aa_address,
           },
           {
             name: 'chain_id',

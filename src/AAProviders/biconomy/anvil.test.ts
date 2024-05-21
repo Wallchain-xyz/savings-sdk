@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { PrivateKeyAccount, getAddress, parseEther } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 
+import { createEoaAccount } from '../../__tests__/utils/createEoaAccount';
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady } from '../../testSuite/healthCheck';
 
@@ -19,13 +19,12 @@ describe('Biconomy Provider Local Anvil', () => {
   });
 
   beforeAll(async () => {
-    await ensureBundlerIsReady();
-    await ensureAnvilIsReady();
+    await Promise.all([ensureBundlerIsReady(), ensureAnvilIsReady()]);
   }, 10_000);
 
   beforeEach(async () => {
-    eoaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
-    skaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    eoaAccount = createEoaAccount();
+    skaAccount = createEoaAccount();
 
     await testClient.setBalance({
       address: eoaAccount.address,

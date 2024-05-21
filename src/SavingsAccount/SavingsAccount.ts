@@ -4,11 +4,9 @@ import { AAManager, WithdrawOrDepositParams } from '../AAManager/AAManager';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 import { PauseDepositingParams, SavingsBackendClient } from '../api/SavingsBackendClient';
 
+import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 import { getDepositStrategyById } from '../depositStrategies/getDepositStrategyById';
 
-import { createAuthMessage } from './createAuthMessage';
-
-import type { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import type { GetUserOperationReceiptReturnType } from 'permissionless/_types/actions/bundler/getUserOperationReceipt';
 
 interface ConstructorParams<TChain extends Chain> {
@@ -36,13 +34,13 @@ export class SavingsAccount<TChain extends Chain> {
     return this.aaManager.aaAddress;
   }
 
-  // TODO: @melrin not sure we want to expose this
+  // TODO: @merlin not sure we want to expose this
   get aaAccountClient() {
     return this.aaManager.aaAccountClient;
   }
 
   async auth() {
-    const authMessage = createAuthMessage(this.aaAddress);
+    const authMessage = this.aaManager.createAuthMessage();
     const signedMessage = await this.aaManager.signMessage(authMessage);
     return this.savingsBackendClient.auth({
       signedMessage,
@@ -51,7 +49,7 @@ export class SavingsAccount<TChain extends Chain> {
     });
   }
 
-  async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
+  async activateStrategies(activeStrategies: ActiveStrategy[]): Promise<void> {
     const skaAddressPromise = this.savingsBackendClient.getSKAPublicKey(this.chainId);
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     if (walletSKA) {
@@ -60,30 +58,36 @@ export class SavingsAccount<TChain extends Chain> {
       await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
     }
 
-    const newStrategyIds = await this.mergeWithActiveStrategyIds(strategyIds);
+    const newActiveStrategies: ActiveStrategy[] = await this.mergeWithCurrentActiveStrategies(activeStrategies);
 
     const skaAddress = await skaAddressPromise;
     const serializedSKA = await this.aaManager.signSKA({
       sessionKeyAccountAddress: skaAddress,
-      depositStrategyIds: newStrategyIds,
+      activeStrategies: newActiveStrategies,
     });
 
     await this.savingsBackendClient.createWalletSKA({
       userAddress: this.aaAddress,
-      depositStrategyIds: newStrategyIds,
+      activeStrategies: newActiveStrategies,
       serializedSKA,
       chainId: this.chainId,
     });
   }
 
-  private async mergeWithActiveStrategyIds(strategyIds: DepositStrategyId[]) {
-    const activeStrategyIds = (await this.getActiveStrategies()).map(strategy => strategy.id);
-    return Array.from(new Set([...activeStrategyIds, ...strategyIds]));
+  private async mergeWithCurrentActiveStrategies(newActiveStrategies: ActiveStrategy[]): Promise<ActiveStrategy[]> {
+    const currentActivations = await this.getCurrentActiveStrategies();
+    return [
+      ...currentActivations.filter(
+        currentActivation =>
+          !newActiveStrategies.some(newActivation => newActivation.strategyId === currentActivation.strategyId),
+      ),
+      ...newActiveStrategies,
+    ];
   }
 
-  async getActiveStrategies(): Promise<DepositStrategy[]> {
+  async getCurrentActiveStrategies(): Promise<ActiveStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
-    return walletSKA?.depositStrategyIds.map(getDepositStrategyById) ?? [];
+    return walletSKA?.activeStrategies ?? [];
   }
 
   async deactivateAllStrategies() {

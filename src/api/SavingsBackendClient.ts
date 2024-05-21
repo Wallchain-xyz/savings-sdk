@@ -1,13 +1,9 @@
 import { Address, Hex } from 'viem';
 
-import { WallchainAuthMessage } from '../SavingsAccount/createAuthMessage';
-
 import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
-import { UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
-
-import type { DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
 type AuthClient = ReturnType<typeof createAuthClient>;
@@ -20,7 +16,7 @@ interface SavingsBackendClientParams {
 
 interface CreateWalletSKAParams {
   userAddress: Address;
-  depositStrategyIds: DepositStrategyId[];
+  activeStrategies: ActiveStrategy[];
   serializedSKA: string;
   chainId: ChainId;
 }
@@ -30,6 +26,12 @@ export type SavingsAccountUserId = string;
 export interface PauseDepositingParams {
   chainId: ChainId;
   pauseUntilDatetime?: Date | string;
+}
+
+export interface WallchainAuthMessage {
+  info: string;
+  aa_address: Address;
+  expires: number;
 }
 
 interface AuthParams {
@@ -124,11 +126,11 @@ export class SavingsBackendClient {
     });
   }
 
-  async createWalletSKA({ userAddress, depositStrategyIds, serializedSKA, chainId }: CreateWalletSKAParams) {
+  async createWalletSKA({ userAddress, activeStrategies, serializedSKA, chainId }: CreateWalletSKAParams) {
     return this.skaClient.createSKA(
       {
         serializedSka: serializedSKA,
-        depositStrategyIds,
+        activeStrategies,
         aaAddress: userAddress,
       },
       {

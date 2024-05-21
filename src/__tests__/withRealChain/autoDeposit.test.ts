@@ -1,14 +1,16 @@
-import axios from 'axios';
 import { Hex, PrivateKeyAccount } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
+import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { getSupportedDepositStrategies } from '../../depositStrategies';
+import { getDepositStrategyById } from '../../depositStrategies/getDepositStrategyById';
 import { getIsNativeStrategy } from '../../depositStrategies/getIsNativeStrategy';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 import { ChainHelper } from '../ChainHelper';
+import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
@@ -53,26 +55,25 @@ wrappedDescribe('auto deposit', () => {
       });
     }
 
-    const activeStrategies = await savingsAccount.getActiveStrategies();
-    const activeNativeStrategy = activeStrategies.find(getIsNativeStrategy);
+    const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
+    const activeNativeStrategy = activeStrategies.find(activeStrategy =>
+      getIsNativeStrategy(getDepositStrategyById(activeStrategy.strategyId)),
+    );
     if (!activeNativeStrategy) {
-      const strategiesIds = allStrategies.map(it => it.id);
+      const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => {
+        return {
+          strategyId: strategy.id,
+          paramValuesByKey: {
+            eoaAddress: eoaAccount.address,
+          },
+        };
+      });
 
-      await savingsAccount.activateStrategies(strategiesIds);
+      await savingsAccount.activateStrategies(activeStrategies);
     }
 
     const nativeTokenAmount = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);
-
-    await axios.post('http://localhost:8000/yield/deposits/8453/auto_deposit_poller').catch(error => {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      throw new Error('Auto deposit trigger failed!');
-    });
-
-    // wait for the system to finish depositing
-    await new Promise(resolve => {
-      setTimeout(resolve, 15_000);
-    });
+    await triggerDSToDeposit();
     const nativeTokenAmountAfterDeposit = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);
 
     expect(nativeTokenAmount).toBeGreaterThan(nativeTokenAmountAfterDeposit);

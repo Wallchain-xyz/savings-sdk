@@ -1,4 +1,4 @@
-import { Address, PublicClient, createPublicClient, http, parseAbi } from 'viem';
+import { Address, Hash, PublicClient, createPublicClient, http, parseAbi } from 'viem';
 
 import { SupportedChain } from '../AAManager/SupportedChain';
 
@@ -9,6 +9,12 @@ interface ChainParams {
 interface GetERC20TokenAmountParams {
   tokenAddress: Address;
   accountAddress: Address;
+}
+
+interface GetERC20TokenAllowanceParams {
+  tokenAddress: Address;
+  tokenSpenderAddress: Address;
+  tokenOwnerAddress: Address;
 }
 
 export class ChainHelper {
@@ -34,9 +40,24 @@ export class ChainHelper {
     });
   }
 
+  async getERC20TokenAllowance({ tokenAddress, tokenSpenderAddress, tokenOwnerAddress }: GetERC20TokenAllowanceParams) {
+    return this.publicClient.readContract({
+      address: tokenAddress,
+      abi: parseAbi(['function allowance(address owner, address spender) external view returns (uint256)']),
+      functionName: 'allowance',
+      args: [tokenOwnerAddress, tokenSpenderAddress],
+    });
+  }
+
   async getNativeTokenAmount(address: Address) {
     return this.publicClient.getBalance({
       address,
+    });
+  }
+
+  async waitForTransactionReceipt(txnHash: Hash) {
+    return this.publicClient.waitForTransactionReceipt({
+      hash: txnHash,
     });
   }
 }

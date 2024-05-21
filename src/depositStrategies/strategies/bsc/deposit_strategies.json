@@ -1,6 +1,7 @@
 [
   {
     "id": "018ecbc7-e428-7497-a94c-ca4e9d33f06f",
+    "type": "beefyAA",
     "chainId": 56,
     "tokenAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     "bondTokenAddress": "0x6BE4741AB0aD233e4315a10bc783a7B923386b71",

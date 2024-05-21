@@ -1,7 +1,5 @@
-import { faker } from '@faker-js/faker';
 import { tokenAddresses } from '@zerodev/defi';
 import { PrivateKeyAccount, parseAbi, parseEther } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
@@ -21,15 +19,13 @@ describe('allowance', () => {
   const testClient = createExtendedTestClient();
 
   beforeAll(async () => {
-    await ensurePaymasterIsReady();
-    await ensureBundlerIsReady();
-    await ensureAnvilIsReady();
+    await Promise.all([ensurePaymasterIsReady(), ensureBundlerIsReady(), ensureAnvilIsReady()]);
   }, 10_000);
 
   beforeEach(() => {
     // TODO: Make random, or fetch from anvil. Currently @1 on anvil
-    eoaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
-    anotherAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    eoaAccount = createEoaAccount();
+    anotherAccount = createEoaAccount();
 
     testClient.setBalance({
       address: eoaAccount.address,

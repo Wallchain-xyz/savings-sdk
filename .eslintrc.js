@@ -190,6 +190,7 @@ module.exports = {
           // ======= JS =======
           //   tests
           // './src/**/*.test.ts',
+          'src/__tests__/utils/*.ts',
           // ======= TS =======
           // 'jest.config.ts',
           // 'typings.d.ts',
