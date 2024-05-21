@@ -41,8 +41,7 @@ export class SavingsAccount<TChain extends Chain> {
     return this.aaManager.aaAccountClient;
   }
 
-  // explicit return type to avoid TS4053
-  async auth(): ReturnType<SavingsBackendClient['auth']> {
+  async auth() {
     const authMessage = createAuthMessage(this.aaAddress);
     const signedMessage = await this.aaManager.signMessage(authMessage);
     return this.savingsBackendClient.auth({
@@ -50,10 +49,6 @@ export class SavingsAccount<TChain extends Chain> {
       message: authMessage,
       chainId: this.chainId,
     });
-  }
-
-  hydrateAuth(token: string) {
-    this.savingsBackendClient.setAuthHeader(token);
   }
 
   async activateStrategies(strategyIds: DepositStrategyId[]): Promise<void> {
