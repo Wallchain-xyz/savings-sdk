@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc --noEmit false",
-    "dev": "tsc --watch",
+    "dev": "tsc --watch --noEmit false",
     "eslint:all": "eslint .",
     "eslint:fix-all": "eslint --fix .",
     "generate-auth-client": "openapi-zod-client src/api/auth/openapi.json --complexity-threshold=1 -o src/api/auth/__generated__/createApiClient.ts -t src/api/auth/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/auth/__generated__/createApiClient.ts",

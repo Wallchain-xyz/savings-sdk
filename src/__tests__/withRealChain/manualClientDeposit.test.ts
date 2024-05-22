@@ -7,18 +7,21 @@ import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/creat
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
-const wrappedDescribe = pimlicoApiKey && privateKey ? describe : describe.skip;
+const usdcAmountToDeposit = BigInt(process.env.USDC_AMOUNT ?? '') as bigint;
+const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL as string;
+const wrappedDescribe =
+  pimlicoApiKey && privateKey && usdcAmountToDeposit && savingsBackendUrl ? describe : describe.skip;
 
 const createSavingsAccount = (account: PrivateKeyAccount) => {
   return createSavingsAccountFromPrivateKeyAccount({
     privateKeyAccount: account,
     chainId: base.id, // TODO: maybe make it changeable
-    savingsBackendUrl: 'http://localhost:8000',
+    savingsBackendUrl,
     apiKey: pimlicoApiKey,
   });
 };
 
-wrappedDescribe('manual deposit', () => {
+wrappedDescribe('AA manual deposit', () => {
   let eoaAccount: PrivateKeyAccount;
 
   beforeEach(() => {
@@ -37,14 +40,26 @@ wrappedDescribe('manual deposit', () => {
     expect(response.receipt.status).toBe('success');
   }, 120_000);
 
+  it('can deposit USDC on Base', async () => {
+    const savingsAccount = await createSavingsAccount(eoaAccount);
+
+    await savingsAccount.auth();
+
+    const response = await savingsAccount.deposit({
+      amount: usdcAmountToDeposit,
+      depositStrategyId: '018f04e0-73d5-77be-baec-c76bac26b4f3', // Beefy USDC on Base strategy
+    });
+    expect(response.receipt.status).toBe('success');
+  }, 120_000);
+
   it('can withdraw USDC on Base', async () => {
     const savingsAccount = await createSavingsAccount(eoaAccount);
 
     await savingsAccount.auth();
 
     const response = await savingsAccount.withdraw({
-      amount: 7264277n,
-      depositStrategyId: '018f04e0-73d5-77be-baec-c76bac26b4f3', // Beefy ETH on Base strategy
+      amount: usdcAmountToDeposit,
+      depositStrategyId: '018f04e0-73d5-77be-baec-c76bac26b4f3', // Beefy USDC on Base strategy
     });
     expect(response.receipt.status).toBe('success');
   }, 120_000);

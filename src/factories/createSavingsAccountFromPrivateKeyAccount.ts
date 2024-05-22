@@ -1,5 +1,6 @@
 import { signerToEcdsaValidator } from '@zerodev/ecdsa-validator';
-import { PrivateKeyAccount, createPublicClient } from 'viem';
+import { SmartAccountSigner } from 'permissionless/accounts';
+import { createPublicClient } from 'viem';
 
 import { entryPoint } from '../AAManager/EntryPoint';
 import { createRPCTransport } from '../AAManager/transports/createRPCTransport';
@@ -11,8 +12,9 @@ import {
   createSavingsAccountFromSudoValidator,
 } from './createSavingsAccountFromSudoValidator';
 
-interface CreateYieldAccountParams extends Omit<CreateSavingsAccountFromKernelValidatorParams, 'sudoValidator'> {
-  privateKeyAccount: PrivateKeyAccount;
+interface CreateYieldAccountParams
+  extends Omit<CreateSavingsAccountFromKernelValidatorParams, 'sudoValidator' | 'privateKeyAccount'> {
+  privateKeyAccount: SmartAccountSigner & CreateSavingsAccountFromKernelValidatorParams['privateKeyAccount'];
   chainId: ChainId;
 }
 

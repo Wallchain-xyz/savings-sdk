@@ -74,11 +74,12 @@ interface MinimumTxn {
 type GetSponsorshipInfo = (
   userOperation: UserOperation,
 ) => Promise<SponsorUserOperationReturnType<AAManagerEntryPoint>>;
+
 type PickedPrivateKeyAccount = Pick<PrivateKeyAccount, 'signTypedData'> & {
   address?: PrivateKeyAccount['address'];
 };
 
-interface ConstructorParams {
+export interface AAManagerParams {
   sudoValidator: KernelValidator<AAManagerEntryPoint>;
   privateKeyAccount: PickedPrivateKeyAccount;
   apiKey: string;
@@ -118,7 +119,7 @@ export class AAManager<TChain extends Chain> {
 
   private readonly getSponsorshipInfo: GetSponsorshipInfo;
 
-  constructor({ sudoValidator, apiKey, chainId, privateKeyAccount, getSponsorshipInfo }: ConstructorParams) {
+  constructor({ sudoValidator, apiKey, chainId, privateKeyAccount, getSponsorshipInfo }: AAManagerParams) {
     this.sudoValidator = sudoValidator;
     this.privateKeyAccount = privateKeyAccount;
     this.publicClient = createPublicClient({
@@ -174,7 +175,7 @@ export class AAManager<TChain extends Chain> {
     return this.privateKeyAccount.signTypedData({
       // TODO: @merlin fix typing
       // @ts-expect-error it doesn't know here that we have account inside
-      account: this.aaAccountClient.account,
+      account: this.privateKeyAccount,
       domain: {
         name: 'WallchainAuthMessage',
       },
@@ -255,7 +256,7 @@ export class AAManager<TChain extends Chain> {
       if (typeof valueToInterpolate !== 'string') {
         return valueToInterpolate;
       }
-      return Object.entries(paramValuesByKey).reduce((partiallyInterpolatedValue, [key, value]) => {
+      const interpolatedValue = Object.entries(paramValuesByKey).reduce((partiallyInterpolatedValue, [key, value]) => {
         const keyTemplate = `{{${key}}}`;
 
         if (partiallyInterpolatedValue.includes(keyTemplate) && value === undefined) {
@@ -263,6 +264,10 @@ export class AAManager<TChain extends Chain> {
         }
         return partiallyInterpolatedValue.replaceAll(keyTemplate, value as string);
       }, valueToInterpolate as string);
+      if (interpolatedValue.includes('{{') || interpolatedValue.includes('}}')) {
+        throw new Error(`Value is not provided for ${interpolatedValue}`);
+      }
+      return interpolatedValue;
     }) as Permission<Abi, string>;
   };
 
