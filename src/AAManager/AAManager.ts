@@ -173,9 +173,6 @@ export class AAManager<TChain extends Chain> {
 
   async signMessage(message: WallchainAuthMessage) {
     return this.privateKeyAccount.signTypedData({
-      // TODO: @merlin fix typing
-      // @ts-expect-error it doesn't know here that we have account inside
-      account: this.privateKeyAccount,
       domain: {
         name: 'WallchainAuthMessage',
       },
