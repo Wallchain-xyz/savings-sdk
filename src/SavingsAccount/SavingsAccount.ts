@@ -17,6 +17,11 @@ interface ConstructorParams<TChain extends Chain> {
 
 interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
 
+interface ActivateStrategiesParams {
+  activeStrategies: ActiveStrategy[];
+  skipRevokeOnChain?: boolean;
+}
+
 export class SavingsAccount<TChain extends Chain = Chain> {
   private savingsBackendClient: SavingsBackendClient;
 
@@ -49,14 +54,9 @@ export class SavingsAccount<TChain extends Chain = Chain> {
     });
   }
 
-  async activateStrategies(activeStrategies: ActiveStrategy[]): Promise<void> {
+  async activateStrategies({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> {
     const skaAddressPromise = this.savingsBackendClient.getSKAPublicKey(this.chainId);
-    const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
-    if (walletSKA) {
-      // TODO: @merlin think about transactions here, what if chain fails in the middle
-      await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
-      await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
-    }
+    await this.deactivateAllStrategies(skipRevokeOnChain);
 
     const newActiveStrategies: ActiveStrategy[] = await this.mergeWithCurrentActiveStrategies(activeStrategies);
 
@@ -90,12 +90,14 @@ export class SavingsAccount<TChain extends Chain = Chain> {
     return walletSKA?.activeStrategies ?? [];
   }
 
-  async deactivateAllStrategies() {
+  async deactivateAllStrategies(skipRevokeOnChain?: boolean) {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     if (!walletSKA) {
       return;
     }
-    await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
+    if (!skipRevokeOnChain) {
+      await this.aaManager.revokeSKA(walletSKA.sessionKeyAccountAddress);
+    }
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
   }
 

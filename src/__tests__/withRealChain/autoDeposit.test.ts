@@ -69,7 +69,7 @@ wrappedDescribe('auto deposit', () => {
         };
       });
 
-      await savingsAccount.activateStrategies(activeStrategies);
+      await savingsAccount.activateStrategies({ activeStrategies });
     }
 
     const nativeTokenAmount = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);

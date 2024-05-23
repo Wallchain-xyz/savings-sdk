@@ -50,7 +50,7 @@ describe('E2E SDK test without onchain transactions', () => {
         eoaAddress: account.address,
       },
     }));
-    await savingsAccount.activateStrategies(activeStrategies);
+    await savingsAccount.activateStrategies({ activeStrategies });
     const currentActiveStrategies = await savingsAccount.getCurrentActiveStrategies();
     expect(currentActiveStrategies).toStrictEqual(allStrategies);
   }, 120_000);
