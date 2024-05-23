@@ -92,7 +92,7 @@ describe('manual deposit', () => {
 
     // withdrawal
     const withdrawResult = await savingsAccount.withdraw({
-      amount: usdcAmountToDeposit,
+      amount: savingsAccountBondTokenAmountAfterDeposit,
       depositStrategyId: usdcEoaStrategy.id,
     });
     expect(withdrawResult.success).toBeTruthy();
@@ -107,6 +107,7 @@ describe('manual deposit', () => {
       tokenAddress: USDC_TOKEN_ADDRESS,
       accountAddress: eoaAddress,
     });
-    expect(eoaUsdcAmountAfterWithdraw).toBeGreaterThanOrEqual(usdcAmountToDeposit);
+    // -5n as Rounding can decrease value a bit
+    expect(eoaUsdcAmountAfterWithdraw).toBeGreaterThanOrEqual(usdcAmountToDeposit - 5n);
   }, 120_000);
 });

@@ -16,7 +16,7 @@ export async function topUpEoaWithUsdcAmountToDeposit({ eoaAddress, chainHelper,
     tokenAddress: USDC_TOKEN_ADDRESS,
     accountAddress: USDC_SOURCE_ACCOUNT_ADDRESS,
   });
-  const amountToDeposit = usdcSourceAddressTokenAmount / 1000n;
+  const amountToDeposit = usdcSourceAddressTokenAmount / 100n;
 
   await testClient.impersonateAccount({
     address: USDC_SOURCE_ACCOUNT_ADDRESS,

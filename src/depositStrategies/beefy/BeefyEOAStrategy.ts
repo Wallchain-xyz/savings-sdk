@@ -34,7 +34,7 @@ export class BeefyEOAStrategy extends BeefyERC20Strategy {
 
   async createWithdrawTxns({ amount, paramValuesByKey }: CreateWithdrawTxnsParams): Promise<Txn[]> {
     return [
-      ...(await super.createDepositTxns({ amount, paramValuesByKey })),
+      ...(await super.createWithdrawTxns({ amount, paramValuesByKey })),
       {
         to: this.tokenAddress,
         value: 0n,
