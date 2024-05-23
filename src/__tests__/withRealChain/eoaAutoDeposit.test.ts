@@ -84,14 +84,16 @@ wrappedDescribe('eoa manual deposit', () => {
       isEOA: true,
     });
 
-    await savingsAccount.activateStrategies([
-      {
-        strategyId: usdcEOAStrategy.id,
-        paramValuesByKey: {
-          eoaAddress,
+    await savingsAccount.activateStrategies({
+      activeStrategies: [
+        {
+          strategyId: usdcEOAStrategy.id,
+          paramValuesByKey: {
+            eoaAddress,
+          },
         },
-      },
-    ]);
+      ],
+    });
 
     // check that bond token was not on AA before deposit
     const savingsAccountBondTokenAmountBeforeDeposit = await chainHelper.getERC20TokenAmount({

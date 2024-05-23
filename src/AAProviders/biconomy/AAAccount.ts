@@ -32,6 +32,10 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
     this.eoaOwnerAddress = eoaOwnerAddress;
   }
 
+  async getRevokeSessionKeyTxn(_: Address): Promise<Txn> {
+    throw new Error("Biconomy doesn't support revoking of SKA");
+  }
+
   async createSessionKey({ skaAddress, permissions }: CreateSessionKeyParams): Promise<CreateSKAResult> {
     const storage = new SessionMemoryStorage();
     const sessionModule = await createSessionKeyManagerModule({

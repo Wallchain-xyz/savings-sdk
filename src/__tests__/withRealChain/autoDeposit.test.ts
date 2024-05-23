@@ -3,7 +3,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { ActiveStrategyData } from '../../api/ska/__generated__/createApiClient';
+import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 import { ChainHelper } from '../ChainHelper';
@@ -55,7 +55,7 @@ wrappedDescribe('auto deposit', () => {
     const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
     const activeNativeStrategy = activeStrategies.find(activeStrategy => activeStrategy.strategy.isNative);
     if (!activeNativeStrategy) {
-      const activeStrategies: ActiveStrategyData[] = allStrategies.map(strategy => {
+      const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => {
         return {
           strategyId: strategy.id,
           paramValuesByKey: {
@@ -64,7 +64,7 @@ wrappedDescribe('auto deposit', () => {
         };
       });
 
-      await savingsAccount.activateStrategies(activeStrategies);
+      await savingsAccount.activateStrategies({ activeStrategies });
     }
 
     const nativeTokenAmount = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);

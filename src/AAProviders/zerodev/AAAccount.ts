@@ -1,13 +1,15 @@
 import { KernelAccountAbi, addressToEmptyAccount, createKernelAccount } from '@zerodev/sdk';
 import {
+  SESSION_KEY_VALIDATOR_ADDRESS,
+  SessionKeyValidatorAbi,
   Permission as ZerodevPermission,
   serializeSessionKeyAccount,
   signerToSessionKeyValidator,
 } from '@zerodev/session-key';
 import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
-import { type Abi, PublicClient, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
+import { type Abi, Address, PublicClient, encodeFunctionData, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
 
-import { AAAccount, CreateSKAResult, CreateSessionKeyParams } from '../types';
+import { AAAccount, CreateSKAResult, CreateSessionKeyParams, Txn } from '../types';
 
 import { BaseZerodevAAAccount, BaseZerodevAAAccountParams } from './BaseAAccount';
 import { ECDSAValidator } from './common';
@@ -26,6 +28,19 @@ export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount 
     super({ client });
     this.publicClient = publicClient;
     this.ecdsaValidator = ecdsaValidator;
+  }
+
+  async getRevokeSessionKeyTxn(skaAddress: Address): Promise<Txn> {
+    // we need more granular control over this
+    return {
+      to: SESSION_KEY_VALIDATOR_ADDRESS,
+      value: 0n,
+      data: encodeFunctionData({
+        abi: SessionKeyValidatorAbi,
+        functionName: 'disable',
+        args: [skaAddress],
+      }),
+    };
   }
 
   async createSessionKey({ skaAddress, permissions }: CreateSessionKeyParams): Promise<CreateSKAResult> {

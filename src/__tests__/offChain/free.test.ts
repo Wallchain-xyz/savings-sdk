@@ -5,7 +5,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { ActiveStrategyData } from '../../api/ska/__generated__/createApiClient';
+import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 describe('E2E SDK test without onchain transactions', () => {
@@ -43,13 +43,13 @@ describe('E2E SDK test without onchain transactions', () => {
     const savingsAccount = await makeForAccount(account);
     await savingsAccount.auth();
     const allStrategies = savingsAccount.strategiesManager.getStrategies();
-    const activeStrategies: ActiveStrategyData[] = allStrategies.map(strategy => ({
+    const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => ({
       strategyId: strategy.id,
       paramValuesByKey: {
         eoaAddress: account.address,
       },
     }));
-    await savingsAccount.activateStrategies(activeStrategies);
+    await savingsAccount.activateStrategies({ activeStrategies });
     const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.strategyId);
     expect(currentStrategiesIds).toStrictEqual(activeStrategies.map(it => it.strategyId));
   }, 120_000);

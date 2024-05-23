@@ -3,11 +3,7 @@ import { Address, Hex } from 'viem';
 import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
-import {
-  ActiveStrategyData,
-  UserOperation,
-  createApiClient as createSKAClient,
-} from './ska/__generated__/createApiClient';
+import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
 type AuthClient = ReturnType<typeof createAuthClient>;
@@ -20,7 +16,7 @@ interface SavingsBackendClientParams {
 
 interface CreateWalletSKAParams {
   userAddress: Address;
-  activeStrategies: ActiveStrategyData[];
+  activeStrategies: ActiveStrategy[];
   serializedSKA: string;
   chainId: ChainId;
 }

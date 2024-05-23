@@ -4,7 +4,7 @@ import { AAAccount, Paymaster, Txn, UserOpResult } from '../AAProviders/types';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 import { PauseDepositingParams, SavingsBackendClient, WallchainAuthMessage } from '../api/SavingsBackendClient';
 
-import { ActiveStrategyData } from '../api/ska/__generated__/createApiClient';
+import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 
 import { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import { StrategiesManager } from '../depositStrategies/StrategiesManager';
@@ -23,11 +23,12 @@ interface WithdrawOrDepositParams {
   amount: bigint;
 }
 
-interface ActiveStrategy extends ActiveStrategyData {
-  strategy: DepositStrategy;
-}
-
 interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
+
+interface ActivateStrategiesParams {
+  activeStrategies: ActiveStrategy[];
+  skipRevokeOnChain?: boolean;
+}
 
 export class SavingsAccount {
   private savingsBackendClient: SavingsBackendClient;
@@ -73,8 +74,8 @@ export class SavingsAccount {
     });
   }
 
-  async activateStrategies(activeStrategies: ActiveStrategyData[]): Promise<void> {
-    await this.deactivateAllStrategies();
+  async activateStrategies({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> {
+    await this.deactivateAllStrategies(skipRevokeOnChain);
 
     const { serializedSKAData, txnsToActivate } = await this.aaAccount.createSessionKey({
       skaAddress: await this.savingsBackendClient.getSKAPublicKey(this.chainId),
@@ -99,7 +100,8 @@ export class SavingsAccount {
     });
   }
 
-  async getCurrentActiveStrategies(): Promise<ActiveStrategy[]> {
+  // TODO: return type should be a proper object with additional methods
+  async getCurrentActiveStrategies(): Promise<(ActiveStrategy & { strategy: DepositStrategy })[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? []).map(activeStrategyData => ({
       ...activeStrategyData,
@@ -107,12 +109,16 @@ export class SavingsAccount {
     }));
   }
 
-  async deactivateAllStrategies() {
+  async deactivateAllStrategies(skipRevokeOnChain?: boolean) {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     if (!walletSKA) {
       return;
     }
-    // TODO: revoke on chain dropped after discussion with Max, but we may want to add it back
+    if (!skipRevokeOnChain) {
+      await this.sendTxnsWithPaymasterAndWait([
+        await this.aaAccount.getRevokeSessionKeyTxn(walletSKA.sessionKeyAccountAddress),
+      ]);
+    }
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
   }
 

@@ -77,6 +77,7 @@ export interface CreateSessionKeyParams {
 
 export interface AAAccount extends BaseAAAccount {
   createSessionKey: (params: CreateSessionKeyParams) => Promise<CreateSKAResult>;
+  getRevokeSessionKeyTxn: (skaAddress: Address) => Promise<Txn>;
 }
 
 export interface AAProvider {
