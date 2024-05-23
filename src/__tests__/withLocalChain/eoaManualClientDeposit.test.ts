@@ -55,10 +55,13 @@ describe('manual deposit', () => {
     });
     const savingsAccountAddress = savingsAccount.aaAddress;
 
+    testClient.setBalance({
+      address: eoaAddress,
+      value: parseEther('42'),
+    });
     await ensureEoaAddressUsdcAllowance({
       amountToDeposit: usdcAmountToDeposit,
       chainHelper,
-      testClient,
       savingsAccountAddress,
       eoaAccount,
     });

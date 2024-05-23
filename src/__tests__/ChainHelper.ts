@@ -1,4 +1,4 @@
-import { Address, Hash, PublicClient, createPublicClient, http, parseAbi } from 'viem';
+import { Address, Hash, PublicClient, Transport, createPublicClient, http, parseAbi } from 'viem';
 
 import { SupportedChain } from '../factories/chains';
 
@@ -22,12 +22,15 @@ export class ChainHelper {
 
   private publicClient: PublicClient;
 
+  transport: Transport;
+
   constructor({ chain, rpcURL }: ChainParams) {
     this.chain = chain;
+    this.transport = http(rpcURL);
     // @ts-expect-error @merlin check TS
     this.publicClient = createPublicClient({
       chain,
-      transport: http(rpcURL),
+      transport: this.transport,
     });
   }
 

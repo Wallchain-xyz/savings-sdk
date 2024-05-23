@@ -1,22 +1,11 @@
-import {
-  Account,
-  Address,
-  createWalletClient,
-  encodeFunctionData,
-  http,
-  parseAbi,
-  parseEther,
-  publicActions,
-} from 'viem';
+import { Account, Address, Chain, createWalletClient, encodeFunctionData, parseAbi, publicActions } from 'viem';
 
-import { ExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ChainHelper } from '../ChainHelper';
 
-import { LOCAL_CHAIN_RPC_URL, USDC_TOKEN_ADDRESS } from './consts';
+import { USDC_TOKEN_ADDRESS } from './consts';
 
 interface EnsureEoaAddressUsdcAllowanceParams {
   chainHelper: ChainHelper;
-  testClient: ExtendedTestClient;
   savingsAccountAddress: Address;
   amountToDeposit: bigint;
   eoaAccount: Account;
@@ -24,16 +13,12 @@ interface EnsureEoaAddressUsdcAllowanceParams {
 
 export async function ensureEoaAddressUsdcAllowance({
   chainHelper,
-  testClient,
   savingsAccountAddress,
   amountToDeposit,
   eoaAccount,
 }: EnsureEoaAddressUsdcAllowanceParams) {
   const eoaAddress = eoaAccount.address;
-  testClient.setBalance({
-    address: eoaAddress,
-    value: parseEther('42'),
-  });
+
   const allowance = await chainHelper.getERC20TokenAllowance({
     tokenAddress: USDC_TOKEN_ADDRESS,
     tokenSpenderAddress: savingsAccountAddress,
@@ -53,8 +38,8 @@ export async function ensureEoaAddressUsdcAllowance({
 
     const walletClient = createWalletClient({
       account: eoaAccount,
-      chain: chainHelper.chain,
-      transport: http(LOCAL_CHAIN_RPC_URL),
+      chain: chainHelper.chain as Chain,
+      transport: chainHelper.transport,
     }).extend(publicActions);
     const txnHash = await walletClient.sendTransaction(allowanceTxn);
     const response = await chainHelper.waitForTransactionReceipt(txnHash);
