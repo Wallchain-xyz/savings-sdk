@@ -1,3 +1,5 @@
+import { Address, isAddressEqual } from 'viem';
+
 import { Permission, Txn } from '../AAProviders/types';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 
@@ -5,12 +7,39 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
 import { mapStringValuesDeep } from '../utils/mapValuesDeep';
 
-import { CreateDepositTxnsParams, CreateWithdrawTxnsParams, DepositStrategy, DepositStrategyData } from './types';
+export interface ParamsValuesByKey {
+  [key: string]: string | null;
+}
 
-import type { Address } from 'viem';
+export interface CreateDepositTxnsParams {
+  amount: bigint;
+  paramValuesByKey: ParamsValuesByKey;
+}
 
-export abstract class BaseDepositStrategy implements DepositStrategy {
-  protected data: DepositStrategyData;
+export interface CreateWithdrawTxnsParams {
+  amount: bigint;
+  paramValuesByKey: ParamsValuesByKey;
+}
+
+export type DepositStrategyId = string;
+
+export enum DepositStrategyType {
+  beefyAA = 'beefyAA',
+  beefyEOA = 'beefyEOA',
+}
+
+export interface DepositStrategyConfig {
+  id: DepositStrategyId;
+  type: DepositStrategyType;
+  permissions: Permission[];
+
+  chainId: ChainId;
+  tokenAddress: Address;
+  bondTokenAddress: Address;
+}
+
+export abstract class DepositStrategy {
+  protected data: DepositStrategyConfig;
 
   get id(): string {
     return this.data.id;
@@ -29,33 +58,33 @@ export abstract class BaseDepositStrategy implements DepositStrategy {
   }
 
   get isNative(): boolean {
-    return this.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS;
+    return isAddressEqual(this.tokenAddress, NATIVE_TOKEN_ADDRESS);
   }
 
   abstract readonly isEOA: boolean;
 
-  templateParams: string[];
+  params: string[];
 
-  protected constructor(data: DepositStrategyData) {
+  protected constructor(data: DepositStrategyConfig) {
     this.data = data;
-    // Setup template params
-    this.templateParams = [];
+    this.params = [];
     mapStringValuesDeep(this.data.permissions, value => {
       if (value.startsWith('{{') && value.endsWith('}}')) {
-        this.templateParams.push(value.slice(2, -2));
+        this.params.push(value.slice(2, -2));
       }
       return value;
     });
   }
 
-  buildPermissions(paramValuesByKey: { [p: string]: string }): Permission[] {
+  getPermissions(paramValuesByKey?: ParamsValuesByKey): Permission[] {
     return mapStringValuesDeep(this.data.permissions, value => {
       if (value.startsWith('{{') && value.endsWith('}}')) {
         const paramKey = value.slice(2, -2);
-        if (!(paramKey in paramValuesByKey)) {
+        const paramValue = (paramValuesByKey ?? {})[paramKey];
+        if (!paramValue) {
           throw new Error(`Value is not provided for permissions - ${paramKey}`);
         }
-        return paramValuesByKey[paramKey];
+        return paramValue;
       }
       return value;
     });

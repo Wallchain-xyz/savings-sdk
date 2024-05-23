@@ -1,11 +1,16 @@
 import { Txn } from '../../AAProviders/types';
-import { BaseDepositStrategy } from '../BaseStrategy';
-import { CreateDepositTxnsParams, CreateWithdrawTxnsParams, DepositStrategyData, DepositStrategyType } from '../types';
+import {
+  CreateDepositTxnsParams,
+  CreateWithdrawTxnsParams,
+  DepositStrategy,
+  DepositStrategyConfig,
+  DepositStrategyType,
+} from '../DepositStrategy';
 
-class FakeStrategy extends BaseDepositStrategy {
+class FakeStrategy extends DepositStrategy {
   isEOA: boolean;
 
-  constructor(data: DepositStrategyData) {
+  constructor(data: DepositStrategyConfig) {
     super(data);
     this.isEOA = false;
   }
@@ -85,7 +90,7 @@ describe('interpolatePermissions', () => {
       ],
     });
 
-    const interpolated = strategy.buildPermissions({
+    const interpolated = strategy.getPermissions({
       eoaAddress: '0x0',
       aaAddress: '0x1',
     })[0];

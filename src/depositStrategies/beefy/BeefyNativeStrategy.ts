@@ -2,16 +2,16 @@ import { encodeFunctionData, parseAbi } from 'viem';
 
 import { Txn } from '../../AAProviders/types';
 
-import { CreateDepositTxnsParams } from '../types';
+import { CreateDepositTxnsParams, CreateWithdrawTxnsParams } from '../DepositStrategy';
 
-import { BaseBeefyStrategy } from './BaseBeefyStrategy';
+import { BeefyStrategy } from './BeefyStrategy';
 
 const nativeVaultABI = parseAbi([
   'function depositBNB() public payable',
   'function withdrawBNB(uint256 _shares) public',
 ]);
 
-export class BeefyNativeStrategy extends BaseBeefyStrategy {
+export class BeefyNativeStrategy extends BeefyStrategy {
   get isEOA() {
     return false;
   }
@@ -30,7 +30,7 @@ export class BeefyNativeStrategy extends BaseBeefyStrategy {
     ];
   }
 
-  async createWithdrawTxns({ amount }: CreateDepositTxnsParams): Promise<Txn[]> {
+  async createWithdrawTxns({ amount }: CreateWithdrawTxnsParams): Promise<Txn[]> {
     return [
       {
         to: this.bondTokenAddress,

@@ -6,8 +6,8 @@ import { PauseDepositingParams, SavingsBackendClient, WallchainAuthMessage } fro
 
 import { ActiveStrategyData } from '../api/ska/__generated__/createApiClient';
 
+import { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import { StrategiesManager } from '../depositStrategies/StrategiesManager';
-import { DepositStrategy, DepositStrategyId } from '../depositStrategies/types';
 
 interface ConstructorParams {
   aaAccount: AAAccount;
@@ -80,8 +80,8 @@ export class SavingsAccount {
       skaAddress: await this.savingsBackendClient.getSKAPublicKey(this.chainId),
       permissions: activeStrategies.flatMap(activeStrategy => {
         const strategy = this.strategiesManager.getStrategy(activeStrategy.strategyId);
-        return strategy.buildPermissions({
-          eoaAddress: activeStrategy.paramValuesByKey?.eoaAddress ?? null,
+        return strategy.getPermissions({
+          ...activeStrategy.paramValuesByKey,
           aaAddress: this.aaAddress,
         });
       }),
@@ -137,7 +137,7 @@ export class SavingsAccount {
         pauseUntilDatetime,
       });
     }
-    const txns = await strategy.createDepositTxns({
+    const txns = await strategy.createWithdrawTxns({
       amount,
       paramValuesByKey: {
         // TODO: fetch parameter from strategy, do not use this constant here
@@ -155,7 +155,8 @@ export class SavingsAccount {
     return this.aaAccount.waitForUserOp(userOpHash);
   }
 
-  createAuthMessage(): WallchainAuthMessage {
+  // TODO: consider refactoring auth message logic into separate class
+  private createAuthMessage(): WallchainAuthMessage {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
     const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds
     return {
@@ -165,7 +166,7 @@ export class SavingsAccount {
     };
   }
 
-  async signMessage(message: WallchainAuthMessage) {
+  private async signMessage(message: WallchainAuthMessage) {
     return this.privateKeyAccount.signTypedData({
       domain: {
         name: 'WallchainAuthMessage',

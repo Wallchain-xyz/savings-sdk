@@ -1,15 +1,12 @@
-import { Address, encodeFunctionData, parseAbi } from 'viem';
+import { Address, encodeFunctionData } from 'viem';
 
 import { Txn } from '../../AAProviders/types';
 
-import { CreateDepositTxnsParams, ParamsValuesByKey } from '../types';
+import { erc20ABI } from '../../utils/erc20ABI';
+
+import { CreateDepositTxnsParams, CreateWithdrawTxnsParams, ParamsValuesByKey } from '../DepositStrategy';
 
 import { BeefyERC20Strategy } from './BeefyERC20Strategy';
-
-const erc20ABI = parseAbi([
-  'function transferFrom(address src, address dst, uint wad) public returns (bool)',
-  'function transfer(address to, uint256 value) external returns (bool)',
-]);
 
 export class BeefyEOAStrategy extends BeefyERC20Strategy {
   get isEOA() {
@@ -35,7 +32,7 @@ export class BeefyEOAStrategy extends BeefyERC20Strategy {
     ];
   }
 
-  async createWithdrawTxns({ amount, paramValuesByKey }: CreateDepositTxnsParams): Promise<Txn[]> {
+  async createWithdrawTxns({ amount, paramValuesByKey }: CreateWithdrawTxnsParams): Promise<Txn[]> {
     return [
       ...(await super.createDepositTxns({ amount, paramValuesByKey })),
       {

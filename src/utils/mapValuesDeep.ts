@@ -7,10 +7,7 @@ export function mapStringValuesDeep<Value>(currentValue: Value, mapFunction: (va
   }
   if (typeof currentValue === 'object' && currentValue !== null) {
     return Object.fromEntries(
-      Object.entries(currentValue).map(
-        // Map values, keep keys the same
-        ([key, value]) => [key, mapStringValuesDeep(value, mapFunction)],
-      ),
+      Object.entries(currentValue).map(([key, value]) => [key, mapStringValuesDeep(value, mapFunction)]),
     ) as Value;
   }
   return currentValue;

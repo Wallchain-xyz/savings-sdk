@@ -7,20 +7,20 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 import { BeefyEOAStrategy } from './beefy/BeefyEOAStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
-import baseStrategies from './strategies/base/deposit_strategies.json';
-import { DepositStrategy, DepositStrategyData } from './types';
+import { DepositStrategy, DepositStrategyConfig } from './DepositStrategy';
+import baseStrategyConfigs from './strategies/base/deposit_strategy_configs.json';
 
-const fixBigIntMissingInJSON = (strategy: (typeof baseStrategies)[number]) =>
+const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
   ({
     ...strategy,
     permissions: strategy.permissions.map(permission => ({
       ...permission,
       valueLimit: BigInt(permission.valueLimit),
     })),
-  } as DepositStrategyData);
+  } as DepositStrategyConfig);
 
 const strategiesDataByChainId = {
-  [base.id]: baseStrategies.map(fixBigIntMissingInJSON),
+  [base.id]: baseStrategyConfigs.map(fixBigIntMissingInJSON),
 };
 
 interface StrategiesFilter {
@@ -33,18 +33,16 @@ interface StrategiesFilter {
 export class StrategiesManager {
   private publicClient: PublicClient<Transport, Chain>;
 
-  private strategies: { [key: string]: DepositStrategy };
+  private strategiesById: { [key: string]: DepositStrategy };
 
   constructor(publicClient: PublicClient<Transport, Chain>) {
     this.publicClient = publicClient;
 
     const chainId = publicClient.chain.id;
-    if (!(chainId in strategiesDataByChainId)) {
-      this.strategies = {};
-    } else {
-      const rawData = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
+    if (chainId in strategiesDataByChainId) {
+      const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
 
-      const strategiesArray = rawData.map(strategyData => {
+      const strategiesArray = strategyConfigs.map(strategyData => {
         if (strategyData.type === 'beefyAA') {
           if (strategyData.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
             return new BeefyNativeStrategy(strategyData, this.publicClient);
@@ -53,19 +51,21 @@ export class StrategiesManager {
         }
         return new BeefyEOAStrategy(strategyData, this.publicClient);
       });
-      this.strategies = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
+      this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
+    } else {
+      this.strategiesById = {};
     }
   }
 
   getStrategy(strategyId: string): DepositStrategy {
-    if (!(strategyId in this.strategies)) {
+    if (!(strategyId in this.strategiesById)) {
       throw new Error(`Deposit with id - ${strategyId} not found.`);
     }
-    return this.strategies[strategyId];
+    return this.strategiesById[strategyId];
   }
 
   getStrategies(): DepositStrategy[] {
-    return Object.values(this.strategies);
+    return Object.values(this.strategiesById);
   }
 
   findStrategy(filter: StrategiesFilter): DepositStrategy {
