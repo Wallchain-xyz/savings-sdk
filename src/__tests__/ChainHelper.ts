@@ -1,6 +1,6 @@
 import { Address, Hash, PublicClient, createPublicClient, http, parseAbi } from 'viem';
 
-import { SupportedChain } from '../AAManager/SupportedChain';
+import { SupportedChain } from '../factories/chains';
 
 interface ChainParams {
   chain: SupportedChain;

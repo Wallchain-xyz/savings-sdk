@@ -5,6 +5,7 @@ import { base } from 'viem/chains';
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAccountHasTokenAndGas } from '../../testSuite/defiHelpers';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
+import { createEoaAccount } from '../utils/createEoaAccount';
 
 type BaseTokenName = keyof (typeof tokenAddresses)[8453];
 
@@ -23,7 +24,6 @@ describe('allowance', () => {
   }, 10_000);
 
   beforeEach(() => {
-    // TODO: Make random, or fetch from anvil. Currently @1 on anvil
     eoaAccount = createEoaAccount();
     anotherAccount = createEoaAccount();
 
@@ -44,7 +44,6 @@ describe('allowance', () => {
   it.each([['WETH' as BaseTokenName]])('can issue allowance properly for %s', async tokenName => {
     const tokenAddress = tokenAddresses[base.id][tokenName];
     // Setup
-    // TODO: Make random, or fetch from anvil. Currently @2 on anvil
 
     // Act: send some funds via transferFrom
     await expect(

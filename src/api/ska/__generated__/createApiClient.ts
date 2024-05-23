@@ -17,7 +17,7 @@ const ActiveStrategy = z
   .passthrough();
 
 export const ActiveStrategySchema = ActiveStrategy;
-export type ActiveStrategy = TypeOf<typeof ActiveStrategySchema>;
+export type ActiveStrategyData = TypeOf<typeof ActiveStrategySchema>;
 
 const SKA = z
   .object({

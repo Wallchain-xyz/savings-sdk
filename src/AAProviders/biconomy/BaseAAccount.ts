@@ -2,7 +2,7 @@ import { BiconomySmartAccountV2 } from '@biconomy/account';
 
 import { Address, Hash } from 'viem';
 
-import { BaseAAAccount, Txn, UserOperationV06, WaitParams } from '../types';
+import { BaseAAAccount, Txn, UserOpResult, UserOperationV06, WaitParams } from '../types';
 
 import { userOpToBiconomyUserOpStruct } from './common';
 
@@ -33,7 +33,7 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
     return this.sendUserOp(userOp);
   }
 
-  waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<void> {
+  waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<UserOpResult> {
     const maxDuration = params?.maxDurationMS ?? 20000; // default 20 seconds
     const intervalValue = params?.pollingIntervalMS ?? 500; // default 0.5 seconds
     let totalDuration = 0;
@@ -42,13 +42,16 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
     }
     const { bundler } = this.smartAccount;
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<UserOpResult>((resolve, reject) => {
       const intervalId = setInterval(async () => {
         try {
           const userOpReceipt = await bundler.getUserOpReceipt(userOpHash);
           if (userOpReceipt?.receipt?.blockNumber) {
             clearInterval(intervalId);
-            resolve();
+            resolve({
+              txnHash: userOpReceipt.receipt.transactionHash,
+              success: userOpReceipt.receipt.status === 'success',
+            });
             return;
           }
         } catch (error) {

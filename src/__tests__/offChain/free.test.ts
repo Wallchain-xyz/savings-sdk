@@ -5,8 +5,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
-import { getSupportedDepositStrategies } from '../../depositStrategies';
+import { ActiveStrategyData } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 describe('E2E SDK test without onchain transactions', () => {
@@ -22,7 +21,7 @@ describe('E2E SDK test without onchain transactions', () => {
     const privateKey: `0x${string}` = `0x${crypto.randomBytes(32).toString('hex')}`;
     const account = privateKeyToAccount(privateKey);
     const savingsAccount = await makeForAccount(account);
-    const user = await savingsAccount.auth();
+    const { user } = await savingsAccount.auth();
     expect(user.ownerships[0].signer_address).toBe(account.address);
     expect(user.ownerships[0].aa_address).toBe(savingsAccount.aaAddress);
     expect(user.ownerships[0].chain_id).toBe(base.id); // TODO: maybe make it changeable
@@ -43,15 +42,15 @@ describe('E2E SDK test without onchain transactions', () => {
     const account = privateKeyToAccount(privateKey);
     const savingsAccount = await makeForAccount(account);
     await savingsAccount.auth();
-    const allStrategies = getSupportedDepositStrategies();
-    const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => ({
+    const allStrategies = savingsAccount.strategiesManager.getStrategies();
+    const activeStrategies: ActiveStrategyData[] = allStrategies.map(strategy => ({
       strategyId: strategy.id,
       paramValuesByKey: {
         eoaAddress: account.address,
       },
     }));
     await savingsAccount.activateStrategies(activeStrategies);
-    const currentActiveStrategies = await savingsAccount.getCurrentActiveStrategies();
-    expect(currentActiveStrategies).toStrictEqual(allStrategies);
+    const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.strategyId);
+    expect(currentStrategiesIds).toStrictEqual(activeStrategies.map(it => it.strategyId));
   }, 120_000);
 });

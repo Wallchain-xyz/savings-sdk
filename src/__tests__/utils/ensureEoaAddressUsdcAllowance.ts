@@ -1,6 +1,14 @@
-import { Account, Address, createWalletClient, http, parseEther, publicActions } from 'viem';
+import {
+  Account,
+  Address,
+  createWalletClient,
+  encodeFunctionData,
+  http,
+  parseAbi,
+  parseEther,
+  publicActions,
+} from 'viem';
 
-import { createAllowanceTxn } from '../../AAManager/txns/createAllowanceTxn';
 import { ExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ChainHelper } from '../ChainHelper';
 
@@ -33,12 +41,15 @@ export async function ensureEoaAddressUsdcAllowance({
   });
 
   if (allowance < amountToDeposit) {
-    const allowanceTxn = createAllowanceTxn({
-      owner: eoaAddress,
-      token: USDC_TOKEN_ADDRESS,
-      amount: amountToDeposit,
-      spender: savingsAccountAddress,
-    });
+    const allowanceTxn = {
+      to: USDC_TOKEN_ADDRESS,
+      value: 0n,
+      data: encodeFunctionData({
+        abi: parseAbi(['function approve(address spender, uint256 amount) external returns (bool)']),
+        functionName: 'approve',
+        args: [savingsAccountAddress, amountToDeposit],
+      }),
+    };
 
     const walletClient = createWalletClient({
       account: eoaAccount,

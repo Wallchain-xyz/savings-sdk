@@ -34,6 +34,6 @@ wrappedDescribe('manual deposit', () => {
       amount: 100_000n,
       depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e', // Beefy ETH on Base strategy
     });
-    expect(response.receipt.status).toBe('success');
+    expect(response.success).toBeTruthy();
   }, 120_000);
 });

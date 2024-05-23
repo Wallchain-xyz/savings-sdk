@@ -48,12 +48,17 @@ export interface WaitParams {
   pollingIntervalMS: number;
 }
 
+export interface UserOpResult {
+  txnHash: Hash;
+  success: boolean;
+}
+
 export interface BaseAAAccount {
   readonly aaAddress: Address;
   buildUserOp: (txns: Txn[]) => Promise<UserOperationV06>;
   sendUserOp: (userOp: UserOperationV06) => Promise<Hash>;
   sendTxns: (txns: Txn[]) => Promise<Hash>;
-  waitForUserOp: (userOpHash: Hash, params?: WaitParams) => Promise<void>;
+  waitForUserOp: (userOpHash: Hash, params?: WaitParams) => Promise<UserOpResult>;
 }
 
 export interface SKAccount extends BaseAAAccount {}
@@ -65,8 +70,13 @@ export interface CreateSKAResult {
   txnsToActivate: Txn[];
 }
 
+export interface CreateSessionKeyParams {
+  skaAddress: Address;
+  permissions: Permission[];
+}
+
 export interface AAAccount extends BaseAAAccount {
-  createSessionKey: (skaAddress: Address, permissions: Permission[]) => Promise<CreateSKAResult>;
+  createSessionKey: (params: CreateSessionKeyParams) => Promise<CreateSKAResult>;
 }
 
 export interface AAProvider {

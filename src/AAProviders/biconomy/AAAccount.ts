@@ -9,7 +9,7 @@ import {
 } from '@biconomy/account';
 import { Address, Hex, getAbiItem, isHex, padHex, toHex } from 'viem';
 
-import { AAAccount, CreateSKAResult, Permission, Txn, UserOperationV06 } from '../types';
+import { AAAccount, CreateSKAResult, CreateSessionKeyParams, Permission, Txn, UserOperationV06 } from '../types';
 
 import { BaseBiconomyAAAccount } from './BaseAAccount';
 import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, permissionToSelector } from './common';
@@ -32,7 +32,7 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
     this.eoaOwnerAddress = eoaOwnerAddress;
   }
 
-  async createSessionKey(skaAddress: Address, permissions: Permission[]): Promise<CreateSKAResult> {
+  async createSessionKey({ skaAddress, permissions }: CreateSessionKeyParams): Promise<CreateSKAResult> {
     const storage = new SessionMemoryStorage();
     const sessionModule = await createSessionKeyManagerModule({
       moduleAddress: DEFAULT_SESSION_KEY_MANAGER_MODULE,

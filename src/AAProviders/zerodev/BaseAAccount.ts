@@ -1,7 +1,7 @@
 import { BundlerClient, ENTRYPOINT_ADDRESS_V06, bundlerActions } from 'permissionless';
 import { Address, Hash } from 'viem';
 
-import { BaseAAAccount, Txn, UserOperationV06, WaitParams } from '../types';
+import { BaseAAAccount, Txn, UserOpResult, UserOperationV06, WaitParams } from '../types';
 
 import { KernelClient } from './common';
 
@@ -46,11 +46,15 @@ export abstract class BaseZerodevAAAccount implements BaseAAAccount {
     return this.sendUserOp(userOp);
   }
 
-  async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<void> {
-    await this.bundlerClient.waitForUserOperationReceipt({
+  async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<UserOpResult> {
+    const receipt = await this.bundlerClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: params?.pollingIntervalMS,
       timeout: params?.maxDurationMS,
     });
+    return {
+      txnHash: receipt.receipt.transactionHash,
+      success: receipt.receipt.status === 'success',
+    };
   }
 }

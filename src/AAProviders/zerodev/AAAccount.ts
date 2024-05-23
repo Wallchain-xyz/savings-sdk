@@ -4,10 +4,10 @@ import {
   serializeSessionKeyAccount,
   signerToSessionKeyValidator,
 } from '@zerodev/session-key';
-import { type Abi, Address, PublicClient, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
+import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
+import { type Abi, PublicClient, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
 
-import { entryPoint } from '../../AAManager/EntryPoint';
-import { AAAccount, CreateSKAResult, Permission } from '../types';
+import { AAAccount, CreateSKAResult, CreateSessionKeyParams } from '../types';
 
 import { BaseZerodevAAAccount, BaseZerodevAAAccountParams } from './BaseAAccount';
 import { ECDSAValidator } from './common';
@@ -28,9 +28,9 @@ export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount 
     this.ecdsaValidator = ecdsaValidator;
   }
 
-  async createSessionKey(skaAddress: Address, permissions: Permission[]): Promise<CreateSKAResult> {
+  async createSessionKey({ skaAddress, permissions }: CreateSessionKeyParams): Promise<CreateSKAResult> {
     const sessionKeyValidator = await signerToSessionKeyValidator(this.publicClient, {
-      entryPoint,
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
       signer: addressToEmptyAccount(skaAddress),
       validatorData: {
         // Next cast requires casting compatible enum, but typescript is not happy about this cast
@@ -38,7 +38,7 @@ export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount 
       },
     });
     const sessionKeyAccount = await createKernelAccount(this.publicClient, {
-      entryPoint,
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
       plugins: {
         sudo: this.ecdsaValidator,
         regular: sessionKeyValidator,
