@@ -3,7 +3,6 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { base } from 'viem/chains';
 
-import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 import { ChainHelper } from '../ChainHelper';
@@ -25,18 +24,14 @@ wrappedDescribe('auto deposit', () => {
   });
 
   it('can deposit ETH on Base', async () => {
-    const allStrategies = getSupportedDepositStrategies();
-    const nativeStrategy = allStrategies.find(getIsNativeStrategy);
-    if (!nativeStrategy) {
-      throw new Error('No native strategy found');
-    }
-
     const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chainHelper.chain.id,
       savingsBackendUrl: 'http://localhost:8000',
       apiKey: pimlicoApiKey,
     });
+
+    const nativeStrategy = savingsAccount.strategiesManager.findStrategy({ isNative: true });
 
     await savingsAccount.auth();
 
@@ -52,19 +47,11 @@ wrappedDescribe('auto deposit', () => {
       });
     }
 
-    const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
-    const activeNativeStrategy = activeStrategies.find(activeStrategy => activeStrategy.strategy.isNative);
-    if (!activeNativeStrategy) {
-      const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => {
-        return {
-          strategyId: strategy.id,
-          paramValuesByKey: {
-            eoaAddress: eoaAccount.address,
-          },
-        };
+    const activeNativeStrategies = await savingsAccount.getCurrentActiveStrategies({ isNative: true });
+    if (activeNativeStrategies.length === 0) {
+      await savingsAccount.activateStrategies({
+        activeStrategies: [{ strategyId: nativeStrategy.id }],
       });
-
-      await savingsAccount.activateStrategies({ activeStrategies });
     }
 
     const nativeTokenAmount = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);

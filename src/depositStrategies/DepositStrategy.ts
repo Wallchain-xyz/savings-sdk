@@ -39,22 +39,22 @@ export interface DepositStrategyConfig {
 }
 
 export abstract class DepositStrategy {
-  protected data: DepositStrategyConfig;
+  protected config: DepositStrategyConfig;
 
   get id(): string {
-    return this.data.id;
+    return this.config.id;
   }
 
   get chainId(): ChainId {
-    return this.data.chainId;
+    return this.config.chainId;
   }
 
   get tokenAddress(): Address {
-    return this.data.tokenAddress;
+    return this.config.tokenAddress;
   }
 
   get bondTokenAddress(): Address {
-    return this.data.bondTokenAddress;
+    return this.config.bondTokenAddress;
   }
 
   get isNative(): boolean {
@@ -65,10 +65,10 @@ export abstract class DepositStrategy {
 
   params: string[];
 
-  protected constructor(data: DepositStrategyConfig) {
-    this.data = data;
+  protected constructor(config: DepositStrategyConfig) {
+    this.config = config;
     this.params = [];
-    mapStringValuesDeep(this.data.permissions, value => {
+    mapStringValuesDeep(this.config.permissions, value => {
       if (value.startsWith('{{') && value.endsWith('}}')) {
         this.params.push(value.slice(2, -2));
       }
@@ -77,7 +77,7 @@ export abstract class DepositStrategy {
   }
 
   getPermissions(paramValuesByKey?: ParamsValuesByKey): Permission[] {
-    return mapStringValuesDeep(this.data.permissions, value => {
+    return mapStringValuesDeep(this.config.permissions, value => {
       if (value.startsWith('{{') && value.endsWith('}}')) {
         const paramKey = value.slice(2, -2);
         const paramValue = (paramValuesByKey ?? {})[paramKey];

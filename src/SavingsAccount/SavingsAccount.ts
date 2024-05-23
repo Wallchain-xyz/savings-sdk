@@ -6,8 +6,9 @@ import { PauseDepositingParams, SavingsBackendClient, WallchainAuthMessage } fro
 
 import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 
-import { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
-import { StrategiesManager } from '../depositStrategies/StrategiesManager';
+import { AccountDepositStrategy } from '../depositStrategies/AccountDepositStrategy';
+import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 interface ConstructorParams {
   aaAccount: AAAccount;
@@ -100,13 +101,17 @@ export class SavingsAccount {
     });
   }
 
-  // TODO: return type should be a proper object with additional methods
-  async getCurrentActiveStrategies(): Promise<(ActiveStrategy & { strategy: DepositStrategy })[]> {
+  async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<AccountDepositStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
-    return (walletSKA?.activeStrategies ?? []).map(activeStrategyData => ({
-      ...activeStrategyData,
-      strategy: this.strategiesManager.getStrategy(activeStrategyData.strategyId),
-    }));
+    return (walletSKA?.activeStrategies ?? [])
+      .map(activeStrategy =>
+        this.strategiesManager.getAccountStrategy(
+          activeStrategy.strategyId,
+          this.aaAddress,
+          this.privateKeyAccount.address,
+        ),
+      )
+      .filter(strategy => StrategiesManager.checkFilter(strategy, filter));
   }
 
   async deactivateAllStrategies(skipRevokeOnChain?: boolean) {

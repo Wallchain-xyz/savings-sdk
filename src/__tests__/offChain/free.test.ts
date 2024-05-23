@@ -50,7 +50,7 @@ describe('E2E SDK test without onchain transactions', () => {
       },
     }));
     await savingsAccount.activateStrategies({ activeStrategies });
-    const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.strategyId);
+    const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.id);
     expect(currentStrategiesIds).toStrictEqual(activeStrategies.map(it => it.strategyId));
   }, 120_000);
 });

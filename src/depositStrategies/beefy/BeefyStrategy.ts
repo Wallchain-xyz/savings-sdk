@@ -10,8 +10,8 @@ const vaultAbi = parseAbi([
 export abstract class BeefyStrategy extends DepositStrategy {
   private vaultContract: GetContractReturnType<typeof vaultAbi, PublicClient>;
 
-  constructor(data: DepositStrategyConfig, publicClient: PublicClient) {
-    super(data);
+  constructor(config: DepositStrategyConfig, publicClient: PublicClient) {
+    super(config);
     this.vaultContract = getContract({
       address: this.bondTokenAddress,
       abi: vaultAbi,

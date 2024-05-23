@@ -10,8 +10,8 @@ import {
 class FakeStrategy extends DepositStrategy {
   isEOA: boolean;
 
-  constructor(data: DepositStrategyConfig) {
-    super(data);
+  constructor(config: DepositStrategyConfig) {
+    super(config);
     this.isEOA = false;
   }
 
