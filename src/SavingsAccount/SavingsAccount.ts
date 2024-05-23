@@ -17,7 +17,7 @@ interface ConstructorParams<TChain extends Chain> {
 
 interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
 
-export class SavingsAccount<TChain extends Chain> {
+export class SavingsAccount<TChain extends Chain = Chain> {
   private savingsBackendClient: SavingsBackendClient;
 
   private aaManager: AAManager<TChain>;

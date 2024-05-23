@@ -1,70 +1,75 @@
-import { PrivateKeyAccount, http, parseEther } from 'viem';
+// TODO: @merlin merge with withLocal chain tests
+// copy of with comments: /src/__tests__/withLocalChain/eoaAutoDeposit.test.ts
+import { Hex, PrivateKeyAccount } from 'viem';
 
 import { base } from 'viem/chains';
 
-import { createPimlicoTransport } from '../../AAManager/transports/createPimlicoTransport';
-import { createRPCTransport } from '../../AAManager/transports/createRPCTransport';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
-import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
-import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 
 import { ChainHelper } from '../ChainHelper';
-import { LOCAL_BUNDLER_URL, LOCAL_CHAIN_RPC_URL } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
 import { findUsdcEoaStrategy } from '../utils/findUsdcEoaStrategy';
-import { topUpEoaWithUsdcAmountToDeposit } from '../utils/topUpEoaWithUsdcAmountToDeposit';
 import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
 
-import Mock = jest.Mock;
-
 const chain = base; // TODO: maybe make it changeable
-jest.mock('../../AAManager/transports/createRPCTransport');
-jest.mock('../../AAManager/transports/createPimlicoTransport');
+// jest.mock('../../AAManager/transports/createRPCTransport');
+// jest.mock('../../AAManager/transports/createPimlicoTransport');
+//
+// const bundlerTransport = http(LOCAL_BUNDLER_URL);
 
-const bundlerTransport = http(LOCAL_BUNDLER_URL);
-
-describe('manual deposit', () => {
+// REAL CHAIN SPECIFIC
+const privateKey = process.env.PRIVATE_KEY as Hex;
+const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
+const usdcAmountToDeposit = BigInt(process.env.USDC_AMOUNT ?? '') as bigint;
+const wrappedDescribe = pimlicoApiKey && privateKey ? describe : describe.skip;
+wrappedDescribe('eoa manual deposit', () => {
+  // END REAL CHAIN SPECIFIC
   let eoaAccount: PrivateKeyAccount;
   let chainHelper: ChainHelper;
 
-  const testClient = createExtendedTestClient();
+  // const testClient = createExtendedTestClient();
 
   beforeAll(async () => {
-    await Promise.all([ensurePaymasterIsReady(), ensureBundlerIsReady(), ensureAnvilIsReady()]);
+    // await Promise.all([ensurePaymasterIsReady(), ensureBundlerIsReady(), ensureAnvilIsReady()]);
 
-    chainHelper = new ChainHelper({ chain, rpcURL: LOCAL_CHAIN_RPC_URL });
+    chainHelper = new ChainHelper({
+      chain,
+      // rpcURL: LOCAL_CHAIN_RPC_URL
+    });
   }, 10_000);
 
   beforeEach(() => {
-    eoaAccount = createEoaAccount();
+    // eoaAccount = createEoaAccount();
+    // REAL CHAIN SPECIFIC
+    eoaAccount = createEoaAccount(privateKey);
+    // END REAL CHAIN SPECIFIC
   });
 
-  beforeEach(() => {
-    (createRPCTransport as Mock).mockReturnValue(http(LOCAL_CHAIN_RPC_URL));
-    (createPimlicoTransport as Mock).mockReturnValue(bundlerTransport);
-  });
+  // beforeEach(() => {
+  //   (createRPCTransport as Mock).mockReturnValue(http(LOCAL_CHAIN_RPC_URL));
+  //   (createPimlicoTransport as Mock).mockReturnValue(bundlerTransport);
+  // });
 
   it('can deposit USDC on Base', async () => {
     const eoaAddress = eoaAccount.address;
 
-    const usdcAmountToDeposit = await topUpEoaWithUsdcAmountToDeposit({
-      eoaAddress,
-      chainHelper,
-      testClient,
-    });
+    // const usdcAmountToDeposit = await topUpEoaWithUsdcAmountToDeposit({
+    //   eoaAddress,
+    //   chainHelper,
+    //   testClient,
+    // });
 
     const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
       savingsBackendUrl: 'http://localhost:8000',
-      apiKey: 'ANY',
+      // REAL CHAIN SPECIFIC
+      apiKey: pimlicoApiKey,
+      // END REAL CHAIN SPECIFIC
+      // apiKey: 'ANY',
     });
     const savingsAccountAddress = savingsAccount.aaAddress;
-    testClient.setBalance({
-      address: eoaAddress,
-      value: parseEther('42'),
-    });
     await ensureEoaAddressUsdcAllowance({
       amountToDeposit: usdcAmountToDeposit,
       chainHelper,
