@@ -1,3 +1,5 @@
+export { createPimlicoPaymaster } from './factories/createPimlicoPaymaster';
+export { createSKAccount } from './factories/createSKAccount';
 export { createSavingsAccountFromPrivateKeyAccount } from './factories/createSavingsAccountFromPrivateKeyAccount';
 export { SavingsAccount } from './SavingsAccount/SavingsAccount';
 export { DepositStrategyType } from './depositStrategies/DepositStrategy';

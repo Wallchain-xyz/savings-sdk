@@ -1,13 +1,14 @@
 import { BiconomySmartAccountV2 } from '@biconomy/account';
 import { Address, Hash, decodeFunctionData } from 'viem';
 
-import { SKAccount, Txn, UserOperationV06 } from '../types';
+import { SKAccount } from '../shared/SKAccount';
+import { Txn } from '../shared/Txn';
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
 import { biconomyAccountAbi } from './abi';
-import { BaseBiconomyAAAccount } from './BaseAAccount';
-import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './common';
-
-import { SessionIdManager } from './sessionIdManager';
+import { BiconomyAAAccount } from './BiconomyAAAccount';
+import { SessionIdManager } from './SessionIdManager';
+import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './shared';
 
 import type { SupportedSigner } from '@biconomy/account/dist/_types/account';
 
@@ -18,7 +19,7 @@ interface BiconomySKAccountParams {
   skaData: BiconomySKAData;
 }
 
-export class BiconomySKAccount extends BaseBiconomyAAAccount implements SKAccount {
+export class BiconomySKAccount extends BiconomyAAAccount implements SKAccount {
   private readonly skaSigner: SupportedSigner;
 
   private readonly sessionIdManager: SessionIdManager;

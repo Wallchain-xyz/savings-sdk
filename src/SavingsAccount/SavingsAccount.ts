@@ -1,6 +1,7 @@
 import { Address, PrivateKeyAccount } from 'viem';
 
-import { AAAccount, Paymaster, Txn, UserOpResult } from '../AAProviders/types';
+import { UserOpResult } from '../AAProviders/shared/AAAccount';
+import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 import { PauseDepositingParams, SavingsBackendClient, WallchainAuthMessage } from '../api/SavingsBackendClient';
 
@@ -11,11 +12,10 @@ import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 interface ConstructorParams {
-  aaAccount: AAAccount;
+  aaAccount: PrimaryAAAccount;
   privateKeyAccount: PrivateKeyAccount;
   savingsBackendClient: SavingsBackendClient;
   strategiesManager: StrategiesManager;
-  paymaster: Paymaster;
   chainId: ChainId;
 }
 
@@ -36,33 +36,23 @@ export class SavingsAccount {
 
   private privateKeyAccount: PrivateKeyAccount;
 
-  private paymaster: Paymaster;
-
   chainId: ChainId;
 
-  aaAccount: AAAccount;
+  primaryAAAccount: PrimaryAAAccount;
 
   strategiesManager: StrategiesManager;
 
-  constructor({
-    aaAccount,
-    privateKeyAccount,
-    savingsBackendClient,
-    strategiesManager,
-    chainId,
-    paymaster,
-  }: ConstructorParams) {
+  constructor({ aaAccount, privateKeyAccount, savingsBackendClient, strategiesManager, chainId }: ConstructorParams) {
     this.savingsBackendClient = savingsBackendClient;
     // TODO: accept rpc urls in config, use viem default otherwise
     this.strategiesManager = strategiesManager;
     this.chainId = chainId;
-    this.aaAccount = aaAccount;
+    this.primaryAAAccount = aaAccount;
     this.privateKeyAccount = privateKeyAccount;
-    this.paymaster = paymaster;
   }
 
   get aaAddress(): Address {
-    return this.aaAccount.aaAddress;
+    return this.primaryAAAccount.aaAddress;
   }
 
   async auth() {
@@ -78,7 +68,7 @@ export class SavingsAccount {
   async activateStrategies({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> {
     await this.deactivateAllStrategies(skipRevokeOnChain);
 
-    const { serializedSKAData, txnsToActivate } = await this.aaAccount.createSessionKey({
+    const { serializedSKAData, txnsToActivate } = await this.primaryAAAccount.createSessionKey({
       skaAddress: await this.savingsBackendClient.getSKAPublicKey(this.chainId),
       permissions: activeStrategies.flatMap(activeStrategy => {
         const strategy = this.strategiesManager.getStrategy(activeStrategy.strategyId);
@@ -90,7 +80,7 @@ export class SavingsAccount {
     });
 
     if (txnsToActivate.length > 0) {
-      await this.sendTxnsWithPaymasterAndWait(txnsToActivate);
+      await this.primaryAAAccount.sendTxnsAndWait(txnsToActivate);
     }
 
     await this.savingsBackendClient.createWalletSKA({
@@ -120,8 +110,8 @@ export class SavingsAccount {
       return;
     }
     if (!skipRevokeOnChain) {
-      await this.sendTxnsWithPaymasterAndWait([
-        await this.aaAccount.getRevokeSessionKeyTxn(walletSKA.sessionKeyAccountAddress),
+      await this.primaryAAAccount.sendTxnsAndWait([
+        await this.primaryAAAccount.getRevokeSessionKeyTxn(walletSKA.sessionKeyAccountAddress),
       ]);
     }
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
@@ -137,7 +127,7 @@ export class SavingsAccount {
         aaAddress: this.aaAddress,
       },
     });
-    return this.sendTxnsWithPaymasterAndWait(txns);
+    return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
   async withdraw({ depositStrategyId, amount, pauseUntilDatetime }: WithdrawParams): Promise<UserOpResult> {
@@ -156,14 +146,7 @@ export class SavingsAccount {
         aaAddress: this.aaAddress,
       },
     });
-    return this.sendTxnsWithPaymasterAndWait(txns);
-  }
-
-  private async sendTxnsWithPaymasterAndWait(txns: Txn[]): Promise<UserOpResult> {
-    const userOp = await this.aaAccount.buildUserOp(txns);
-    const sponsoredUserOp = await this.paymaster.addPaymasterIntoUserOp(userOp);
-    const userOpHash = await this.aaAccount.sendUserOp(sponsoredUserOp);
-    return this.aaAccount.waitForUserOp(userOpHash);
+    return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
   // TODO: consider refactoring auth message logic into separate class

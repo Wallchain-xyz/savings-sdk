@@ -2,21 +2,24 @@ import { BiconomySmartAccountV2 } from '@biconomy/account';
 
 import { Address, Hash } from 'viem';
 
-import { BaseAAAccount, Txn, UserOpResult, UserOperationV06, WaitParams } from '../types';
+import { AAAccount, UserOpResult, WaitParams } from '../shared/AAAccount';
+import { Txn } from '../shared/Txn';
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
-import { userOpToBiconomyUserOpStruct } from './common';
+import { userOpToBiconomyUserOpStruct } from './shared';
 
-interface BiconomyBaseAAAccountParams {
+interface BiconomyAAAccountParams {
   aaAddress: Address;
   smartAccount: BiconomySmartAccountV2;
 }
 
-export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
+export abstract class BiconomyAAAccount extends AAAccount {
   aaAddress: Address;
 
   protected smartAccount: BiconomySmartAccountV2;
 
-  protected constructor({ aaAddress, smartAccount }: BiconomyBaseAAAccountParams) {
+  protected constructor({ aaAddress, smartAccount }: BiconomyAAAccountParams) {
+    super();
     this.aaAddress = aaAddress;
     this.smartAccount = smartAccount;
   }
@@ -26,11 +29,6 @@ export abstract class BaseBiconomyAAAccount implements BaseAAAccount {
   async sendUserOp(userOp: UserOperationV06): Promise<Hash> {
     const { userOpHash } = await this.smartAccount.sendUserOp(userOpToBiconomyUserOpStruct(userOp));
     return userOpHash as Hash;
-  }
-
-  async sendTxns(txns: Txn[]): Promise<Hash> {
-    const userOp = await this.buildUserOp(txns);
-    return this.sendUserOp(userOp);
   }
 
   waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<UserOpResult> {

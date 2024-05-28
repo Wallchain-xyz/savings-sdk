@@ -1,6 +1,6 @@
 import { Account, Address, Chain, createWalletClient, encodeFunctionData, parseAbi, publicActions } from 'viem';
 
-import { ChainHelper } from '../ChainHelper';
+import { ChainHelper } from './ChainHelper';
 
 import { USDC_TOKEN_ADDRESS } from './consts';
 

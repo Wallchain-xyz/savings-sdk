@@ -1,7 +1,8 @@
 import { Address, encodeFunctionData, parseAbi, parseEther } from 'viem';
 
 import { ExtendedTestClient } from '../../testSuite/createExtendedTestClient';
-import { ChainHelper } from '../ChainHelper';
+
+import { ChainHelper } from './ChainHelper';
 
 import { USDC_SOURCE_ACCOUNT_ADDRESS, USDC_TOKEN_ADDRESS } from './consts';
 

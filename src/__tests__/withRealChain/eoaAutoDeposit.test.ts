@@ -6,7 +6,7 @@ import { base } from 'viem/chains';
 
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
-import { ChainHelper } from '../ChainHelper';
+import { ChainHelper } from '../utils/ChainHelper';
 import { USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
@@ -21,9 +21,9 @@ const chain = base; // TODO: maybe make it changeable
 // REAL CHAIN SPECIFIC
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
-const usdcAmountToDeposit = BigInt(process.env.USDC_AMOUNT ?? '') as bigint;
-const wrappedDescribe = pimlicoApiKey && privateKey ? describe : describe.skip;
-wrappedDescribe('eoa manual deposit', () => {
+const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL as string;
+const wrappedDescribe = pimlicoApiKey && privateKey && savingsBackendUrl ? describe : describe.skip;
+wrappedDescribe('eoa auto deposit', () => {
   // END REAL CHAIN SPECIFIC
   let eoaAccount: PrivateKeyAccount;
   let chainHelper: ChainHelper;
@@ -53,37 +53,43 @@ wrappedDescribe('eoa manual deposit', () => {
 
   it('can deposit USDC on Base', async () => {
     const eoaAddress = eoaAccount.address;
-
     // const usdcAmountToDeposit = await topUpEoaWithUsdcAmountToDeposit({
     //   eoaAddress,
     //   chainHelper,
     //   testClient,
     // });
-
     const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
-      savingsBackendUrl: 'http://localhost:8000',
+      savingsBackendUrl,
       // REAL CHAIN SPECIFIC
       apiKey: pimlicoApiKey,
       // END REAL CHAIN SPECIFIC
       // apiKey: 'ANY',
     });
-    const savingsAccountAddress = savingsAccount.aaAddress;
-    await ensureEoaAddressUsdcAllowance({
-      amountToDeposit: usdcAmountToDeposit,
-      chainHelper,
-      savingsAccountAddress,
-      eoaAccount,
-    });
-
-    await savingsAccount.auth();
 
     const usdcEOAStrategy = savingsAccount.strategiesManager.findStrategy({
       tokenAddress: USDC_TOKEN_ADDRESS,
       isEOA: true,
     });
 
+    const eoaAccountTokenAmountBeforeDeposit = await chainHelper.getERC20TokenAmount({
+      tokenAddress: usdcEOAStrategy.tokenAddress,
+      accountAddress: eoaAddress,
+    });
+
+    const savingsAccountAddress = savingsAccount.aaAddress;
+    await ensureEoaAddressUsdcAllowance({
+      amountToDeposit: eoaAccountTokenAmountBeforeDeposit,
+      chainHelper,
+      savingsAccountAddress,
+      eoaAccount,
+    });
+
+    await savingsAccount.auth();
+    // const currentActiveStrategies = await savingsAccount.getCurrentActiveStrategies();
+
+    // if (currentActiveStrategies.every(activeStrategy => activeStrategy.id !== usdcEOAStrategy.id)) {
     await savingsAccount.activateStrategies({
       activeStrategies: [
         {
@@ -94,18 +100,19 @@ wrappedDescribe('eoa manual deposit', () => {
         },
       ],
     });
+    // }
 
     // check that bond token was not on AA before deposit
     const savingsAccountBondTokenAmountBeforeDeposit = await chainHelper.getERC20TokenAmount({
       tokenAddress: usdcEOAStrategy.bondTokenAddress,
       accountAddress: savingsAccountAddress,
     });
-    expect(savingsAccountBondTokenAmountBeforeDeposit === 0n).toBe(true);
-
-    const eoaAccountTokenAmountBeforeDeposit = await chainHelper.getERC20TokenAmount({
-      tokenAddress: usdcEOAStrategy.tokenAddress,
-      accountAddress: eoaAddress,
-    });
+    if (savingsAccountBondTokenAmountBeforeDeposit !== 0n) {
+      await savingsAccount.withdraw({
+        amount: savingsAccountBondTokenAmountBeforeDeposit,
+        depositStrategyId: usdcEOAStrategy.id,
+      });
+    }
 
     await triggerDSToDeposit();
     const eoaAccountTokenAmountAfterDeposit = await chainHelper.getERC20TokenAmount({

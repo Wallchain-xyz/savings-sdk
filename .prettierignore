@@ -1,0 +1,3 @@
+# because of "with { type: 'json' }" can't be parsed by prettier
+# and can't be ignored with inline ignore comments
+src/depositStrategies/strategies/index.ts

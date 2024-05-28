@@ -9,7 +9,7 @@ import { BeefyEOAStrategy } from './beefy/BeefyEOAStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
 import { DepositStrategy, DepositStrategyConfig } from './DepositStrategy';
-import baseStrategyConfigs from './strategies/base/deposit_strategy_configs.json';
+import { baseStrategyConfigs } from './strategies';
 
 const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
   ({

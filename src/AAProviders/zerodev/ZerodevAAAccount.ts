@@ -1,15 +1,18 @@
 import { BundlerClient, ENTRYPOINT_ADDRESS_V06, bundlerActions } from 'permissionless';
+
 import { Address, Hash } from 'viem';
 
-import { BaseAAAccount, Txn, UserOpResult, UserOperationV06, WaitParams } from '../types';
+import { AAAccount, UserOpResult, WaitParams } from '../shared/AAAccount';
+import { Txn } from '../shared/Txn';
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
-import { KernelClient } from './common';
+import { KernelClient } from './shared';
 
-export interface BaseZerodevAAAccountParams {
+export interface ZerodevAAAccountParams {
   client: KernelClient;
 }
 
-export abstract class BaseZerodevAAAccount implements BaseAAAccount {
+export abstract class ZerodevAAAccount extends AAAccount {
   protected client: KernelClient;
 
   private bundlerClient: BundlerClient<typeof ENTRYPOINT_ADDRESS_V06>;
@@ -18,7 +21,8 @@ export abstract class BaseZerodevAAAccount implements BaseAAAccount {
     return this.client.account.address;
   }
 
-  protected constructor({ client }: BaseZerodevAAAccountParams) {
+  protected constructor({ client }: ZerodevAAAccountParams) {
+    super();
     this.client = client;
     this.bundlerClient = this.client.extend(bundlerActions(ENTRYPOINT_ADDRESS_V06));
   }
@@ -32,18 +36,13 @@ export abstract class BaseZerodevAAAccount implements BaseAAAccount {
   }
 
   async sendUserOp(userOp: UserOperationV06): Promise<Hash> {
-    // this.client.sendUserOperation destroys paymasterAndData field, so
-    // we have to manually sign and send userOp via bundler api
     const signedUserOp = {
       ...userOp,
       signature: await this.client.account.signUserOperation(userOp),
     };
+    // this.client.sendUserOperation destroys paymasterAndData field, so
+    // we have to manually sign and send userOp via bundler api
     return this.bundlerClient.sendUserOperation({ userOperation: signedUserOp });
-  }
-
-  async sendTxns(txns: Txn[]): Promise<Hash> {
-    const userOp = await this.buildUserOp(txns);
-    return this.sendUserOp(userOp);
   }
 
   async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<UserOpResult> {

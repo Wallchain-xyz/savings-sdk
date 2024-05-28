@@ -1,7 +1,6 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
-import { Txn } from '../../AAProviders/types';
-
+import { Txn } from '../../AAProviders/shared/Txn';
 import { erc20ABI } from '../../utils/erc20ABI';
 
 import { CreateDepositTxnsParams, CreateWithdrawTxnsParams } from '../DepositStrategy';

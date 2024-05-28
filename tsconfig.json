@@ -39,5 +39,9 @@
     "./__tests__/**/*",
     "**/__tests__/**/*",
     "./**/*.test.ts"
-  ]
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  }
 }

@@ -9,22 +9,23 @@ import {
 import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
 import { type Abi, Address, PublicClient, encodeFunctionData, getAbiItem, toFunctionSelector, zeroAddress } from 'viem';
 
-import { AAAccount, CreateSKAResult, CreateSessionKeyParams, Txn } from '../types';
+import { CreateSKAResult, CreateSessionKeyParams, PrimaryAAAccount } from '../shared/PrimaryAAAccount';
+import { Txn } from '../shared/Txn';
 
-import { BaseZerodevAAAccount, BaseZerodevAAAccountParams } from './BaseAAccount';
-import { ECDSAValidator } from './common';
+import { ECDSAValidator } from './shared';
+import { ZerodevAAAccount, ZerodevAAAccountParams } from './ZerodevAAAccount';
 
-interface ZerodevAAAccountParams extends BaseZerodevAAAccountParams {
+interface ZerodevPrimaryAAAccountParams extends ZerodevAAAccountParams {
   publicClient: PublicClient;
   ecdsaValidator: ECDSAValidator;
 }
 
-export class ZerodevAAAccount extends BaseZerodevAAAccount implements AAAccount {
+export class ZerodevPrimaryAAAccount extends ZerodevAAAccount implements PrimaryAAAccount {
   private readonly publicClient: PublicClient;
 
   private readonly ecdsaValidator: ECDSAValidator;
 
-  constructor({ client, publicClient, ecdsaValidator }: ZerodevAAAccountParams) {
+  constructor({ client, publicClient, ecdsaValidator }: ZerodevPrimaryAAAccountParams) {
     super({ client });
     this.publicClient = publicClient;
     this.ecdsaValidator = ecdsaValidator;

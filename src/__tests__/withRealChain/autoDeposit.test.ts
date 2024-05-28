@@ -5,7 +5,7 @@ import { base } from 'viem/chains';
 
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
-import { ChainHelper } from '../ChainHelper';
+import { ChainHelper } from '../utils/ChainHelper';
 import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;

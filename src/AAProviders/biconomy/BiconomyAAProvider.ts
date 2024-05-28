@@ -10,21 +10,25 @@ import { Address, Chain, PrivateKeyAccount, createWalletClient, http } from 'vie
 
 import { toAccount } from 'viem/accounts';
 
-import { AAAccount, AAProvider, SKAccount, SerializedSKAData } from '../types';
+import { AAProvider, CreateSKAccountParams } from '../shared/AAProvider';
+import { BundlerType } from '../shared/BundlerType';
+import { PrimaryAAAccount } from '../shared/PrimaryAAAccount';
 
-import { BiconomyAAAccount } from './AAAccount';
-import { BiconomySKAData } from './common';
-import { SessionMemoryStorage } from './memoryStorage';
-import { PimlicoBundler } from './pimlicoBundler';
-import { BiconomySKAccount } from './SKAccount';
+import { SKAccount } from '../shared/SKAccount';
+
+import { BiconomyPrimaryAAAccount } from './BiconomyPrimaryAAAccount';
+import { BiconomySKAccount } from './BiconomySKAccount';
+import { PimlicoBundler } from './PimlicoBundler';
+import { SessionMemoryStorage } from './SessionMemoryStorage';
+import { BiconomySKAData } from './shared';
 
 import type { IBundler } from '@biconomy/account/dist/_types/bundler';
 
 interface BiconomyAAProviderParams {
   chain: Chain;
-  rpcUrl?: string;
   bundlerUrl: string;
-  bundlerType?: 'biconomy' | 'pimlico';
+  rpcUrl?: string;
+  bundlerType?: BundlerType;
 }
 
 export class BiconomyAAProvider implements AAProvider {
@@ -34,30 +38,30 @@ export class BiconomyAAProvider implements AAProvider {
 
   private readonly rpcUrl: string;
 
-  private readonly bundlerType: 'biconomy' | 'pimlico';
+  private readonly bundlerType: BundlerType;
 
   constructor({ chain, rpcUrl, bundlerUrl, bundlerType }: BiconomyAAProviderParams) {
     this.chain = chain;
     this.rpcUrl = rpcUrl ?? chain.rpcUrls.default.http[0];
     this.bundlerUrl = bundlerUrl;
-    this.bundlerType = bundlerType ?? 'biconomy';
+    this.bundlerType = bundlerType ?? BundlerType.biconomy;
   }
 
-  async createAAAccount(signer: PrivateKeyAccount): Promise<AAAccount> {
+  async createAAAccount(signer: PrivateKeyAccount): Promise<PrimaryAAAccount> {
     const smartAccount = await createSmartAccountClient({
       signer,
       rpcUrl: this.rpcUrl,
       chainId: this.chain.id,
       ...this.createBundlerConfigPart(),
     });
-    return new BiconomyAAAccount({
+    return new BiconomyPrimaryAAAccount({
       aaAddress: await smartAccount.getAccountAddress(),
       eoaOwnerAddress: signer.address,
       smartAccount,
     });
   }
 
-  async createSKAccount(skaSigner: PrivateKeyAccount, serializedSKAData: SerializedSKAData): Promise<SKAccount> {
+  async createSKAccount({ skaSigner, serializedSKAData }: CreateSKAccountParams): Promise<SKAccount> {
     const skaData: BiconomySKAData = JSON.parse(serializedSKAData);
     const sessionModule = await createSessionKeyManagerModule({
       moduleAddress: DEFAULT_SESSION_KEY_MANAGER_MODULE,
@@ -104,7 +108,7 @@ export class BiconomyAAProvider implements AAProvider {
   }
 
   private createBundlerConfigPart(): { bundler: IBundler } | { bundlerUrl: string } {
-    if (this.bundlerType === 'pimlico') {
+    if (this.bundlerType === BundlerType.pimlico) {
       return {
         bundler: new PimlicoBundler(this.bundlerUrl, this.chain),
       };

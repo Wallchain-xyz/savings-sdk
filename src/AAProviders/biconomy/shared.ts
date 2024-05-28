@@ -1,7 +1,8 @@
 import { UserOperationStruct } from '@biconomy/account';
 import { Address, getAbiItem, toFunctionSelector, toHex } from 'viem';
 
-import { Permission, UserOperationV06 } from '../types';
+import { Permission } from '../shared/Permission';
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
 import type { ByteArray, Hex } from 'viem/types/misc';
 

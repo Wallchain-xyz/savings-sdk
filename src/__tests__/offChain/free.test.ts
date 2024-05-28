@@ -24,7 +24,7 @@ describe('E2E SDK test without onchain transactions', () => {
     const { user } = await savingsAccount.auth();
     expect(user.ownerships[0].signer_address).toBe(account.address);
     expect(user.ownerships[0].aa_address).toBe(savingsAccount.aaAddress);
-    expect(user.ownerships[0].chain_id).toBe(base.id); // TODO: maybe make it changeable
+    expect(user.ownerships[0].chain_id).toBe(base.id);
   }, 10_000);
 
   it('auth should login on second request', async () => {

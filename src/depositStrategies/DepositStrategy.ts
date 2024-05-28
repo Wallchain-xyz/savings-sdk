@@ -1,6 +1,7 @@
 import { Address, isAddressEqual } from 'viem';
 
-import { Permission, Txn } from '../AAProviders/types';
+import { Permission } from '../AAProviders/shared/Permission';
+import { Txn } from '../AAProviders/shared/Txn';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
 
 import { NATIVE_TOKEN_ADDRESS } from '../consts';

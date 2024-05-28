@@ -14,7 +14,7 @@ import {
 import { BundlerClient, ENTRYPOINT_ADDRESS_V06, createBundlerClient } from 'permissionless';
 import { Address, Chain, Hash, PublicClient, createPublicClient, http } from 'viem';
 
-import { biconomyUserOpStructToUserOp, ensureHex } from './common';
+import { biconomyUserOpStructToUserOp, ensureHex } from './shared';
 
 export class PimlicoBundler implements IBundler {
   private bundlerClient: BundlerClient<typeof ENTRYPOINT_ADDRESS_V06>;

@@ -1,14 +1,16 @@
 {
   "name": "@wallchain/savings-sdk",
-  "version": "0.3.0-rc.0",
+  "version": "0.3.0-rc.1-alpha6",
+  "sideEffects": false,
+  "type": "module",
   "main": "dist/index.js",
   "files": [
     "dist/**",
     "readme.md"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc --noEmit false",
-    "dev": "tsc --watch --noEmit false",
+    "build": "tsc --noEmit false && tsc-alias",
+    "dev": "echo 'for nodejs do not work!!!' && tsc --watch --noEmit false",
     "eslint:all": "eslint .",
     "eslint:fix-all": "eslint --fix .",
     "generate-auth-client": "openapi-zod-client src/api/auth/openapi.json --complexity-threshold=1 -o src/api/auth/__generated__/createApiClient.ts -t src/api/auth/template.hbs -a && node ./cli/adaptOpenApiClient.js src/api/auth/__generated__/createApiClient.ts",
@@ -16,7 +18,8 @@
     "prepare": "which husky && husky install || true",
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test:local": "jest"
   },
   "lint-staged": {
     "package.json": [
@@ -38,6 +41,7 @@
     "@zodios/core": "^10.9.6",
     "axios": "^1.5.1",
     "permissionless": "^0.1.22",
+    "tslib": "^2.6.2",
     "viem": "^2.5.0",
     "zod": "^3.22.4"
   },
@@ -75,6 +79,7 @@
     "semantic-release": "^23.0.8",
     "sort-package-json": "^2.4.1",
     "ts-jest": "^29.1.0",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.3.0",
     "typescript-eslint": "^7.4.0"
   },

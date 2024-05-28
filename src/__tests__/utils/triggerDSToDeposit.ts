@@ -9,6 +9,6 @@ export async function triggerDSToDeposit() {
 
   // wait for the system to finish depositing
   await new Promise(resolve => {
-    setTimeout(resolve, 15_000);
+    setTimeout(resolve, 10_000);
   });
 }

@@ -5,7 +5,7 @@ import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/creat
 import { createExtendedTestClient } from '../../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
 
-import { ChainHelper } from '../ChainHelper';
+import { ChainHelper } from '../utils/ChainHelper';
 import { LOCAL_BUNDLER_URL, LOCAL_CHAIN_RPC_URL, LOCAL_PAYMASTER_RPC_URL, USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
@@ -14,7 +14,7 @@ import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
 
 const chain = base; // TODO: maybe make it changeable
 
-describe('manual deposit', () => {
+describe('auto deposit', () => {
   let eoaAccount: PrivateKeyAccount;
   let chainHelper: ChainHelper;
 

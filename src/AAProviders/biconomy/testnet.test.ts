@@ -15,8 +15,8 @@ import { polygonAmoy } from 'viem/chains';
 
 import { createEoaAccount } from '../../__tests__/utils/createEoaAccount';
 
-import { BiconomyPaymaster } from './paymaster';
-import { BiconomyAAProvider } from './provider';
+import { BiconomyAAProvider } from './BiconomyAAProvider';
+import { BiconomyPaymaster } from './BiconomyPaymaster';
 
 const WETH_ABI = parseAbi([
   'function deposit() public payable',
@@ -105,7 +105,7 @@ describe('Biconomy Provider Polygon Amoy', () => {
   it('should create SKA that can deposit and withdraw', async () => {
     // Arrange
     const aaAccount = await provider.createAAAccount(owner);
-    const skaAccount = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
+    const skaSigner = privateKeyToAccount(faker.string.hexadecimal({ length: 64 }) as `0x${string}`);
     const amountDeposit = faker.number.bigInt({ min: 101n, max: 200n });
     const amountWithdraw = faker.number.bigInt({ min: 1n, max: 100n });
 
@@ -116,26 +116,32 @@ describe('Biconomy Provider Polygon Amoy', () => {
     });
     const balanceBefore = await wethContract.read.balanceOf([aaAccount.aaAddress]);
     // Act
-    const skaData = await aaAccount.createSessionKey(skaAccount.address, [
-      {
-        target: WETH_ADDR,
-        functionName: 'deposit',
-        valueLimit: parseEther('100000'),
-        abi: [ABI_DEPOSIT],
-        rules: [],
-      },
-      {
-        target: WETH_ADDR,
-        functionName: 'withdraw',
-        valueLimit: parseEther('0'),
-        abi: [ABI_WITHDRAW],
-        rules: [],
-      },
-    ]);
+    const skaData = await aaAccount.createSessionKey({
+      skaAddress: skaSigner.address,
+      permissions: [
+        {
+          target: WETH_ADDR,
+          functionName: 'deposit',
+          valueLimit: parseEther('100000'),
+          abi: [ABI_DEPOSIT],
+          args: [],
+        },
+        {
+          target: WETH_ADDR,
+          functionName: 'withdraw',
+          valueLimit: parseEther('0'),
+          abi: [ABI_WITHDRAW],
+          args: [],
+        },
+      ],
+    });
 
     let userOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
     await aaAccount.waitForUserOp(userOpHash);
-    const saAccount = await provider.createSKAccount(skaAccount, skaData.serializedSKAData);
+    const saAccount = await provider.createSKAccount({
+      skaSigner,
+      serializedSKAData: skaData.serializedSKAData,
+    });
     userOpHash = await saAccount.sendTxns([
       {
         to: '0x360ad4f9a9A8EFe9A8DCB5f461c4Cc1047E1Dcf9',

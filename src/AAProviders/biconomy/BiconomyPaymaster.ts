@@ -1,8 +1,10 @@
 import { BiconomyPaymaster as LibBiconomyPaymaster, PaymasterMode, createPaymaster } from '@biconomy/account';
 
-import { Paymaster, UserOperationV06 } from '../types';
+import { Paymaster } from '../shared/Paymaster';
 
-import { biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './common';
+import { UserOperationV06 } from '../shared/UserOperationV06';
+
+import { biconomyUserOpStructToUserOp, userOpToBiconomyUserOpStruct } from './shared';
 
 export class BiconomyPaymaster implements Paymaster {
   private paymaster: LibBiconomyPaymaster;

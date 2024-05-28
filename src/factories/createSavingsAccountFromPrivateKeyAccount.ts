@@ -1,25 +1,25 @@
 import { PrivateKeyAccount, createPublicClient, http } from 'viem';
 
-import { PimlicoPaymaster } from '../AAProviders/pimlico/paymaster';
-import { Paymaster } from '../AAProviders/types';
-import { WallchainPaymaster } from '../AAProviders/wallchain/paymaster';
-import { ZerodevProvider } from '../AAProviders/zerodev/provider';
-import { chain_id as ChainId, createApiClient as createAuthClient } from '../api/auth/__generated__/createApiClient';
+import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
+import { SupportedChainId, getChainById } from '../AAProviders/shared/chains';
+import { Paymaster } from '../AAProviders/shared/Paymaster';
+import { WallchainPaymaster } from '../AAProviders/wallchain/WallchainPaymaster';
+import { ZerodevAAProvider } from '../AAProviders/zerodev/ZerodevAAProvider';
+import { createApiClient as createAuthClient } from '../api/auth/__generated__/createApiClient';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { createApiClient as createSKAClient } from '../api/ska/__generated__/createApiClient';
 import { DEFAULT_BACKEND_URL } from '../consts';
 import { StrategiesManager } from '../depositStrategies/StrategiesManager';
 import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
 
-import { getPimlicoBundlerUrl } from './bundler';
-import { getChainById } from './chains';
+import { createPimlicoBundlerUrl } from './utils/createPimlicoBundlerUrl';
 
 import type { ZodiosOptions } from '@zodios/core';
 
 interface CreateSavingsAccountFromKernelValidatorParams {
   apiKey: string;
   privateKeyAccount: PrivateKeyAccount;
-  chainId: ChainId;
+  chainId: SupportedChainId;
   savingsBackendUrl?: string;
   rpcUrl?: string;
   bundlerUrl?: string;
@@ -43,12 +43,6 @@ export async function createSavingsAccountFromPrivateKeyAccount({
 
   const chain = getChainById(chainId);
 
-  const aaProvider = new ZerodevProvider({
-    chain,
-    bundlerUrl: bundlerUrl ?? getPimlicoBundlerUrl({ chainId, pimlicoApiKey: apiKey }),
-    rpcUrl,
-  });
-  const aaAccount = await aaProvider.createAAAccount(privateKeyAccount);
   const strategiesManager = new StrategiesManager(
     createPublicClient({
       transport: http(rpcUrl ?? chain.rpcUrls.default.http[0]),
@@ -56,20 +50,26 @@ export async function createSavingsAccountFromPrivateKeyAccount({
     }),
   );
 
-  let paymaster: Paymaster = new WallchainPaymaster({
-    savingsBackendClient,
-    chainId,
+  const paymaster: Paymaster = paymasterUrl
+    ? new PimlicoPaymaster(paymasterUrl)
+    : new WallchainPaymaster({
+        savingsBackendClient,
+        chainId,
+      });
+
+  const aaProvider = new ZerodevAAProvider({
+    chain,
+    bundlerUrl: bundlerUrl ?? createPimlicoBundlerUrl({ chainId, pimlicoApiKey: apiKey }),
+    rpcUrl,
   });
-  if (paymasterUrl) {
-    paymaster = new PimlicoPaymaster(paymasterUrl);
-  }
+  const aaAccount = await aaProvider.createAAAccount(privateKeyAccount);
+  aaAccount.setPaymaster(paymaster);
 
   return new SavingsAccount({
     aaAccount,
     privateKeyAccount,
     savingsBackendClient,
     strategiesManager,
-    paymaster,
     chainId,
   });
 }

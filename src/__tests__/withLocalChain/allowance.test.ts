@@ -52,7 +52,7 @@ describe('allowance', () => {
         address: tokenAddress,
         functionName: 'transferFrom',
         abi: transferFromAbi,
-        args: [eoaAccount.address, anotherAccount.address, BigInt(1)],
+        args: [eoaAccount.address, anotherAccount.address, 1n],
       }),
     ).rejects.toThrow();
 
@@ -68,7 +68,7 @@ describe('allowance', () => {
       address: tokenAddress,
       functionName: 'approve',
       abi: approveAbi,
-      args: [anotherAccount.address, BigInt(1)],
+      args: [anotherAccount.address, 1n],
     });
     await testClient.writeContract(requestApprove);
 
@@ -83,7 +83,7 @@ describe('allowance', () => {
         abi: parseAbi(['function allowance(address owner, address spender) external view returns (uint256)']),
         args: [eoaAccount.address, anotherAccount.address],
       }),
-    ).resolves.toBe(BigInt(1));
+    ).resolves.toBe(1n);
 
     // Act: send some funds via transferFrom and expect no funds
     await expect(
@@ -92,7 +92,7 @@ describe('allowance', () => {
         address: tokenAddress,
         functionName: 'transferFrom',
         abi: transferFromAbi,
-        args: [eoaAccount.address, anotherAccount.address, BigInt(1)],
+        args: [eoaAccount.address, anotherAccount.address, 1n],
       }),
     ).resolves.toBeTruthy();
   });

@@ -5,17 +5,19 @@ import { createEoaAccount } from '../__tests__/utils/createEoaAccount';
 import { createExtendedTestClient } from '../testSuite/createExtendedTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady } from '../testSuite/healthCheck';
 
-import { BiconomyAAProvider } from './biconomy/provider';
-import { PimlicoPaymaster } from './pimlico/paymaster';
+import { BiconomyAAProvider } from './biconomy/BiconomyAAProvider';
+import { PimlicoPaymaster } from './pimlico/PimlicoPaymaster';
 
-import { AAProvider, PermissionArgOperator } from './types';
-import { ZerodevProvider } from './zerodev/provider';
+import { AAProvider } from './shared/AAProvider';
+import { BundlerType } from './shared/BundlerType';
+import { PermissionArgOperator } from './shared/Permission';
+import { ZerodevAAProvider } from './zerodev/ZerodevAAProvider';
 
 describe.each([
   [
     'zerodev',
     (chain: Chain) =>
-      new ZerodevProvider({
+      new ZerodevAAProvider({
         chain,
         rpcUrl: 'http://localhost:8545',
         bundlerUrl: 'http://localhost:4337',
@@ -28,7 +30,7 @@ describe.each([
         chain,
         rpcUrl: 'http://localhost:8545',
         bundlerUrl: 'http://localhost:4337',
-        bundlerType: 'pimlico',
+        bundlerType: BundlerType.pimlico,
       }),
   ],
 ])('Provider %s Local Anvil', (_: string, providerFactory: (chain: Chain) => AAProvider) => {
@@ -136,32 +138,39 @@ describe.each([
     const amountWithdraw = faker.number.bigInt({ min: 1n, max: 100n });
 
     // Act
-    const skaData = await aaAccount.createSessionKey(skaAccount.address, [
-      {
-        target: wethContract.address,
-        functionName: 'deposit',
-        valueLimit: parseEther('100000'),
-        abi: wethContract.abi,
-        args: [],
-      },
-      {
-        target: wethContract.address,
-        functionName: 'withdraw',
-        valueLimit: parseEther('0'),
-        abi: wethContract.abi,
-        args: [
-          {
-            operator: PermissionArgOperator.EQUAL,
-            value: amountWithdraw,
-          },
-        ],
-      },
-    ]);
+    const skaData = await aaAccount.createSessionKey({
+      skaAddress: skaAccount.address,
+      permissions: [
+        {
+          target: wethContract.address,
+          functionName: 'deposit',
+          valueLimit: parseEther('100000'),
+          abi: wethContract.abi,
+          args: [],
+        },
+        {
+          target: wethContract.address,
+          functionName: 'withdraw',
+          valueLimit: parseEther('0'),
+          abi: wethContract.abi,
+          args: [
+            {
+              operator: PermissionArgOperator.EQUAL,
+              value: amountWithdraw,
+            },
+          ],
+        },
+      ],
+    });
     if (skaData.txnsToActivate) {
       const createSKAUserOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
       await aaAccount.waitForUserOp(createSKAUserOpHash);
     }
-    const saAccount = await provider.createSKAccount(skaAccount, skaData.serializedSKAData);
+    const saAccount = await provider.createSKAccount({
+      skaSigner: skaAccount,
+      serializedSKAData: skaData.serializedSKAData,
+    });
+    saAccount.setPaymaster(paymaster);
     const userOpHash = await saAccount.sendTxns([
       {
         to: wethContract.address,
@@ -211,25 +220,31 @@ describe.each([
     await aaAccount.waitForUserOp(userOpHash);
 
     // Act
-    const skaData = await aaAccount.createSessionKey(skaAccount.address, [
-      {
-        target: wethContract.address,
-        functionName: 'withdraw',
-        valueLimit: parseEther('0'),
-        abi: wethContract.abi,
-        args: [
-          {
-            operator: PermissionArgOperator.EQUAL,
-            value: amount - 1n,
-          },
-        ],
-      },
-    ]);
+    const skaData = await aaAccount.createSessionKey({
+      skaAddress: skaAccount.address,
+      permissions: [
+        {
+          target: wethContract.address,
+          functionName: 'withdraw',
+          valueLimit: parseEther('0'),
+          abi: wethContract.abi,
+          args: [
+            {
+              operator: PermissionArgOperator.EQUAL,
+              value: amount - 1n,
+            },
+          ],
+        },
+      ],
+    });
     if (skaData.txnsToActivate) {
       const createSKAUserOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
       await aaAccount.waitForUserOp(createSKAUserOpHash);
     }
-    const saAccount = await provider.createSKAccount(skaAccount, skaData.serializedSKAData);
+    const saAccount = await provider.createSKAccount({
+      skaSigner: skaAccount,
+      serializedSKAData: skaData.serializedSKAData,
+    });
     try {
       const skaUserOpHash = await saAccount.sendTxns([
         {

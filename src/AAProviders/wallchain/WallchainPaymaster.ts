@@ -1,8 +1,10 @@
 import { hexToBigInt, toHex } from 'viem';
 
 import { SavingsBackendClient } from '../../api/SavingsBackendClient';
-import { SupportedChainId } from '../../factories/chains';
-import { Paymaster, UserOperationV06 } from '../types';
+import { SupportedChainId } from '../shared/chains';
+import { Paymaster } from '../shared/Paymaster';
+
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
 interface WallchainPaymasterParams {
   savingsBackendClient: SavingsBackendClient;

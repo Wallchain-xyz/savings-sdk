@@ -1,7 +1,6 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
-import { Txn } from '../../AAProviders/types';
-
+import { Txn } from '../../AAProviders/shared/Txn';
 import { CreateDepositTxnsParams, CreateWithdrawTxnsParams } from '../DepositStrategy';
 
 import { BeefyStrategy } from './BeefyStrategy';

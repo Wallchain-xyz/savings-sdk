@@ -1,4 +1,4 @@
-import { Txn } from '../../AAProviders/types';
+import { Txn } from '../../AAProviders/shared/Txn';
 import {
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
@@ -44,7 +44,7 @@ describe('interpolatePermissions', () => {
         {
           target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
           functionName: 'transferFrom',
-          valueLimit: BigInt(0),
+          valueLimit: 0n,
           abi: [
             {
               inputs: [

@@ -117,13 +117,13 @@ describe('E2E zerodev API tests', () => {
           {
             target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
             functionName: 'deposit',
-            valueLimit: BigInt(0),
+            valueLimit: 0n,
             abi: [DEPOSIT_BEEFY_ABI],
           },
           {
             target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
             functionName: 'approve',
-            valueLimit: BigInt(0),
+            valueLimit: 0n,
             abi: [APPROVE_ERC20_ABI],
             args: [
               {
@@ -172,20 +172,20 @@ describe('E2E zerodev API tests', () => {
         callData: await kernelClient.account.encodeCallData([
           {
             to: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-            value: BigInt(0),
+            value: 0n,
             data: encodeFunctionData({
               functionName: 'approve',
               abi: [APPROVE_ERC20_ABI],
-              args: ['0xeF6ED674486E54507d0f711C0d388BD8a1552E6F', BigInt(100)],
+              args: ['0xeF6ED674486E54507d0f711C0d388BD8a1552E6F', 100n],
             }),
           },
           {
             to: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
-            value: BigInt(0),
+            value: 0n,
             data: encodeFunctionData({
               abi: [DEPOSIT_BEEFY_ABI],
               functionName: 'deposit',
-              args: [BigInt(100)],
+              args: [100n],
             }),
           },
         ]),

@@ -9,14 +9,17 @@ import {
 } from '@biconomy/account';
 import { Address, Hex, getAbiItem, isHex, padHex, toHex } from 'viem';
 
-import { AAAccount, CreateSKAResult, CreateSessionKeyParams, Permission, Txn, UserOperationV06 } from '../types';
+import { Permission } from '../shared/Permission';
+import { CreateSKAResult, CreateSessionKeyParams, PrimaryAAAccount } from '../shared/PrimaryAAAccount';
+import { Txn } from '../shared/Txn';
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
-import { BaseBiconomyAAAccount } from './BaseAAccount';
-import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, permissionToSelector } from './common';
-import { SessionMemoryStorage } from './memoryStorage';
-import { SessionIdManager } from './sessionIdManager';
+import { BiconomyAAAccount } from './BiconomyAAAccount';
+import { SessionIdManager } from './SessionIdManager';
+import { SessionMemoryStorage } from './SessionMemoryStorage';
+import { BiconomySKAData, abiSVMAddress, biconomyUserOpStructToUserOp, permissionToSelector } from './shared';
 
-interface BiconomyOwnedAAAccountParams {
+interface BiconomyPrimaryAAAccountParams {
   aaAddress: Address;
   eoaOwnerAddress: Address;
   smartAccount: BiconomySmartAccountV2;
@@ -24,10 +27,10 @@ interface BiconomyOwnedAAAccountParams {
 
 type ABISessionData = Hex | Uint8Array;
 
-export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccount {
+export class BiconomyPrimaryAAAccount extends BiconomyAAAccount implements PrimaryAAAccount {
   private readonly eoaOwnerAddress: Hex;
 
-  constructor({ aaAddress, eoaOwnerAddress, smartAccount }: BiconomyOwnedAAAccountParams) {
+  constructor({ aaAddress, eoaOwnerAddress, smartAccount }: BiconomyPrimaryAAAccountParams) {
     super({ smartAccount, aaAddress });
     this.eoaOwnerAddress = eoaOwnerAddress;
   }
@@ -49,7 +52,7 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
       smartAccountAddress: this.aaAddress,
     });
     const abiSVMSessionKeyDatas = await Promise.all(
-      permissions.map(permission => BiconomyAAAccount.toABISVMSessionKeyData(skaAddress, permission)),
+      permissions.map(permission => BiconomyPrimaryAAAccount.toABISVMSessionKeyData(skaAddress, permission)),
     );
     const { data: createSessionData, sessionIDInfo: perPermissionSessionIds } =
       await sessionBatchModule.createSessionData(
@@ -98,7 +101,7 @@ export class BiconomyAAAccount extends BaseBiconomyAAAccount implements AAAccoun
       destContract: permission.target,
       functionSelector: permissionToSelector(permission),
       valueLimit: permission.valueLimit,
-      rules: BiconomyAAAccount.getPermissionRules(permission),
+      rules: BiconomyPrimaryAAAccount.getPermissionRules(permission),
     });
   }
 

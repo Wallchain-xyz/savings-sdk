@@ -4,12 +4,8 @@ module.exports = {
   transform: {
     '^.+\\.[tj]sx?$': [
       'ts-jest',
-      // TODO: @merlin fix, it doesn't work
-      // tests are emitting files
       {
-        tsconfig: {
-          allowJs: true,
-        },
+        tsconfig: 'tsconfig.json',
       },
     ],
   },

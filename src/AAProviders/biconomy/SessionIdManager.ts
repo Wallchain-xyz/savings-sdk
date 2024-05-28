@@ -1,6 +1,7 @@
-import { Permission, Txn } from '../types';
+import { Permission } from '../shared/Permission';
+import { Txn } from '../shared/Txn';
 
-import { SessionIdMap, permissionToSelector } from './common';
+import { SessionIdMap, permissionToSelector } from './shared';
 
 export class SessionIdManager {
   readonly data: SessionIdMap;

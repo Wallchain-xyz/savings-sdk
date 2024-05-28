@@ -2,7 +2,9 @@ import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
 import { PimlicoPaymasterClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
 import { http } from 'viem';
 
-import { Paymaster, UserOperationV06 } from '../types';
+import { Paymaster } from '../shared/Paymaster';
+
+import { UserOperationV06 } from '../shared/UserOperationV06';
 
 export class PimlicoPaymaster implements Paymaster {
   private client: PimlicoPaymasterClient<typeof ENTRYPOINT_ADDRESS_V06>;
