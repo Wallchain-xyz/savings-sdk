@@ -1,6 +1,6 @@
 {
   "name": "@wallchain/savings-sdk",
-  "version": "0.3.0-rc.1-alpha6",
+  "version": "0.3.0-rc.2",
   "sideEffects": false,
   "type": "module",
   "main": "dist/index.js",
