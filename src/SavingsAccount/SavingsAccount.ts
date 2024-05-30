@@ -91,6 +91,10 @@ export class SavingsAccount {
     });
   }
 
+  async runDepositing(): Promise<void> {
+    await this.savingsBackendClient.runDepositing({ chainId: this.chainId });
+  }
+
   async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<AccountDepositStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? [])

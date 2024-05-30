@@ -6,6 +6,7 @@ import { Paymaster } from '../AAProviders/shared/Paymaster';
 import { WallchainPaymaster } from '../AAProviders/wallchain/WallchainPaymaster';
 import { ZerodevAAProvider } from '../AAProviders/zerodev/ZerodevAAProvider';
 import { createApiClient as createAuthClient } from '../api/auth/__generated__/createApiClient';
+import { createApiClient as createDMSClient } from '../api/dms/__generated__/createApiClient';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
 import { createApiClient as createSKAClient } from '../api/ska/__generated__/createApiClient';
 import { DEFAULT_BACKEND_URL } from '../consts';
@@ -39,7 +40,8 @@ export async function createSavingsAccountFromPrivateKeyAccount({
 }: CreateSavingsAccountFromKernelValidatorParams) {
   const authClient = createAuthClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
   const skaClient = createSKAClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
-  const savingsBackendClient = new SavingsBackendClient({ skaClient, authClient, chainId });
+  const dmsClient = createDMSClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
+  const savingsBackendClient = new SavingsBackendClient({ skaClient, authClient, dmsClient });
 
   const chain = getChainById(chainId);
 

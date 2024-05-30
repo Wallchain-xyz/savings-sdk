@@ -3,15 +3,17 @@ import { Address, Hex } from 'viem';
 import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
+import { createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
 import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
 type AuthClient = ReturnType<typeof createAuthClient>;
+type DMSClient = ReturnType<typeof createDMSClient>;
 
 interface SavingsBackendClientParams {
   skaClient: SKAClient;
   authClient: AuthClient;
-  chainId: ChainId;
+  dmsClient: DMSClient;
 }
 
 interface CreateWalletSKAParams {
@@ -45,14 +47,21 @@ interface GetSponsorshipInfoParams {
   userOperation: UserOperation;
 }
 
+interface RunDepositingParams {
+  chainId: ChainId;
+}
+
 export class SavingsBackendClient {
   private skaClient: SKAClient;
 
   private authClient: AuthClient;
 
-  constructor({ skaClient, authClient }: SavingsBackendClientParams) {
+  private dmsClient: DMSClient;
+
+  constructor({ skaClient, authClient, dmsClient }: SavingsBackendClientParams) {
     this.skaClient = skaClient;
     this.authClient = authClient;
+    this.dmsClient = dmsClient;
   }
 
   async auth({ chainId, signedMessage, message }: AuthParams) {
@@ -155,6 +164,14 @@ export class SavingsBackendClient {
       params: {
         chain_id: chainId,
         aa_address: userOperation.sender,
+      },
+    });
+  }
+
+  async runDepositing({ chainId }: RunDepositingParams) {
+    return this.dmsClient.runDepositing(undefined, {
+      params: {
+        chain_id: chainId,
       },
     });
   }
