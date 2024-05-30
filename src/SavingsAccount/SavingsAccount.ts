@@ -175,7 +175,7 @@ export class SavingsAccount {
 
   // TODO: consider refactoring auth message logic into separate class
   private createAuthMessage(): WallchainAuthMessage {
-    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+    const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 min in milliseconds
     const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds
     return {
       info: 'Confirm Address for Wallchain Auto-Yield',
