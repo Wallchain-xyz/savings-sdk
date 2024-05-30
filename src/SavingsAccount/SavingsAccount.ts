@@ -3,7 +3,12 @@ import { Address, PrivateKeyAccount } from 'viem';
 import { UserOpResult } from '../AAProviders/shared/AAAccount';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
 import { ChainId } from '../api/auth/__generated__/createApiClient';
-import { PauseDepositingParams, SavingsBackendClient, WallchainAuthMessage } from '../api/SavingsBackendClient';
+import {
+  GetUserReturnType,
+  PauseDepositingParams,
+  SavingsBackendClient,
+  WallchainAuthMessage,
+} from '../api/SavingsBackendClient';
 
 import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 
@@ -53,6 +58,21 @@ export class SavingsAccount {
 
   get aaAddress(): Address {
     return this.primaryAAAccount.aaAddress;
+  }
+
+  async getUser(): Promise<Awaited<GetUserReturnType> | undefined> {
+    try {
+      return await this.savingsBackendClient.getUser({ chainId: this.chainId });
+    } catch (e) {
+      // 401 mean that user is not authorized, but request is valid
+      // TODO: remove expect error when typed errors will be added.
+      // @ts-expect-error errors are not typed yet
+      if (e?.response?.status === 401) {
+        return undefined;
+      }
+      // otherwise there is some problem with the request and we throw
+      throw e;
+    }
   }
 
   async auth() {

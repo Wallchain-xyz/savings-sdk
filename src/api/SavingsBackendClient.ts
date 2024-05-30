@@ -51,6 +51,12 @@ interface RunDepositingParams {
   chainId: ChainId;
 }
 
+interface GetUserParams {
+  chainId: ChainId;
+}
+
+export type GetUserReturnType = ReturnType<AuthClient['getUser']>;
+
 export class SavingsBackendClient {
   private skaClient: SKAClient;
 
@@ -172,6 +178,15 @@ export class SavingsBackendClient {
   async runDepositing({ chainId }: RunDepositingParams) {
     return this.dmsClient.runDepositing(undefined, {
       params: {
+        chain_id: chainId,
+      },
+    });
+  }
+
+  async getUser({ chainId }: GetUserParams) {
+    return this.authClient.getUser({
+      params: {
+        user_id: 'me',
         chain_id: chainId,
       },
     });
