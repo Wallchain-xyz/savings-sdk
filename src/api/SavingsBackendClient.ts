@@ -96,6 +96,7 @@ export class SavingsBackendClient {
   private setAuthHeaders(token: string): void {
     this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+    this.dmsClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
   }
 
   async pauseDepositing({ chainId, pauseUntilDatetime }: PauseDepositingParams) {
