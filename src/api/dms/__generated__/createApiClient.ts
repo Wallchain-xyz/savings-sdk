@@ -9,6 +9,26 @@ const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.litera
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;
 
+const UnsupportedChainApiError = z
+  .object({
+    code: z.literal('SHARED__UNSUPPORTED_CHAIN').optional().default('SHARED__UNSUPPORTED_CHAIN'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnsupportedChainApiErrorSchema = UnsupportedChainApiError;
+export type UnsupportedChainApiError = TypeOf<typeof UnsupportedChainApiErrorSchema>;
+
+const UnauthenticatedApiError = z
+  .object({
+    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
+export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
+
 const ValidationError = z
   .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
   .passthrough();
@@ -24,9 +44,7 @@ const HTTPValidationError = z
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
-const APITokenInfo = z
-  .object({ name: z.string(), address: z.string().regex(/^0x[a-fA-F0-9]{40}$/), iconUrl: z.string() })
-  .passthrough();
+const APITokenInfo = z.object({ name: z.string(), address: z.address(), iconUrl: z.string() }).passthrough();
 
 export const APITokenInfoSchema = APITokenInfo;
 export type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
@@ -87,6 +105,16 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
         response: z.unknown(),
         errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: UnsupportedChainApiError,
+          },
+          {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
           {
             status: 422,
             description: `Validation Error`,

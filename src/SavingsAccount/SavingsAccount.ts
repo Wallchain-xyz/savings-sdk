@@ -49,7 +49,6 @@ export class SavingsAccount {
 
   constructor({ aaAccount, privateKeyAccount, savingsBackendClient, strategiesManager, chainId }: ConstructorParams) {
     this.savingsBackendClient = savingsBackendClient;
-    // TODO: accept rpc urls in config, use viem default otherwise
     this.strategiesManager = strategiesManager;
     this.chainId = chainId;
     this.primaryAAAccount = aaAccount;

@@ -57,6 +57,57 @@ const LoginResponse = z.object({ token: z.string(), user: User }).passthrough();
 export const LoginResponseSchema = LoginResponse;
 export type LoginResponse = TypeOf<typeof LoginResponseSchema>;
 
+const UnauthenticatedApiError = z
+  .object({
+    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
+export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
+
+const NotAdminForbiddenApiError = z
+  .object({
+    code: z.literal('SHARED__NOT_ADMIN_FORBIDDEN').optional().default('SHARED__NOT_ADMIN_FORBIDDEN'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const NotAdminForbiddenApiErrorSchema = NotAdminForbiddenApiError;
+export type NotAdminForbiddenApiError = TypeOf<typeof NotAdminForbiddenApiErrorSchema>;
+
+const NotAAOwnerForbiddenApiError = z
+  .object({
+    code: z.literal('SHARED__NOT_AA_OWNER_FORBIDDEN').optional().default('SHARED__NOT_AA_OWNER_FORBIDDEN'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const NotAAOwnerForbiddenApiErrorSchema = NotAAOwnerForbiddenApiError;
+export type NotAAOwnerForbiddenApiError = TypeOf<typeof NotAAOwnerForbiddenApiErrorSchema>;
+
+const SignatureExpiredForbiddenApiError = z
+  .object({
+    code: z.literal('SHARED__SIGNATURE_EXPIRED_FORBIDDEN').optional().default('SHARED__SIGNATURE_EXPIRED_FORBIDDEN'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const SignatureExpiredForbiddenApiErrorSchema = SignatureExpiredForbiddenApiError;
+export type SignatureExpiredForbiddenApiError = TypeOf<typeof SignatureExpiredForbiddenApiErrorSchema>;
+
+const UserNotFoundApiError = z
+  .object({
+    code: z.literal('AUTH__USER_NOT_FOUND').default('AUTH__USER_NOT_FOUND'),
+    detail: z.string().default('User does not exist.'),
+  })
+  .partial()
+  .passthrough();
+
+export const UserNotFoundApiErrorSchema = UserNotFoundApiError;
+export type UserNotFoundApiError = TypeOf<typeof UserNotFoundApiErrorSchema>;
+
 const ValidationError = z
   .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
   .passthrough();
@@ -72,7 +123,18 @@ const HTTPValidationError = z
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
-const user_id = z.union([z.string(), z.unknown()]);
+const UserAlreadyExistsApiError = z
+  .object({
+    code: z.literal('AUTH__USER_ALREADY_EXISTS').default('AUTH__USER_ALREADY_EXISTS'),
+    detail: z.string().default('User does not exist.'),
+  })
+  .partial()
+  .passthrough();
+
+export const UserAlreadyExistsApiErrorSchema = UserAlreadyExistsApiError;
+export type UserAlreadyExistsApiError = TypeOf<typeof UserAlreadyExistsApiErrorSchema>;
+
+const user_id = z.union([z.string(), z.literal('me')]);
 
 export const user_idSchema = user_id;
 export type user_id = TypeOf<typeof user_idSchema>;
@@ -108,13 +170,22 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         errors: [
           {
             status: 401,
-            description: `Invalid signature or other auth data`,
-            schema: z.void(),
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
           },
           {
             status: 404,
-            description: `User doesn&#x27;t exits found`,
-            schema: z.void(),
+            description: `Not Found`,
+            schema: UserNotFoundApiError,
           },
           {
             status: 422,
@@ -145,13 +216,22 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         errors: [
           {
             status: 401,
-            description: `Invalid signature or other auth data`,
-            schema: z.void(),
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
           },
           {
             status: 409,
-            description: `User for provided AA already exists`,
-            schema: z.void(),
+            description: `Conflict`,
+            schema: UserAlreadyExistsApiError,
           },
           {
             status: 422,
@@ -164,14 +244,18 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         method: 'get',
         path: '/yield/auth/:chain_id/users',
         alias: 'listUsers',
-        description: `Get information about user`,
+        description: `Get list of users`,
         requestFormat: 'json',
         response: z.array(User),
         errors: [
           {
             status: 403,
-            description: `Operation forbidden`,
-            schema: z.void(),
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
           },
         ],
       },
@@ -192,13 +276,22 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         errors: [
           {
             status: 401,
-            description: `User token invalid`,
-            schema: z.void(),
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
           },
           {
             status: 403,
-            description: `Reading of given user is forbidden`,
-            schema: z.void(),
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: UserNotFoundApiError,
           },
           {
             status: 422,
@@ -229,8 +322,22 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         errors: [
           {
             status: 401,
-            description: `User token invalid or invalid signature or other auth data`,
-            schema: z.void(),
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: UserNotFoundApiError,
           },
           {
             status: 422,
@@ -256,8 +363,22 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         errors: [
           {
             status: 401,
-            description: `User token invalid or invalid signature or other auth data`,
-            schema: z.void(),
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: z.union([
+              NotAdminForbiddenApiError,
+              NotAAOwnerForbiddenApiError,
+              SignatureExpiredForbiddenApiError,
+            ]),
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: UserNotFoundApiError,
           },
           {
             status: 422,

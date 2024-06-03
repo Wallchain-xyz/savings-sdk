@@ -5,10 +5,11 @@ import { SupportedChainId, getChainById } from '../AAProviders/shared/chains';
 import { Paymaster } from '../AAProviders/shared/Paymaster';
 import { WallchainPaymaster } from '../AAProviders/wallchain/WallchainPaymaster';
 import { ZerodevAAProvider } from '../AAProviders/zerodev/ZerodevAAProvider';
-import { createApiClient as createAuthClient } from '../api/auth/__generated__/createApiClient';
-import { createApiClient as createDMSClient } from '../api/dms/__generated__/createApiClient';
+import { createAuthClient } from '../api/auth/createAuthClient';
+import { createDmsClient } from '../api/dms/createDmsClient';
 import { SavingsBackendClient } from '../api/SavingsBackendClient';
-import { createApiClient as createSKAClient } from '../api/ska/__generated__/createApiClient';
+import { AddApiListenersParams } from '../api/shared/addApiListeners';
+import { createSKAClient } from '../api/ska/createSKAClient';
 import { DEFAULT_BACKEND_URL } from '../consts';
 import { StrategiesManager } from '../depositStrategies/StrategiesManager';
 import { SavingsAccount } from '../SavingsAccount/SavingsAccount';
@@ -26,6 +27,7 @@ interface CreateSavingsAccountFromKernelValidatorParams {
   bundlerUrl?: string;
   paymasterUrl?: string;
   zodiosOptions?: Partial<ZodiosOptions>;
+  apiListeners?: AddApiListenersParams['apiListeners'];
 }
 
 export async function createSavingsAccountFromPrivateKeyAccount({
@@ -37,11 +39,21 @@ export async function createSavingsAccountFromPrivateKeyAccount({
   rpcUrl,
   paymasterUrl,
   zodiosOptions,
+  apiListeners,
 }: CreateSavingsAccountFromKernelValidatorParams) {
-  const authClient = createAuthClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
-  const skaClient = createSKAClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
-  const dmsClient = createDMSClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
-  const savingsBackendClient = new SavingsBackendClient({ skaClient, authClient, dmsClient });
+  const apiClientParams = {
+    baseUrl: savingsBackendUrl ?? DEFAULT_BACKEND_URL,
+    zodiosOptions,
+    apiListeners,
+  };
+  const authClient = createAuthClient(apiClientParams);
+  const skaClient = createSKAClient(apiClientParams);
+  const dmsClient = createDmsClient(apiClientParams);
+  const savingsBackendClient = new SavingsBackendClient({
+    skaClient,
+    authClient,
+    dmsClient,
+  });
 
   const chain = getChainById(chainId);
 

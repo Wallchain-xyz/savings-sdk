@@ -1,0 +1,51 @@
+// eslint-disable-next-line max-classes-per-file
+import { ApiError, SharedError, UnauthenticatedError, ValidationError } from '../shared/errors';
+
+import {
+  ForbiddenApiError,
+  ForbiddenApiErrorSchema,
+  HTTPValidationErrorSchema,
+  SkaAlreadyExistsApiError,
+  SkaAlreadyExistsApiErrorSchema,
+  SkaNotFoundApiError,
+  SkaNotFoundApiErrorSchema,
+  UnauthenticatedApiErrorSchema,
+  UserOpsFailedApiError,
+  UserOpsFailedApiErrorSchema,
+} from './__generated__/createApiClient';
+
+export class ForbiddenError extends ApiError<ForbiddenApiError> {}
+export class SkaNotFoundError extends ApiError<SkaNotFoundApiError> {}
+export class SkaAlreadyExistsError extends ApiError<SkaAlreadyExistsApiError> {}
+export class UserOpsFailedError extends ApiError<UserOpsFailedApiError> {}
+
+type SkaOnlyError = ForbiddenError | SkaNotFoundError | SkaAlreadyExistsError | UserOpsFailedError;
+
+export type SkaError = SharedError | SkaOnlyError;
+
+export const errorSchemaAndClasses = [
+  {
+    schema: HTTPValidationErrorSchema,
+    ErrorClass: ValidationError,
+  },
+  {
+    schema: ForbiddenApiErrorSchema,
+    ErrorClass: ForbiddenError,
+  },
+  {
+    schema: SkaAlreadyExistsApiErrorSchema,
+    ErrorClass: SkaAlreadyExistsError,
+  },
+  {
+    schema: SkaNotFoundApiErrorSchema,
+    ErrorClass: SkaNotFoundError,
+  },
+  {
+    schema: UnauthenticatedApiErrorSchema,
+    ErrorClass: UnauthenticatedError,
+  },
+  {
+    schema: UserOpsFailedApiErrorSchema,
+    ErrorClass: UserOpsFailedError,
+  },
+];

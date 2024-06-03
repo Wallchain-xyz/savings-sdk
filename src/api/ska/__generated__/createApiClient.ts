@@ -31,6 +31,16 @@ const SKA = z
 export const SKASchema = SKA;
 export type SKA = TypeOf<typeof SKASchema>;
 
+const ForbiddenApiError = z
+  .object({
+    code: z.literal('SHARED__FORBIDDEN').optional().default('SHARED__FORBIDDEN'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const ForbiddenApiErrorSchema = ForbiddenApiError;
+export type ForbiddenApiError = TypeOf<typeof ForbiddenApiErrorSchema>;
+
 const CreateSKAData = z
   .object({
     aaAddress: z.address(),
@@ -46,6 +56,26 @@ const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.litera
 
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;
+
+const UnauthenticatedApiError = z
+  .object({
+    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
+export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
+
+const SkaAlreadyExistsApiError = z
+  .object({
+    code: z.literal('SKA__SKA_ALREADY_EXISTS').optional().default('SKA__SKA_ALREADY_EXISTS'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const SkaAlreadyExistsApiErrorSchema = SkaAlreadyExistsApiError;
+export type SkaAlreadyExistsApiError = TypeOf<typeof SkaAlreadyExistsApiErrorSchema>;
 
 const ValidationError = z
   .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
@@ -67,6 +97,16 @@ const aa_address = z.string();
 export const aa_addressSchema = aa_address;
 export type aa_address = TypeOf<typeof aa_addressSchema>;
 
+const SkaNotFoundApiError = z
+  .object({
+    code: z.literal('SKA__SKA_NOT_FOUND').optional().default('SKA__SKA_NOT_FOUND'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const SkaNotFoundApiErrorSchema = SkaNotFoundApiError;
+export type SkaNotFoundApiError = TypeOf<typeof SkaNotFoundApiErrorSchema>;
+
 const MinimumExecutableTxn = z
   .object({
     to: z.address(),
@@ -82,6 +122,17 @@ const executeUserOperation_Body = z.array(MinimumExecutableTxn);
 
 export const executeUserOperation_BodySchema = executeUserOperation_Body;
 export type executeUserOperation_Body = TypeOf<typeof executeUserOperation_BodySchema>;
+
+const UserOpsFailedApiError = z
+  .object({
+    code: z.literal('SKA__USER_OPS_FAILED').optional().default('SKA__USER_OPS_FAILED'),
+    detail: z.union([z.string(), z.null()]),
+    txnHash: z.string(),
+  })
+  .passthrough();
+
+export const UserOpsFailedApiErrorSchema = UserOpsFailedApiError;
+export type UserOpsFailedApiError = TypeOf<typeof UserOpsFailedApiErrorSchema>;
 
 const UserOperation = z
   .object({
@@ -131,6 +182,13 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         description: `Returns all session key accounts`,
         requestFormat: 'json',
         response: z.array(SKA),
+        errors: [
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+        ],
       },
       {
         method: 'post',
@@ -152,6 +210,21 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
         response: SKA,
         errors: [
+          {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 409,
+            description: `Conflict`,
+            schema: SkaAlreadyExistsApiError,
+          },
           {
             status: 422,
             description: `Validation Error`,
@@ -180,6 +253,21 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         response: SKA,
         errors: [
           {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: SkaNotFoundApiError,
+          },
+          {
             status: 422,
             description: `Validation Error`,
             schema: HTTPValidationError,
@@ -206,6 +294,21 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
         response: z.unknown(),
         errors: [
+          {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: SkaNotFoundApiError,
+          },
           {
             status: 422,
             description: `Validation Error`,
@@ -265,6 +368,26 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         ],
         response: z.string(),
         errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: UserOpsFailedApiError,
+          },
+          {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 404,
+            description: `Not Found`,
+            schema: SkaNotFoundApiError,
+          },
           {
             status: 422,
             description: `Validation Error`,

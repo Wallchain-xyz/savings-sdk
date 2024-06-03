@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fs = require('fs');
-
+import fs from 'fs';
 // Get the file path from the command line arguments
 const inputFile = process.argv[2];
 

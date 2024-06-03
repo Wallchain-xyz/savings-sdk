@@ -1,10 +1,10 @@
 import { Address, Hex } from 'viem';
 
 import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
-import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
-import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
+import { UserNotFoundError } from './auth/errors';
 import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
 import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
+import { SkaNotFoundError } from './ska/errors';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
 type AuthClient = ReturnType<typeof createAuthClient>;
@@ -91,14 +91,11 @@ export class SavingsBackendClient {
     try {
       authResponse = await this.authClient.login(authData, authParams);
     } catch (error) {
-      if (getIsUserNotRegisteredError({ error })) {
-        authResponse = await this.authClient.register(authData, authParams);
-      } else {
-        if (getIsNonAAAddressError({ error })) {
-          throw new NonAAAddressError();
-        }
+      if (!(error instanceof UserNotFoundError)) {
         throw error;
       }
+
+      authResponse = await this.authClient.register(authData, authParams);
     }
     this.setAuthHeaders(authResponse.token);
 
@@ -135,8 +132,10 @@ export class SavingsBackendClient {
         },
       });
     } catch (error) {
-      // TODO: @merlin check that error is not found
-      return undefined;
+      if (error instanceof SkaNotFoundError) {
+        return undefined;
+      }
+      throw error;
     }
   }
 
