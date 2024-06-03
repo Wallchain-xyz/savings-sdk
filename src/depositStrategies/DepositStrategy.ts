@@ -31,12 +31,27 @@ export enum DepositStrategyType {
 
 export interface DepositStrategyConfig {
   id: DepositStrategyId;
+  name: string;
   type: DepositStrategyType;
   permissions: Permission[];
-
   chainId: ChainId;
   tokenAddress: Address;
+  tokenName: string;
+  tokenImageURL: string;
+  protocolName: string;
+  protocolImageURL: string;
   bondTokenAddress: Address;
+}
+
+interface TokenInfo {
+  name: string;
+  address: Address;
+  imageUrl: string;
+}
+
+interface ProtocolInfo {
+  name: string;
+  imageUrl: string;
 }
 
 export abstract class DepositStrategy {
@@ -44,6 +59,10 @@ export abstract class DepositStrategy {
 
   get id(): string {
     return this.config.id;
+  }
+
+  get name(): string {
+    return this.config.name;
   }
 
   get chainId(): ChainId {
@@ -56,6 +75,21 @@ export abstract class DepositStrategy {
 
   get bondTokenAddress(): Address {
     return this.config.bondTokenAddress;
+  }
+
+  get tokenInfo(): TokenInfo {
+    return {
+      name: this.config.tokenName,
+      address: this.config.tokenAddress,
+      imageUrl: this.config.tokenImageURL,
+    };
+  }
+
+  get protocolInfo(): ProtocolInfo {
+    return {
+      name: this.config.protocolName,
+      imageUrl: this.config.protocolImageURL,
+    };
   }
 
   get isNative(): boolean {

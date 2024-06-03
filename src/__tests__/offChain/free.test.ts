@@ -7,6 +7,7 @@ import { base } from 'viem/chains';
 
 import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
+import { createStrategiesManager } from '../../factories/createStrategiesManager';
 
 describe('E2E SDK test without onchain transactions', () => {
   const makeForAccount = (account: PrivateKeyAccount) =>
@@ -53,4 +54,13 @@ describe('E2E SDK test without onchain transactions', () => {
     const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.id);
     expect(currentStrategiesIds).toStrictEqual(activeStrategies.map(it => it.strategyId));
   }, 120_000);
+
+  it('should be able to get strategy detailed info', async () => {
+    const manager = await createStrategiesManager({
+      chainId: base.id, // TODO: maybe make it changeable
+      savingsBackendUrl: 'https://dev.api.wallchains.com',
+    });
+    const detailedStrategies = await manager.getStrategiesDetails();
+    expect(detailedStrategies[0].apy.current).toBeGreaterThan(0);
+  }, 10_000);
 });

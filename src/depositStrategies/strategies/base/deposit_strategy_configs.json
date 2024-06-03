@@ -3,8 +3,14 @@
     "id": "018ecbc3-597e-739c-bfac-80d534743e3e",
     "type": "beefyAA",
     "chainId": 8453,
+    "name": "Beefy ETH",
     "tokenAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "tokenName": "ETH",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/1027.png",
+    "protocolName": "Beefy",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
+    "beefy_vault_id": "compound-base-eth",
     "permissions": [
       {
         "target": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
@@ -46,8 +52,14 @@
     "id": "018f04e0-73d5-77be-baec-c76bac26b4f3",
     "type": "beefyAA",
     "chainId": 8453,
+    "name": "Beefy USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Beefy",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
+    "beefy_vault_id": "compound-base-usdc",
     "permissions": [
       {
         "target": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
@@ -129,8 +141,14 @@
     "id": "018f94ed-f3b8-7dd5-8615-5b07650f5772",
     "type": "beefyEOA",
     "chainId": 8453,
+    "name": "Beefy USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Beefy",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
+    "beefy_vault_id": "compound-base-usdc",
     "permissions": [
       {
         "target": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",

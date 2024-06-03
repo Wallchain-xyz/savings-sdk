@@ -45,12 +45,16 @@ export async function createSavingsAccountFromPrivateKeyAccount({
 
   const chain = getChainById(chainId);
 
-  const strategiesManager = new StrategiesManager(
-    createPublicClient({
-      transport: http(rpcUrl ?? chain.rpcUrls.default.http[0]),
-      chain,
-    }),
-  );
+  const publicClient = createPublicClient({
+    transport: http(rpcUrl ?? chain.rpcUrls.default.http[0]),
+    chain,
+  });
+
+  const strategiesManager = new StrategiesManager({
+    chainId,
+    publicClient,
+    savingsBackendClient,
+  });
 
   const paymaster: Paymaster = paymasterUrl
     ? new PimlicoPaymaster(paymasterUrl)

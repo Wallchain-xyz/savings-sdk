@@ -3,7 +3,7 @@ import { Address, Hex } from 'viem';
 import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { NonAAAddressError, getIsNonAAAddressError } from './auth/errors/NonAAAddressError';
 import { getIsUserNotRegisteredError } from './auth/errors/UserNotRegisteredError';
-import { createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
+import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
 import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
@@ -24,6 +24,8 @@ interface CreateWalletSKAParams {
 }
 
 export type SavingsAccountUserId = string;
+
+export type DepositStrategyDetailedInfo = APIStrategyDetailedInfo;
 
 export interface PauseDepositingParams {
   chainId: ChainId;
@@ -52,6 +54,10 @@ interface RunDepositingParams {
 }
 
 interface GetUserParams {
+  chainId: ChainId;
+}
+
+interface GetDepositStrategyDetailedInfo {
   chainId: ChainId;
 }
 
@@ -187,6 +193,16 @@ export class SavingsBackendClient {
     return this.authClient.getUser({
       params: {
         user_id: 'me',
+        chain_id: chainId,
+      },
+    });
+  }
+
+  async getDepositStrategyDetailedInfo({
+    chainId,
+  }: GetDepositStrategyDetailedInfo): Promise<DepositStrategyDetailedInfo[]> {
+    return this.dmsClient.getStrategiesDetails({
+      params: {
         chain_id: chainId,
       },
     });

@@ -24,10 +24,54 @@ const HTTPValidationError = z
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
 
+const APITokenInfo = z
+  .object({ name: z.string(), address: z.string().regex(/^0x[a-fA-F0-9]{40}$/), iconUrl: z.string() })
+  .passthrough();
+
+export const APITokenInfoSchema = APITokenInfo;
+export type APITokenInfo = TypeOf<typeof APITokenInfoSchema>;
+
+const APIProtocolInfo = z.object({ name: z.string(), iconUrl: z.string() }).passthrough();
+
+export const APIProtocolInfoSchema = APIProtocolInfo;
+export type APIProtocolInfo = TypeOf<typeof APIProtocolInfoSchema>;
+
+const APIApyInfo = z.object({ current: z.number(), week: z.number(), month: z.number() }).passthrough();
+
+export const APIApyInfoSchema = APIApyInfo;
+export type APIApyInfo = TypeOf<typeof APIApyInfoSchema>;
+
+const SafetyRating = z.enum(['safe', 'risky']);
+
+export const SafetyRatingSchema = SafetyRating;
+export type SafetyRating = TypeOf<typeof SafetyRatingSchema>;
+
+const APIStrategyDetailedInfo = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    tokenInfo: APITokenInfo,
+    protocolInfo: APIProtocolInfo,
+    apy: APIApyInfo,
+    tvl: z.number(),
+    safetyRating: SafetyRating,
+  })
+  .passthrough();
+
+export const APIStrategyDetailedInfoSchema = APIStrategyDetailedInfo;
+export type APIStrategyDetailedInfo = TypeOf<typeof APIStrategyDetailedInfoSchema>;
+
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
     baseUrl,
     [
+      {
+        method: 'get',
+        path: '/yield/deposits/:chain_id/deposit_strategy_infos',
+        alias: 'getStrategiesDetails',
+        requestFormat: 'json',
+        response: z.array(APIStrategyDetailedInfo),
+      },
       {
         method: 'post',
         path: '/yield/deposits/:chain_id/run_depositing',

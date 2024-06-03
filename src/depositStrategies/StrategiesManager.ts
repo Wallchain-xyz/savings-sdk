@@ -2,6 +2,8 @@ import { Address, Chain, PublicClient, Transport, isAddressEqual } from 'viem';
 
 import { base } from 'viem/chains';
 
+import { ChainId } from '../api/auth/__generated__/createApiClient';
+import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
 import { AccountDepositStrategy } from './AccountDepositStrategy';
@@ -31,15 +33,26 @@ export interface StrategiesFilter {
   isEOA?: boolean; // TODO: this field should be probably renamed to `supportsExternalAddress`;
 }
 
+interface ConstructorParams {
+  publicClient: PublicClient<Transport, Chain>;
+  savingsBackendClient: SavingsBackendClient;
+  chainId: ChainId;
+}
+
 export class StrategiesManager {
   private publicClient: PublicClient<Transport, Chain>;
 
+  private savingsBackendClient: SavingsBackendClient;
+
+  private chainId: ChainId;
+
   private strategiesById: { [key: string]: DepositStrategy };
 
-  constructor(publicClient: PublicClient<Transport, Chain>) {
+  constructor({ publicClient, savingsBackendClient, chainId }: ConstructorParams) {
     this.publicClient = publicClient;
+    this.savingsBackendClient = savingsBackendClient;
+    this.chainId = chainId;
 
-    const chainId = publicClient.chain.id;
     if (chainId in strategiesDataByChainId) {
       const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
 
@@ -91,6 +104,12 @@ export class StrategiesManager {
 
   findAllStrategies(filter?: StrategiesFilter): DepositStrategy[] {
     return this.getStrategies().filter(strategy => StrategiesManager.checkFilter(strategy, filter));
+  }
+
+  async getStrategiesDetails(): Promise<DepositStrategyDetailedInfo[]> {
+    return this.savingsBackendClient.getDepositStrategyDetailedInfo({
+      chainId: this.chainId,
+    });
   }
 
   static checkFilter(strategy: DepositStrategy | AccountDepositStrategy, filter?: StrategiesFilter): boolean {

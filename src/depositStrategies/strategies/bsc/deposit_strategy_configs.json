@@ -3,8 +3,14 @@
     "id": "018ecbc7-e428-7497-a94c-ca4e9d33f06f",
     "type": "beefyAA",
     "chainId": 56,
+    "name": "Beefy BNB",
     "tokenAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "tokenName": "BNB",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/1839.png",
+    "protocolName": "Beefy",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0x6BE4741AB0aD233e4315a10bc783a7B923386b71",
+    "beefy_vault_id": "venus-bnb",
     "permissions": [
       {
         "target": "0x6BE4741AB0aD233e4315a10bc783a7B923386b71",
