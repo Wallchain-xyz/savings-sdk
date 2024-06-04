@@ -10,7 +10,7 @@ import { StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 import type { ZodiosOptions } from '@zodios/core';
 
-interface CreateSavingsAccountFromKernelValidatorParams {
+interface CreateStrategiesManagerParams {
   chainId: SupportedChainId;
   savingsBackendUrl?: string;
   rpcUrl?: string;
@@ -22,7 +22,7 @@ export async function createStrategiesManager({
   savingsBackendUrl,
   rpcUrl,
   zodiosOptions,
-}: CreateSavingsAccountFromKernelValidatorParams) {
+}: CreateStrategiesManagerParams) {
   const authClient = createAuthClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
   const skaClient = createSKAClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
   const dmsClient = createDMSClient(savingsBackendUrl ?? DEFAULT_BACKEND_URL, zodiosOptions);
