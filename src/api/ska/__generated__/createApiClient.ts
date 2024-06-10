@@ -43,7 +43,7 @@ export type ForbiddenApiError = TypeOf<typeof ForbiddenApiErrorSchema>;
 
 const CreateSKAData = z
   .object({
-    aaAddress: z.address(),
+    aaAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
     serializedSka: z.string(),
     activeStrategies: z.array(ActiveStrategy),
   })
@@ -52,7 +52,7 @@ const CreateSKAData = z
 export const CreateSKADataSchema = CreateSKAData;
 export type CreateSKAData = TypeOf<typeof CreateSKADataSchema>;
 
-const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
+const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(84532), z.literal(42161)]);
 
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;

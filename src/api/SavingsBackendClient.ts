@@ -1,9 +1,14 @@
 import { Address, Hex } from 'viem';
 
-import { chain_id as ChainId, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
+import { createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
 import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
-import { ActiveStrategy, UserOperation, createApiClient as createSKAClient } from './ska/__generated__/createApiClient';
+import {
+  ActiveStrategy,
+  chain_id as ChainId,
+  UserOperation,
+  createApiClient as createSKAClient,
+} from './ska/__generated__/createApiClient';
 import { SkaNotFoundError } from './ska/errors';
 
 type SKAClient = ReturnType<typeof createSKAClient>;
@@ -28,18 +33,15 @@ export type SavingsAccountUserId = string;
 export type DepositStrategyDetailedInfo = APIStrategyDetailedInfo;
 
 export interface PauseDepositingParams {
-  chainId: ChainId;
   pauseUntilDatetime?: Date | string;
 }
 
 export interface WallchainAuthMessage {
   info: string;
-  aa_address: Address;
   expires: number;
 }
 
 interface AuthParams {
-  chainId: ChainId;
   signedMessage: Hex;
   message: WallchainAuthMessage;
 }
@@ -50,10 +52,6 @@ interface GetSponsorshipInfoParams {
 }
 
 interface RunDepositingParams {
-  chainId: ChainId;
-}
-
-interface GetUserParams {
   chainId: ChainId;
 }
 
@@ -76,26 +74,21 @@ export class SavingsBackendClient {
     this.dmsClient = dmsClient;
   }
 
-  async auth({ chainId, signedMessage, message }: AuthParams) {
+  async auth({ signedMessage, message }: AuthParams) {
     const authData = {
       ...message,
       signature: signedMessage,
     };
-    const authParams = {
-      params: {
-        chain_id: chainId,
-      },
-    };
 
     let authResponse;
     try {
-      authResponse = await this.authClient.login(authData, authParams);
+      authResponse = await this.authClient.login(authData);
     } catch (error) {
       if (!(error instanceof UserNotFoundError)) {
         throw error;
       }
 
-      authResponse = await this.authClient.register(authData, authParams);
+      authResponse = await this.authClient.register(authData);
     }
     this.setAuthHeaders(authResponse.token);
 
@@ -108,7 +101,7 @@ export class SavingsBackendClient {
     this.dmsClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
   }
 
-  async pauseDepositing({ chainId, pauseUntilDatetime }: PauseDepositingParams) {
+  async pauseDepositing({ pauseUntilDatetime }: PauseDepositingParams) {
     return this.authClient.pauseDepositing(
       {
         pause_until: pauseUntilDatetime ? new Date(pauseUntilDatetime).toISOString() : null,
@@ -116,7 +109,6 @@ export class SavingsBackendClient {
       {
         params: {
           user_id: 'me',
-          chain_id: chainId,
         },
       },
     );
@@ -188,11 +180,10 @@ export class SavingsBackendClient {
     });
   }
 
-  async getUser({ chainId }: GetUserParams) {
+  async getUser() {
     return this.authClient.getUser({
       params: {
         user_id: 'me',
-        chain_id: chainId,
       },
     });
   }

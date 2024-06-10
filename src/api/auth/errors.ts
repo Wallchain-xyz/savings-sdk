@@ -3,8 +3,6 @@ import { ApiError, SharedError, UnauthenticatedError, ValidationError } from '..
 
 import {
   HTTPValidationErrorSchema,
-  NotAAOwnerForbiddenApiError,
-  NotAAOwnerForbiddenApiErrorSchema,
   NotAdminForbiddenApiError,
   NotAdminForbiddenApiErrorSchema,
   SignatureExpiredForbiddenApiError,
@@ -19,14 +17,12 @@ import {
 export class UserAlreadyExistsError extends ApiError<UserAlreadyExistsApiError> {}
 export class UserNotFoundError extends ApiError<UserNotFoundApiError> {}
 export class SignatureExpiredForbiddenError extends ApiError<SignatureExpiredForbiddenApiError> {}
-export class NotAAOwnerForbiddenError extends ApiError<NotAAOwnerForbiddenApiError> {}
 export class NotAdminForbiddenError extends ApiError<NotAdminForbiddenApiError> {}
 
 type AuthOnlyError =
   | UserAlreadyExistsError
   | UserNotFoundError
   | SignatureExpiredForbiddenError
-  | NotAAOwnerForbiddenError
   | NotAdminForbiddenError;
 
 // eslint-disable-next-line import/no-unused-modules
@@ -53,10 +49,6 @@ export const errorSchemaAndClasses = [
   {
     schema: SignatureExpiredForbiddenApiErrorSchema,
     ErrorClass: SignatureExpiredForbiddenError,
-  },
-  {
-    schema: NotAAOwnerForbiddenApiErrorSchema,
-    ErrorClass: NotAAOwnerForbiddenError,
   },
   {
     schema: NotAdminForbiddenApiErrorSchema,

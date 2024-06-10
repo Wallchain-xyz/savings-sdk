@@ -1,8 +1,8 @@
 import { Address, Chain, PublicClient, Transport, isAddressEqual } from 'viem';
 
-import { base } from 'viem/chains';
+import { base, baseSepolia } from 'viem/chains';
 
-import { ChainId } from '../api/auth/__generated__/createApiClient';
+import { SupportedChainId } from '../AAProviders/shared/chains';
 import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
@@ -11,7 +11,7 @@ import { BeefyEOAStrategy } from './beefy/BeefyEOAStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
 import { DepositStrategy, DepositStrategyConfig } from './DepositStrategy';
-import { baseStrategyConfigs } from './strategies';
+import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
 
 const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
   ({
@@ -24,6 +24,7 @@ const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) 
 
 const strategiesDataByChainId = {
   [base.id]: baseStrategyConfigs.map(fixBigIntMissingInJSON),
+  [baseSepolia.id]: baseSepoliaStrategyConfigs.map(fixBigIntMissingInJSON),
 };
 
 export interface StrategiesFilter {
@@ -36,7 +37,7 @@ export interface StrategiesFilter {
 interface ConstructorParams {
   publicClient: PublicClient<Transport, Chain>;
   savingsBackendClient: SavingsBackendClient;
-  chainId: ChainId;
+  chainId: SupportedChainId;
 }
 
 export class StrategiesManager {
@@ -44,7 +45,7 @@ export class StrategiesManager {
 
   private savingsBackendClient: SavingsBackendClient;
 
-  private chainId: ChainId;
+  private chainId: SupportedChainId;
 
   private strategiesById: { [key: string]: DepositStrategy };
 

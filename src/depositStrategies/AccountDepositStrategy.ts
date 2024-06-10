@@ -1,6 +1,6 @@
 import { Address, GetContractReturnType, PublicClient, erc20Abi, getContract } from 'viem';
 
-import { ChainId } from '../api/auth/__generated__/createApiClient';
+import { SupportedChainId } from '../AAProviders/shared/chains';
 
 import { DepositStrategy } from './DepositStrategy';
 
@@ -44,7 +44,7 @@ export class AccountDepositStrategy {
     return this.strategy.id;
   }
 
-  get chainId(): ChainId {
+  get chainId(): SupportedChainId {
     return this.strategy.chainId;
   }
 

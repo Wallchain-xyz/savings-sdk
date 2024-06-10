@@ -1,8 +1,8 @@
 import { Address, isAddressEqual } from 'viem';
 
+import { SupportedChainId } from '../AAProviders/shared/chains';
 import { Permission } from '../AAProviders/shared/Permission';
 import { Txn } from '../AAProviders/shared/Txn';
-import { ChainId } from '../api/auth/__generated__/createApiClient';
 
 import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
@@ -34,7 +34,7 @@ export interface DepositStrategyConfig {
   name: string;
   type: DepositStrategyType;
   permissions: Permission[];
-  chainId: ChainId;
+  chainId: SupportedChainId;
   tokenAddress: Address;
   tokenName: string;
   tokenImageURL: string;
@@ -65,7 +65,7 @@ export abstract class DepositStrategy {
     return this.config.name;
   }
 
-  get chainId(): ChainId {
+  get chainId(): SupportedChainId {
     return this.config.chainId;
   }
 

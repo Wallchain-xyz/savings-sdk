@@ -11,7 +11,6 @@ export { walletClientToSmartAccountSigner } from 'permissionless';
 
 export { UnknownAPIError, UnauthenticatedError, ValidationError } from './api/shared/errors';
 export {
-  NotAAOwnerForbiddenError,
   NotAdminForbiddenError,
   SignatureExpiredForbiddenError,
   UserAlreadyExistsError,

@@ -1,8 +1,8 @@
 import { Address, PrivateKeyAccount } from 'viem';
 
 import { UserOpResult } from '../AAProviders/shared/AAAccount';
+import { SupportedChainId } from '../AAProviders/shared/chains';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
-import { ChainId } from '../api/auth/__generated__/createApiClient';
 import {
   GetUserReturnType,
   PauseDepositingParams,
@@ -21,7 +21,7 @@ interface ConstructorParams {
   privateKeyAccount: PrivateKeyAccount;
   savingsBackendClient: SavingsBackendClient;
   strategiesManager: StrategiesManager;
-  chainId: ChainId;
+  chainId: SupportedChainId;
 }
 
 interface WithdrawOrDepositParams {
@@ -41,7 +41,7 @@ export class SavingsAccount {
 
   private privateKeyAccount: PrivateKeyAccount;
 
-  chainId: ChainId;
+  chainId: SupportedChainId;
 
   primaryAAAccount: PrimaryAAAccount;
 
@@ -61,7 +61,7 @@ export class SavingsAccount {
 
   async getUser(): Promise<Awaited<GetUserReturnType> | undefined> {
     try {
-      return await this.savingsBackendClient.getUser({ chainId: this.chainId });
+      return await this.savingsBackendClient.getUser();
     } catch (e) {
       // 401 mean that user is not authorized, but request is valid
       // TODO: remove expect error when typed errors will be added.
@@ -80,7 +80,6 @@ export class SavingsAccount {
     return this.savingsBackendClient.auth({
       signedMessage,
       message: authMessage,
-      chainId: this.chainId,
     });
   }
 
@@ -157,7 +156,6 @@ export class SavingsAccount {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     if (pauseUntilDatetime) {
       await this.savingsBackendClient.pauseDepositing({
-        chainId: strategy.chainId,
         pauseUntilDatetime,
       });
     }
@@ -178,7 +176,6 @@ export class SavingsAccount {
     const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds
     return {
       info: 'Confirm Address for Wallchain Auto-Yield',
-      aa_address: this.aaAddress,
       expires: expiresInt,
     };
   }
@@ -191,7 +188,6 @@ export class SavingsAccount {
       types: {
         WallchainAuthMessage: [
           { name: 'info', type: 'string' },
-          { name: 'aa_address', type: 'address' },
           { name: 'expires', type: 'uint256' },
         ],
       },

@@ -5,47 +5,18 @@ import { Zodios, type ZodiosOptions } from '@zodios/core';
 import { TypeOf, zod as z } from '../../zod';
 
 const LoginData = z
-  .object({
-    info: z.string(),
-    aa_address: z.address(),
-    expires: z.number().int(),
-    signature: z.positiveHexString(),
-  })
+  .object({ info: z.string(), expires: z.number().int(), signature: z.positiveHexString() })
   .passthrough();
 
 export const LoginDataSchema = LoginData;
 export type LoginData = TypeOf<typeof LoginDataSchema>;
 
-const ChainId = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
-
-export const ChainIdSchema = ChainId;
-export type ChainId = TypeOf<typeof ChainIdSchema>;
-
-const chain_id = ChainId;
-
-export const chain_idSchema = chain_id;
-export type chain_id = TypeOf<typeof chain_idSchema>;
-
-const AAOwnership = z
-  .object({
-    signer_address: z.address(),
-    aa_address: z.address(),
-    chain_id: ChainId,
-  })
-  .passthrough();
-
-export const AAOwnershipSchema = AAOwnership;
-export type AAOwnership = TypeOf<typeof AAOwnershipSchema>;
-
 const User = z
   .object({
     id: z.string(),
     created_at: z.string().datetime({ offset: true }).optional(),
-    ownerships: z.array(AAOwnership),
-    paused_until: z.union([z.string(), z.null()]),
     signer_address: z.address(),
-    aa_address: z.address(),
-    chain_id: ChainId,
+    paused_until: z.union([z.string(), z.null()]),
   })
   .passthrough();
 
@@ -76,16 +47,6 @@ const NotAdminForbiddenApiError = z
 
 export const NotAdminForbiddenApiErrorSchema = NotAdminForbiddenApiError;
 export type NotAdminForbiddenApiError = TypeOf<typeof NotAdminForbiddenApiErrorSchema>;
-
-const NotAAOwnerForbiddenApiError = z
-  .object({
-    code: z.literal('SHARED__NOT_AA_OWNER_FORBIDDEN').optional().default('SHARED__NOT_AA_OWNER_FORBIDDEN'),
-    detail: z.union([z.string(), z.null()]),
-  })
-  .passthrough();
-
-export const NotAAOwnerForbiddenApiErrorSchema = NotAAOwnerForbiddenApiError;
-export type NotAAOwnerForbiddenApiError = TypeOf<typeof NotAAOwnerForbiddenApiErrorSchema>;
 
 const SignatureExpiredForbiddenApiError = z
   .object({
@@ -150,7 +111,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
     [
       {
         method: 'post',
-        path: '/yield/auth/:chain_id/login',
+        path: '/yield/auth/login',
         alias: 'login',
         description: `Retrieve auth token for existing user.`,
         requestFormat: 'json',
@@ -159,11 +120,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             name: 'body',
             type: 'Body',
             schema: LoginData,
-          },
-          {
-            name: 'chain_id',
-            type: 'Path',
-            schema: chain_id,
           },
         ],
         response: LoginResponse,
@@ -176,11 +132,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 403,
             description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
+            schema: z.union([NotAdminForbiddenApiError, SignatureExpiredForbiddenApiError]),
           },
           {
             status: 404,
@@ -196,7 +148,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'post',
-        path: '/yield/auth/:chain_id/register',
+        path: '/yield/auth/register',
         alias: 'register',
         description: `Create new user`,
         requestFormat: 'json',
@@ -205,11 +157,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             name: 'body',
             type: 'Body',
             schema: LoginData,
-          },
-          {
-            name: 'chain_id',
-            type: 'Path',
-            schema: chain_id,
           },
         ],
         response: LoginResponse,
@@ -222,11 +169,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 403,
             description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
+            schema: z.union([NotAdminForbiddenApiError, SignatureExpiredForbiddenApiError]),
           },
           {
             status: 409,
@@ -242,7 +185,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'get',
-        path: '/yield/auth/:chain_id/users',
+        path: '/yield/auth/users',
         alias: 'listUsers',
         description: `Get list of users`,
         requestFormat: 'json',
@@ -251,17 +194,13 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 403,
             description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
+            schema: z.union([NotAdminForbiddenApiError, SignatureExpiredForbiddenApiError]),
           },
         ],
       },
       {
         method: 'get',
-        path: '/yield/auth/:chain_id/users/:user_id',
+        path: '/yield/auth/users/:user_id',
         alias: 'getUser',
         description: `Get information about user`,
         requestFormat: 'json',
@@ -282,11 +221,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 403,
             description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
+            schema: z.union([NotAdminForbiddenApiError, SignatureExpiredForbiddenApiError]),
           },
           {
             status: 404,
@@ -302,53 +237,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
       },
       {
         method: 'post',
-        path: '/yield/auth/:chain_id/users/:user_id/add_ownership',
-        alias: 'addOwnership',
-        description: `Add additional Account Abstraction wallet to user`,
-        requestFormat: 'json',
-        parameters: [
-          {
-            name: 'body',
-            type: 'Body',
-            schema: LoginData,
-          },
-          {
-            name: 'chain_id',
-            type: 'Path',
-            schema: chain_id,
-          },
-        ],
-        response: z.unknown(),
-        errors: [
-          {
-            status: 401,
-            description: `Unauthorized`,
-            schema: UnauthenticatedApiError,
-          },
-          {
-            status: 403,
-            description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
-          },
-          {
-            status: 404,
-            description: `Not Found`,
-            schema: UserNotFoundApiError,
-          },
-          {
-            status: 422,
-            description: `Validation Error`,
-            schema: HTTPValidationError,
-          },
-        ],
-      },
-      {
-        method: 'post',
-        path: '/yield/auth/:chain_id/users/:user_id/pause',
+        path: '/yield/auth/users/:user_id/pause',
         alias: 'pauseDepositing',
         description: `Pause auto-depositing for given user`,
         requestFormat: 'json',
@@ -369,11 +258,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 403,
             description: `Forbidden`,
-            schema: z.union([
-              NotAdminForbiddenApiError,
-              NotAAOwnerForbiddenApiError,
-              SignatureExpiredForbiddenApiError,
-            ]),
+            schema: z.union([NotAdminForbiddenApiError, SignatureExpiredForbiddenApiError]),
           },
           {
             status: 404,

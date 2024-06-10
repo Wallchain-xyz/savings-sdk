@@ -1,14 +1,15 @@
 import { Chain } from 'viem';
-import { arbitrum, base, bsc, mainnet } from 'viem/chains';
+import { arbitrum, base, baseSepolia, bsc, mainnet } from 'viem/chains';
 
 const supportedChainsById: { [key: number]: Chain } = {
   [mainnet.id]: mainnet,
   [base.id]: base,
   [bsc.id]: bsc,
   [arbitrum.id]: arbitrum,
+  [baseSepolia.id]: baseSepolia,
 };
 
-export type SupportedChain = typeof base | typeof bsc | typeof arbitrum | typeof mainnet;
+export type SupportedChain = typeof base | typeof bsc | typeof arbitrum | typeof mainnet | typeof baseSepolia;
 
 export type SupportedChainId = SupportedChain['id'];
 

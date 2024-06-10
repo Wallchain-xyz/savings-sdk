@@ -4,7 +4,7 @@ import { Zodios, type ZodiosOptions } from '@zodios/core';
 
 import { TypeOf, zod as z } from '../../zod';
 
-const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(42161)]);
+const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(84532), z.literal(42161)]);
 
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;
@@ -19,15 +19,15 @@ const UnsupportedChainApiError = z
 export const UnsupportedChainApiErrorSchema = UnsupportedChainApiError;
 export type UnsupportedChainApiError = TypeOf<typeof UnsupportedChainApiErrorSchema>;
 
-const UnauthenticatedApiError = z
+const ForbiddenApiError = z
   .object({
-    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    code: z.literal('SHARED__FORBIDDEN').optional().default('SHARED__FORBIDDEN'),
     detail: z.union([z.string(), z.null()]),
   })
   .passthrough();
 
-export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
-export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
+export const ForbiddenApiErrorSchema = ForbiddenApiError;
+export type ForbiddenApiError = TypeOf<typeof ForbiddenApiErrorSchema>;
 
 const ValidationError = z
   .object({ loc: z.array(z.union([z.string(), z.number()])), msg: z.string(), type: z.string() })
@@ -43,6 +43,16 @@ const HTTPValidationError = z
 
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
+
+const UnauthenticatedApiError = z
+  .object({
+    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
+export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
 
 const APITokenInfo = z.object({ name: z.string(), address: z.address(), iconUrl: z.string() }).passthrough();
 
@@ -84,11 +94,58 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
     baseUrl,
     [
       {
+        method: 'post',
+        path: '/yield/deposits/:chain_id/auto_deposit_poller',
+        alias: 'auto_deposit_poller_yield_deposits__chain_id__auto_deposit_poller_post',
+        description: `Do deposit where needed for all users`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chain_id',
+            type: 'Path',
+            schema: chain_id,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: UnsupportedChainApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
         method: 'get',
         path: '/yield/deposits/:chain_id/deposit_strategy_infos',
         alias: 'getStrategiesDetails',
         requestFormat: 'json',
         response: z.array(APIStrategyDetailedInfo),
+      },
+      {
+        method: 'post',
+        path: '/yield/deposits/:chain_id/detailed_info_poller',
+        alias: 'detailed_info_poller_yield_deposits__chain_id__detailed_info_poller_post',
+        description: `Update detailed infos for all strategies`,
+        requestFormat: 'json',
+        response: z.unknown(),
+        errors: [
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+        ],
       },
       {
         method: 'post',
