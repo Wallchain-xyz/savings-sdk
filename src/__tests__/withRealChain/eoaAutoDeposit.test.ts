@@ -10,7 +10,7 @@ import { ChainHelper } from '../utils/ChainHelper';
 import { USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
-import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
+import { waitForSeconds } from '../utils/waitForSeconds';
 
 const chain = base; // TODO: maybe make it changeable
 // jest.mock('../../AAManager/transports/createRPCTransport');
@@ -22,6 +22,7 @@ const chain = base; // TODO: maybe make it changeable
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
 const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL as string;
+
 const wrappedDescribe = pimlicoApiKey && privateKey && savingsBackendUrl ? describe : describe.skip;
 wrappedDescribe('eoa auto deposit', () => {
   // END REAL CHAIN SPECIFIC
@@ -114,7 +115,8 @@ wrappedDescribe('eoa auto deposit', () => {
       });
     }
 
-    await triggerDSToDeposit();
+    await savingsAccount.runDepositing();
+    await waitForSeconds(5);
     const eoaAccountTokenAmountAfterDeposit = await chainHelper.getERC20TokenAmount({
       tokenAddress: usdcEOAStrategy.tokenAddress,
       accountAddress: eoaAddress,

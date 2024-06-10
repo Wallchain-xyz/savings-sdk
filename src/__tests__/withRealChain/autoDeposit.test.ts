@@ -6,7 +6,7 @@ import { base } from 'viem/chains';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 import { ChainHelper } from '../utils/ChainHelper';
-import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
+import { waitForSeconds } from '../utils/waitForSeconds';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
@@ -55,7 +55,8 @@ wrappedDescribe('auto deposit', () => {
     }
 
     const nativeTokenAmount = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);
-    await triggerDSToDeposit();
+    await savingsAccount.runDepositing();
+    await waitForSeconds(5);
     const nativeTokenAmountAfterDeposit = await chainHelper.getNativeTokenAmount(savingsAccount.aaAddress);
 
     expect(nativeTokenAmount).toBeGreaterThan(nativeTokenAmountAfterDeposit);

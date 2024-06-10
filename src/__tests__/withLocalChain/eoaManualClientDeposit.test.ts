@@ -13,8 +13,8 @@ import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
 import { topUpEoaWithUsdcAmountToDeposit } from '../utils/topUpEoaWithUsdcAmountToDeposit';
 
-const chain = base; // TODO: maybe make it changeable
-
+const chain = base;
+const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
 describe('manual deposit', () => {
   let eoaAccount: PrivateKeyAccount;
   let chainHelper: ChainHelper;
@@ -47,8 +47,7 @@ describe('manual deposit', () => {
     const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
-      savingsBackendUrl: 'http://localhost:8000',
-      apiKey: 'ANY',
+      savingsBackendUrl,
       rpcUrl: LOCAL_CHAIN_RPC_URL,
       bundlerUrl: LOCAL_BUNDLER_URL,
       paymasterUrl: LOCAL_PAYMASTER_RPC_URL,

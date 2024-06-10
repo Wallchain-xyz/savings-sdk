@@ -10,11 +10,14 @@ import { LOCAL_BUNDLER_URL, LOCAL_CHAIN_RPC_URL, LOCAL_PAYMASTER_RPC_URL, USDC_T
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
 import { topUpEoaWithUsdcAmountToDeposit } from '../utils/topUpEoaWithUsdcAmountToDeposit';
-import { triggerDSToDeposit } from '../utils/triggerDSToDeposit';
+import { waitForSeconds } from '../utils/waitForSeconds';
 
-const chain = base; // TODO: maybe make it changeable
+const chain = base;
+const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
 
-describe('auto deposit', () => {
+// TODO: @merlin add support for anvil on SKA
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip('auto deposit', () => {
   let eoaAccount: PrivateKeyAccount;
   let chainHelper: ChainHelper;
 
@@ -42,8 +45,7 @@ describe('auto deposit', () => {
     const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
-      savingsBackendUrl: 'http://localhost:8000',
-      apiKey: 'ANY',
+      savingsBackendUrl,
       rpcUrl: LOCAL_CHAIN_RPC_URL,
       bundlerUrl: LOCAL_BUNDLER_URL,
       paymasterUrl: LOCAL_PAYMASTER_RPC_URL,
@@ -90,7 +92,8 @@ describe('auto deposit', () => {
       accountAddress: eoaAddress,
     });
 
-    await triggerDSToDeposit();
+    await savingsAccount.runDepositing();
+    await waitForSeconds(5);
     const eoaAccountTokenAmountAfterDeposit = await chainHelper.getERC20TokenAmount({
       tokenAddress: usdcEOAStrategy.tokenAddress,
       accountAddress: eoaAddress,

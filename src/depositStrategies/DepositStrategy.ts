@@ -8,6 +8,8 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
 import { mapStringValuesDeep } from '../utils/mapValuesDeep';
 
+import { interpolatePermissions } from './InterpolatePermissions';
+
 export interface ParamsValuesByKey {
   [key: string]: string | null;
 }
@@ -112,17 +114,8 @@ export abstract class DepositStrategy {
   }
 
   getPermissions(paramValuesByKey?: ParamsValuesByKey): Permission[] {
-    return mapStringValuesDeep(this.config.permissions, value => {
-      if (value.startsWith('{{') && value.endsWith('}}')) {
-        const paramKey = value.slice(2, -2);
-        const paramValue = (paramValuesByKey ?? {})[paramKey];
-        if (!paramValue) {
-          throw new Error(`Value is not provided for permissions - ${paramKey}`);
-        }
-        return paramValue;
-      }
-      return value;
-    });
+    const { permissions } = this.config;
+    return interpolatePermissions(permissions, paramValuesByKey);
   }
 
   abstract createDepositTxns(params: CreateDepositTxnsParams): Promise<Txn[]>;

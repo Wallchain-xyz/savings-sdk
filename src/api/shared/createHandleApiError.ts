@@ -23,7 +23,7 @@ export const createHandleApiError = (errorSchemaAndClasses: ErrorSchemaAndClasse
     throw new UnknownAPIError(unknownError);
   }
 
-  if (response.status === 500) {
+  if (response.status >= 500 && response.status <= 504) {
     throw new ServerAPIError();
   }
 

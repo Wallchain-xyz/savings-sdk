@@ -16,9 +16,11 @@ import { AccountDepositStrategy } from '../depositStrategies/AccountDepositStrat
 import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
-interface ConstructorParams {
+type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
+
+export interface SavingsAccountParams {
   aaAccount: PrimaryAAAccount;
-  privateKeyAccount: PrivateKeyAccount;
+  privateKeyAccount: SavingsAccountSigner;
   savingsBackendClient: SavingsBackendClient;
   strategiesManager: StrategiesManager;
   chainId: SupportedChainId;
@@ -39,7 +41,7 @@ interface ActivateStrategiesParams {
 export class SavingsAccount {
   private savingsBackendClient: SavingsBackendClient;
 
-  private privateKeyAccount: PrivateKeyAccount;
+  private privateKeyAccount: SavingsAccountSigner;
 
   chainId: SupportedChainId;
 
@@ -47,7 +49,13 @@ export class SavingsAccount {
 
   strategiesManager: StrategiesManager;
 
-  constructor({ aaAccount, privateKeyAccount, savingsBackendClient, strategiesManager, chainId }: ConstructorParams) {
+  constructor({
+    aaAccount,
+    privateKeyAccount,
+    savingsBackendClient,
+    strategiesManager,
+    chainId,
+  }: SavingsAccountParams) {
     this.savingsBackendClient = savingsBackendClient;
     this.strategiesManager = strategiesManager;
     this.chainId = chainId;
@@ -57,30 +65,6 @@ export class SavingsAccount {
 
   get aaAddress(): Address {
     return this.primaryAAAccount.aaAddress;
-  }
-
-  async getUser(): Promise<Awaited<GetUserReturnType> | undefined> {
-    try {
-      return await this.savingsBackendClient.getUser();
-    } catch (e) {
-      // 401 mean that user is not authorized, but request is valid
-      // TODO: remove expect error when typed errors will be added.
-      // @ts-expect-error errors are not typed yet
-      if (e?.response?.status === 401) {
-        return undefined;
-      }
-      // otherwise there is some problem with the request and we throw
-      throw e;
-    }
-  }
-
-  async auth() {
-    const authMessage = this.createAuthMessage();
-    const signedMessage = await this.signMessage(authMessage);
-    return this.savingsBackendClient.auth({
-      signedMessage,
-      message: authMessage,
-    });
   }
 
   async activateStrategies({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> {
@@ -171,6 +155,36 @@ export class SavingsAccount {
   }
 
   // TODO: consider refactoring auth message logic into separate class
+  async getUser(): Promise<Awaited<GetUserReturnType> | undefined> {
+    try {
+      return await this.savingsBackendClient.getUser();
+    } catch (e) {
+      // 401 mean that user is not authorized, but request is valid
+      // TODO: remove expect error when typed errors will be added.
+      // @ts-expect-error errors are not typed yet
+      if (e?.response?.status === 401) {
+        return undefined;
+      }
+      // otherwise there is some problem with the request and we throw
+      throw e;
+    }
+  }
+
+  async auth(): ReturnType<SavingsBackendClient['auth']> {
+    const authMessage = this.createAuthMessage();
+    const signedMessage = await this.signMessage(authMessage);
+    const authResponse = await this.savingsBackendClient.auth({
+      signedMessage,
+      message: authMessage,
+    });
+    this.savingsBackendClient.setAuthHeaders(authResponse.token);
+    return authResponse;
+  }
+
+  setAuthToken(authToken: string): void {
+    this.savingsBackendClient.setAuthHeaders(authToken);
+  }
+
   private createAuthMessage(): WallchainAuthMessage {
     const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 min in milliseconds
     const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds

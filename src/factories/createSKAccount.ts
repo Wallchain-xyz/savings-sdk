@@ -2,60 +2,66 @@ import { Hex } from 'viem';
 
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { CreateSKAccountParams } from '../AAProviders/shared/AAProvider';
+import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
+import { CreateSKAccountParams as AAProviderCreateSKAccountParams } from '../AAProviders/shared/AAProvider';
 import { SupportedChainId, getChainById } from '../AAProviders/shared/chains';
 import { SKAccount } from '../AAProviders/shared/SKAccount';
 import { ZerodevAAProvider } from '../AAProviders/zerodev/ZerodevAAProvider';
 
-import { createPimlicoPaymaster } from './createPimlicoPaymaster';
 import { createPimlicoBundlerUrl } from './utils/createPimlicoBundlerUrl';
+import { createPimlicoPaymasterUrl } from './utils/createPimlicoPaymasterUrl';
 
-interface createSKAccountParams {
+interface CreateSKAccountParamsBase {
   sessionPrivateKey: Hex;
+  serializedSKAData: AAProviderCreateSKAccountParams['serializedSKAData'];
 
-  apiKey: string;
   chainId: SupportedChainId;
 
   rpcUrl?: string;
-  bundlerUrl?: string;
-  paymasterUrl?: string;
-  serializedSKAData: CreateSKAccountParams['serializedSKAData'];
 }
+
+interface CreatePaymasterAndBundlerWithApiKeyParams extends CreateSKAccountParamsBase {
+  apiKey: string;
+  paymasterUrl?: never;
+  bundlerUrl?: never;
+}
+
+interface CreatePaymasterAndBundlerWithUrlParams extends CreateSKAccountParamsBase {
+  paymasterUrl: string;
+  bundlerUrl: string;
+  apiKey?: never;
+}
+
+type CreateSKAccountParams = CreatePaymasterAndBundlerWithApiKeyParams | CreatePaymasterAndBundlerWithUrlParams;
 
 export async function createSKAccount({
   sessionPrivateKey,
+  serializedSKAData,
 
-  apiKey,
   chainId,
 
-  rpcUrl,
+  apiKey,
   bundlerUrl,
   paymasterUrl,
 
-  serializedSKAData,
-}: createSKAccountParams): Promise<SKAccount> {
+  rpcUrl,
+}: CreateSKAccountParams): Promise<SKAccount> {
   const chain = getChainById(chainId);
 
+  const zerodevSupportedBundlerUrl = bundlerUrl ?? createPimlicoBundlerUrl({ chainId, apiKey });
   const aaProvider = new ZerodevAAProvider({
     chain,
-    bundlerUrl: bundlerUrl ?? createPimlicoBundlerUrl({ chainId, pimlicoApiKey: apiKey }),
+    bundlerUrl: zerodevSupportedBundlerUrl,
     rpcUrl,
   });
-  const aaAccount = await aaProvider.createSKAccount({
+  const skaAccount = await aaProvider.createSKAccount({
     skaSigner: privateKeyToAccount(sessionPrivateKey),
     serializedSKAData,
   });
-  aaAccount.setPaymaster(
-    createPimlicoPaymaster(
-      paymasterUrl
-        ? {
-            paymasterUrl,
-          }
-        : {
-            chainId,
-            apiKey,
-          },
-    ),
-  );
-  return aaAccount;
+
+  const pimlicoPaymasterUrl = paymasterUrl ?? createPimlicoPaymasterUrl({ chainId, apiKey });
+  const pimlicoPaymaster = new PimlicoPaymaster(pimlicoPaymasterUrl);
+  skaAccount.setPaymaster(pimlicoPaymaster);
+
+  return skaAccount;
 }

@@ -2,12 +2,8 @@ import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
 
 import { CreatePimlicoPaymasterUrlParams, createPimlicoPaymasterUrl } from './utils/createPimlicoPaymasterUrl';
 
-type CreatePimlicoPaymasterParams =
-  | {
-      paymasterUrl: string;
-    }
-  | CreatePimlicoPaymasterUrlParams;
+type CreatePimlicoPaymasterParams = CreatePimlicoPaymasterUrlParams;
 
 export function createPimlicoPaymaster(params: CreatePimlicoPaymasterParams): PimlicoPaymaster {
-  return new PimlicoPaymaster('paymasterUrl' in params ? params.paymasterUrl : createPimlicoPaymasterUrl(params));
+  return new PimlicoPaymaster(createPimlicoPaymasterUrl(params));
 }

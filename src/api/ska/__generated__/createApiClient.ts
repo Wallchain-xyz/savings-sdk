@@ -43,7 +43,7 @@ export type ForbiddenApiError = TypeOf<typeof ForbiddenApiErrorSchema>;
 
 const CreateSKAData = z
   .object({
-    aaAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+    aaAddress: z.address(),
     serializedSka: z.string(),
     activeStrategies: z.array(ActiveStrategy),
   })

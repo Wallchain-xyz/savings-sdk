@@ -9,6 +9,7 @@ export type { User as SavingsAccountUser } from './api/auth/__generated__/create
 // TODO: @merlin we need to make this universal and part of our code
 export { walletClientToSmartAccountSigner } from 'permissionless';
 
+// errors
 export { UnknownAPIError, UnauthenticatedError, ValidationError } from './api/shared/errors';
 export {
   NotAdminForbiddenError,
@@ -17,3 +18,4 @@ export {
   UserNotFoundError,
 } from './api/auth/errors';
 export { ForbiddenError, SkaNotFoundError, SkaAlreadyExistsError, UserOpsFailedError } from './api/ska/errors';
+export { InterpolationError } from './depositStrategies/InterpolatePermissions';

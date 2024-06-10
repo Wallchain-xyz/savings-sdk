@@ -1,4 +1,3 @@
-import { AxiosInstance } from 'axios';
 import { Address, PrivateKeyAccount } from 'viem';
 import { base } from 'viem/chains';
 
@@ -10,7 +9,7 @@ import { ZerodevAAProvider } from '../AAProviders/zerodev/ZerodevAAProvider';
 import { createPimlicoBundlerUrl } from '../factories/utils/createPimlicoBundlerUrl';
 
 import { createAuthClient } from './auth/createAuthClient';
-import { NotAAOwnerForbiddenError } from './auth/errors';
+
 import { createDmsClient } from './dms/createDmsClient';
 import { SavingsBackendClient } from './SavingsBackendClient';
 import { CreateSKAClientParams, createSKAClient } from './ska/createSKAClient';
@@ -63,25 +62,16 @@ describe('SavingsBackendClient', () => {
   });
 
   let apiListeners: CreateSKAClientParams['apiListeners'];
-  let authClientAxios: AxiosInstance;
-  let skaClientAxios: AxiosInstance;
-  let dmsClientAxios: AxiosInstance;
   let savingsBackendClient: SavingsBackendClient;
   beforeEach(() => {
     const apiClientParams = {
       baseUrl: savingsBackendUrl,
       apiListeners,
     };
-    const authClient = createAuthClient(apiClientParams);
-    authClientAxios = authClient.axios;
-    const skaClient = createSKAClient(apiClientParams);
-    skaClientAxios = skaClient.axios;
-    const dmsClient = createDmsClient(apiClientParams);
-    dmsClientAxios = dmsClient.axios;
     savingsBackendClient = new SavingsBackendClient({
-      skaClient,
-      authClient,
-      dmsClient,
+      authClient: createAuthClient(apiClientParams),
+      skaClient: createSKAClient(apiClientParams),
+      dmsClient: createDmsClient(apiClientParams),
     });
   });
 
@@ -90,7 +80,7 @@ describe('SavingsBackendClient', () => {
   beforeEach(async () => {
     const aaProvider = new ZerodevAAProvider({
       chain,
-      bundlerUrl: createPimlicoBundlerUrl({ chainId, pimlicoApiKey }),
+      bundlerUrl: createPimlicoBundlerUrl({ chainId, apiKey: pimlicoApiKey }),
     });
     aaAccount = await aaProvider.createAAAccount(eoaAccount);
   });
@@ -101,41 +91,11 @@ describe('SavingsBackendClient', () => {
       const signedMessage = await signMessageWithEoa(eoaAccount, message);
 
       const { user } = await savingsBackendClient.auth({
-        chainId,
         message,
         signedMessage,
       });
 
       expect(user).toBeTruthy();
-    });
-
-    it('should set auth token for all clients', async () => {
-      const message = createAuthMessageWithAaAddress(aaAccount.aaAddress);
-      const signedMessage = await signMessageWithEoa(eoaAccount, message);
-
-      const { token } = await savingsBackendClient.auth({
-        chainId,
-        message,
-        signedMessage,
-      });
-
-      expect(authClientAxios.defaults.headers.common.Authorization).toBe(`Bearer ${token}`);
-      expect(skaClientAxios.defaults.headers.common.Authorization).toBe(`Bearer ${token}`);
-      expect(dmsClientAxios.defaults.headers.common.Authorization).toBe(`Bearer ${token}`);
-    });
-
-    it('should throw if not correct address error', async () => {
-      const incorrectAaAddress = createEoaAccount().address;
-      const message = createAuthMessageWithAaAddress(incorrectAaAddress);
-      const signedMessage = await signMessageWithEoa(eoaAccount, message);
-
-      await expect(async () => {
-        return savingsBackendClient.auth({
-          chainId,
-          message,
-          signedMessage,
-        });
-      }).rejects.toThrow(NotAAOwnerForbiddenError);
     });
   });
 });

@@ -56,36 +56,97 @@ should manually transfer funds to this address.
 
 #### Initialize SDK if you already have AA address
 
-In this case, use `createSavingsAccountFromSudoValidator`. Note that only ZeroDev's `KernelValidator`
+In this case, use `createSavingsAccountFromAaAccount`. Note that only ZeroDev's `KernelValidator`
 based AA contract is supported at this moment:
 
 ```ts
-const privateKeyAccount: PrivateKeyAccount = ...;
-const sudoValidator: KernelValidator = ...;
+const privateKeyAccount: Pick<PrivateKeyAccount, 'address' | 'signTypedData'> = ...;
+const publicClient = createPublicClient({
+  transport: http(this.rpcUrl),
+});
+const ecdsaValidator: KernelValidator = await signerToEcdsaValidator(publicClient, {
+  signer,
+  entryPoint: ENTRYPOINT_ADDRESS_V06,
+});
+const client: KernelSmartAccount = await createKernelAccount(publicClient, {
+  entryPoint: ENTRYPOINT_ADDRESS_V06,
+  plugins: {
+    sudo: ecdsaValidator,
+  },
+});
+const aaAccountClient: KernelClient = createKernelAccountClient({
+  entryPoint: ENTRYPOINT_ADDRESS_V06,
+  account: aaAccount,
+  bundlerTransport,
+});
+const aaAccount = new ZerodevPrimaryAAAccount({ client: aaAccountClient, publicClient, ecdsaValidator })
 
 
-const savingsAccount = await createSavingsAccountFromSudoValidator({
-  privateKeyAccount: privateKeyAccount,
-  sudoValidator: sudoValidator,
+const savingsAccount = await createSavingsAccountFromAaAccount({
+  aaAccount,
+  privateKeyAccount,
   chainId: 8453,
-  privateKeyAccount: account,
   savingsBackendUrl: 'https://api.wallchains.com',
-  bundlerChainAPIKey: 'key-1',
-  sponsorshipAPIKey: 'key-2',
 })
 ```
 
 ### Login into Wallchain API
 
-Before calling any other method, the user should log into the API. This is done to track the address
+Most ot the methods on SavingsAccount object require authentication:
+
+- `savingsAccount.runDepositing();`
+- `savingsAccount.getUser();`
+- `savingsAccount.activateStrategies();`
+- `savingsAccount.getCurrentActiveStrategies()`
+- `savingsAccount.deactivateAllStrategies()`
+- `withdraw({ pauseUntilDatetime })`
+
+In order to perform them user should log in into the API. This is done to track the address
 to do auto-depositing, and to track who owns the SKA account. To login, do the following:
 
 ```ts
-await savingsAccount.auth();
+const { user, token } = await savingsAccount.auth();
 ```
 
 This code will register the user (or login if user already exists) and store authorization token
 inside SDK to do subsequent requests.
+
+#### Auth token
+
+Since SDK is isomorphic (can be used on frontend or backend), it does not utilize `localStorage`.
+SDK stores your authorization token in memory, which means it won't be persisted after page reload.
+In order to persist session after reload you should:
+
+- get token returned from `auth` call:
+
+  `const { token } = await savingsAccount.auth()`
+
+- store it (for example in localStorage):
+
+  `localStorage.setItem(`savingsSdkToken\_${eoaAddress}`, token)`
+
+- pass it as authorization header when initializing `SavingsAccount`:
+  ````ts
+      const token = localStorage.getItem(`savingsSdkToken_${eoaAddress}`);
+      const savingsAccount = createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount,
+        chainId,
+        apiKey,
+        savingsBackendUrl,
+      });
+      savingsAccount.setAuthToken(token);
+    ```
+  ````
+
+#### Methods that don't require authentication
+
+There are two methods on the SavingsAccount object, that don't require authentication with the Wallchain backend:
+
+- `savingsAccount.withdraw()` _without pauseUntilDatetime param_
+- `savingsAccount.deposit()`
+
+They provide a possibility to work with strategies directly without the Wallchain backend.
+Meaning without granting permissions or creating a session key account.
 
 ### Enabling Auto-Depositing
 
@@ -94,8 +155,42 @@ of it allows fine-grained control over permissions - you can enable only the Dep
 for tokens you want to be auto-deposited. The following code enables all protocols supported by API:
 
 ```ts
-const strategiesIds = getSupportedDepositStrategies().map(it => it.id);
-await savingsAccount.activateStrategies(strategiesIds);
+const allStrategies = savingsAccount.strategiesManager.getStrategies();
+const nonEoaStrategies = savingsAccount.strategiesManager
+  .findAllStrategies({
+    isEOA: false,
+  })
+  .map(strategy => ({ strategyId: strategy.id }));
+await savingsAccount.activateStrategies({ activeStrategies: nonEoaStrategies });
+```
+
+#### Enabling EOA strategies
+
+By default, SDK works only with tokens on the user's account abstraction address, which is different from EOA address, but strictily tied to it.
+In case you prefer to hold assets of the user on EOA for all the time, you can use EOA strategies which use ERC20 approval mechanism to connect EOA and AA.
+For EOA strategy to work several conditions should be met:
+
+- allowance for a selected ERC20 token to be transferred to user's AA account should be granted
+- strategy should be activated (via `savingsAccount.activateStrategies()` call)
+
+After that ERC20 tokens will be automatically moved from user's EOA to AA account and deposited.
+Once user is willing to withdraw them - they will be automatically withdrawn to user's EOA account.
+To activate an EOA strategy you have to pass the user's EOA address as an additional parameter, when activating the strategy.
+This way we can ensure that, when withdrawn, the tokens can only be transferred back to a specified EOA account, ensuring a high level of security.
+
+```ts
+const allStrategies = savingsAccount.strategiesManager.getStrategies();
+const eoaStrategies = savingsAccount.strategiesManager
+  .findAllStrategies({
+    isEOA: true,
+  })
+  .map(strategy => ({
+    strategyId: strategy.id,
+    paramValuesByKey: {
+      eoaAddress: eoaAccount.address,
+    },
+  }));
+await savingsAccount.activateStrategies({ activeStrategies: eoaStrategies });
 ```
 
 Each `DepositStrategy` (combination of Deposit Protocol + specific token on some chain) has unique id,
@@ -104,10 +199,12 @@ make sure you sign the correct permissions.
 
 After this call auto-depositing is enabled, and API will start looking for an oportunity to auto-deposit.
 
-You can retreive list of activated strategies by calling the following code:
+#### Getting a list of activated strategies
+
+You can retrieve list of activated strategies by calling the following code:
 
 ```ts
-const activeStrategies = await savingsAccount.getActiveStrategies(strategiesIds);
+const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
 ```
 
 ### Do manual Withdraw/Deposit
@@ -118,6 +215,7 @@ To withdraw funds that are currently deposited for an immediate use, do the foll
 await savingsAccount.withdraw({
   amount: 123n, // in wei
   depositStrategyId: '<id of DepositStrategy to use>',
+  pauseUntilDatetime: 'Date object to pause automatic depositing until',
 });
 ```
 

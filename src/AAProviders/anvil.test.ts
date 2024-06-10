@@ -3,7 +3,7 @@ import { Chain, PrivateKeyAccount, encodeFunctionData, getAddress, getContract, 
 
 import { createEoaAccount } from '../__tests__/utils/createEoaAccount';
 import { createExtendedTestClient } from '../testSuite/createExtendedTestClient';
-import { ensureAnvilIsReady, ensureBundlerIsReady } from '../testSuite/healthCheck';
+import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../testSuite/healthCheck';
 
 import { BiconomyAAProvider } from './biconomy/BiconomyAAProvider';
 import { PimlicoPaymaster } from './pimlico/PimlicoPaymaster';
@@ -96,107 +96,113 @@ describe.each([
     expect(receiverBalance).toBe(amount);
   }, 30_000);
 
-  it('send simple txn with paymaster', async () => {
-    // Arrange
-    const aaAccount = await provider.createAAAccount(eoaAccount);
-    const amount = faker.number.bigInt({ min: 1n, max: 200n });
-    await testClient.setBalance({
-      address: aaAccount.aaAddress,
-      value: amount,
-    });
-    const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
+  describe('with paymaster', () => {
+    beforeAll(async () => {
+      await ensurePaymasterIsReady();
+    }, 10_000);
 
-    // Act
-    const userOp = await aaAccount.buildUserOp([
-      {
-        to: receiver,
+    it('send simple txn with paymaster', async () => {
+      // Arrange
+      const aaAccount = await provider.createAAAccount(eoaAccount);
+      const amount = faker.number.bigInt({ min: 1n, max: 200n });
+      await testClient.setBalance({
+        address: aaAccount.aaAddress,
         value: amount,
-        data: '0x',
-      },
-    ]);
-    const sponsoredUserOp = await paymaster.addPaymasterIntoUserOp(userOp);
-    const userOpHash = await aaAccount.sendUserOp(sponsoredUserOp);
-    await aaAccount.waitForUserOp(userOpHash);
+      });
+      const receiver = getAddress(faker.string.hexadecimal({ length: 40 }));
 
-    // Assert
-    const receiverBalance = await testClient.getBalance({
-      address: receiver,
-    });
-    expect(receiverBalance).toBe(amount);
-    const balanceAfter = await testClient.getBalance({ address: aaAccount.aaAddress });
-    expect(balanceAfter).toBe(0n);
-  }, 30_000);
-
-  it('should create SKA that can deposit and withdraw', async () => {
-    // Arrange
-    const aaAccount = await provider.createAAAccount(eoaAccount);
-    await testClient.setBalance({
-      address: aaAccount.aaAddress,
-      value: parseEther('42'),
-    });
-    const amountDeposit = faker.number.bigInt({ min: 101n, max: 200n });
-    const amountWithdraw = faker.number.bigInt({ min: 1n, max: 100n });
-
-    // Act
-    const skaData = await aaAccount.createSessionKey({
-      skaAddress: skaAccount.address,
-      permissions: [
+      // Act
+      const userOp = await aaAccount.buildUserOp([
         {
-          target: wethContract.address,
-          functionName: 'deposit',
-          valueLimit: parseEther('100000'),
-          abi: wethContract.abi,
-          args: [],
+          to: receiver,
+          value: amount,
+          data: '0x',
+        },
+      ]);
+      const sponsoredUserOp = await paymaster.addPaymasterIntoUserOp(userOp);
+      const userOpHash = await aaAccount.sendUserOp(sponsoredUserOp);
+      await aaAccount.waitForUserOp(userOpHash);
+
+      // Assert
+      const receiverBalance = await testClient.getBalance({
+        address: receiver,
+      });
+      expect(receiverBalance).toBe(amount);
+      const balanceAfter = await testClient.getBalance({ address: aaAccount.aaAddress });
+      expect(balanceAfter).toBe(0n);
+    }, 30_000);
+
+    it('should create SKA that can deposit and withdraw', async () => {
+      // Arrange
+      const aaAccount = await provider.createAAAccount(eoaAccount);
+      await testClient.setBalance({
+        address: aaAccount.aaAddress,
+        value: parseEther('42'),
+      });
+      const amountDeposit = faker.number.bigInt({ min: 101n, max: 200n });
+      const amountWithdraw = faker.number.bigInt({ min: 1n, max: 100n });
+
+      // Act
+      const skaData = await aaAccount.createSessionKey({
+        skaAddress: skaAccount.address,
+        permissions: [
+          {
+            target: wethContract.address,
+            functionName: 'deposit',
+            valueLimit: parseEther('100000'),
+            abi: wethContract.abi,
+            args: [],
+          },
+          {
+            target: wethContract.address,
+            functionName: 'withdraw',
+            valueLimit: parseEther('0'),
+            abi: wethContract.abi,
+            args: [
+              {
+                operator: PermissionArgOperator.EQUAL,
+                value: amountWithdraw,
+              },
+            ],
+          },
+        ],
+      });
+      if (skaData.txnsToActivate) {
+        const createSKAUserOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
+        await aaAccount.waitForUserOp(createSKAUserOpHash);
+      }
+      const saAccount = await provider.createSKAccount({
+        skaSigner: skaAccount,
+        serializedSKAData: skaData.serializedSKAData,
+      });
+      saAccount.setPaymaster(paymaster);
+      const userOpHash = await saAccount.sendTxns([
+        {
+          to: wethContract.address,
+          data: encodeFunctionData({
+            abi: wethContract.abi,
+            functionName: 'deposit',
+            args: [],
+          }),
+          value: amountDeposit,
         },
         {
-          target: wethContract.address,
-          functionName: 'withdraw',
-          valueLimit: parseEther('0'),
-          abi: wethContract.abi,
-          args: [
-            {
-              operator: PermissionArgOperator.EQUAL,
-              value: amountWithdraw,
-            },
-          ],
+          to: wethContract.address,
+          data: encodeFunctionData({
+            abi: wethContract.abi,
+            functionName: 'withdraw',
+            args: [amountWithdraw],
+          }),
+          value: 0n,
         },
-      ],
-    });
-    if (skaData.txnsToActivate) {
-      const createSKAUserOpHash = await aaAccount.sendTxns(skaData.txnsToActivate);
-      await aaAccount.waitForUserOp(createSKAUserOpHash);
-    }
-    const saAccount = await provider.createSKAccount({
-      skaSigner: skaAccount,
-      serializedSKAData: skaData.serializedSKAData,
-    });
-    saAccount.setPaymaster(paymaster);
-    const userOpHash = await saAccount.sendTxns([
-      {
-        to: wethContract.address,
-        data: encodeFunctionData({
-          abi: wethContract.abi,
-          functionName: 'deposit',
-          args: [],
-        }),
-        value: amountDeposit,
-      },
-      {
-        to: wethContract.address,
-        data: encodeFunctionData({
-          abi: wethContract.abi,
-          functionName: 'withdraw',
-          args: [amountWithdraw],
-        }),
-        value: 0n,
-      },
-    ]);
-    await aaAccount.waitForUserOp(userOpHash);
+      ]);
+      await aaAccount.waitForUserOp(userOpHash);
 
-    // Assert
-    const wethBalance = await wethContract.read.balanceOf([aaAccount.aaAddress]);
-    expect(wethBalance).toBe(amountDeposit - amountWithdraw);
-  }, 30_000);
+      // Assert
+      const wethBalance = await wethContract.read.balanceOf([aaAccount.aaAddress]);
+      expect(wethBalance).toBe(amountDeposit - amountWithdraw);
+    }, 30_000);
+  });
 
   it('SKA permission are validated', async () => {
     // Arrange

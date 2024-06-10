@@ -30,7 +30,6 @@ describe('manual deposit', () => {
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
       savingsBackendUrl: 'http://localhost:8000',
-      apiKey: 'ANY',
       rpcUrl: LOCAL_CHAIN_RPC_URL,
       bundlerUrl: LOCAL_BUNDLER_URL,
       paymasterUrl: LOCAL_PAYMASTER_RPC_URL,

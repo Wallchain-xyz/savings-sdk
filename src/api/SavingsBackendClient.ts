@@ -1,6 +1,6 @@
 import { Address, Hex } from 'viem';
 
-import { createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
+import { LoginResponse, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
 import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
 import {
@@ -74,7 +74,7 @@ export class SavingsBackendClient {
     this.dmsClient = dmsClient;
   }
 
-  async auth({ signedMessage, message }: AuthParams) {
+  async auth({ signedMessage, message }: AuthParams): Promise<LoginResponse> {
     const authData = {
       ...message,
       signature: signedMessage,
@@ -87,15 +87,13 @@ export class SavingsBackendClient {
       if (!(error instanceof UserNotFoundError)) {
         throw error;
       }
-
       authResponse = await this.authClient.register(authData);
     }
-    this.setAuthHeaders(authResponse.token);
 
     return authResponse;
   }
 
-  private setAuthHeaders(token: string): void {
+  setAuthHeaders(token: string): void {
     this.skaClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     this.authClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     this.dmsClient.axios.defaults.headers.common.Authorization = `Bearer ${token}`;

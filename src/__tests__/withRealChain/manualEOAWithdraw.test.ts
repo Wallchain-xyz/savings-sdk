@@ -31,8 +31,6 @@ wrappedDescribe('manual deposit', () => {
   it('AA can withdraw USDC on Base', async () => {
     const savingsAccount = await createSavingsAccount(eoaAccount);
 
-    await savingsAccount.auth();
-
     const response = await savingsAccount.withdraw({
       amount: usdcAmountToDeposit,
       depositStrategyId: '018f94ed-f3b8-7dd5-8615-5b07650f5772', // Beefy EOA USDC on Base strategy

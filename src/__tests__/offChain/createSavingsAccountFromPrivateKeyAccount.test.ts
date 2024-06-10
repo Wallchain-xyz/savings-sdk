@@ -17,55 +17,74 @@ describe('savingsAccount', () => {
     eoaAccount = createEoaAccount(privateKey);
   });
 
-  it('getCurrentActiveStrategies to return empty array when authed', async () => {
-    const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
-      privateKeyAccount: eoaAccount,
-      chainId: chain.id,
-      savingsBackendUrl,
-      apiKey: pimlicoApiKey,
-    });
-    await savingsAccount.auth();
-    const strategies = await savingsAccount.getCurrentActiveStrategies();
-    expect(strategies.length).toBe(0);
-  }, 10_000);
+  describe('setAuthToken', () => {
+    it('should allow to use saved auth token', async () => {
+      const previousSavingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+      });
 
-  it('middleware to catch error', async () => {
-    const testError = new Error('test');
-    const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
-      privateKeyAccount: eoaAccount,
-      chainId: chain.id,
-      savingsBackendUrl,
-      apiKey: pimlicoApiKey,
-      apiListeners: {
-        onFailed: async ({ error }) => {
-          expect(error).toBeInstanceOf(UnauthenticatedError);
-          throw testError;
-        },
-      },
+      const { token } = await previousSavingsAccount.auth();
+
+      const newSavingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+      });
+
+      await expect(async () => {
+        await newSavingsAccount.getUser();
+      }).rejects.toThrow();
+
+      newSavingsAccount.setAuthToken(token);
+
+      const user = await newSavingsAccount.getUser();
+      expect(user).toBeTruthy();
     });
-    await expect(async () => {
-      await savingsAccount.getCurrentActiveStrategies();
-    }).rejects.toThrow(testError);
   });
 
-  it('middleware to retry', async () => {
-    const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
-      privateKeyAccount: eoaAccount,
-      chainId: chain.id,
-      savingsBackendUrl,
-      apiKey: pimlicoApiKey,
-      apiListeners: {
-        onFailed: async ({ error, retry }) => {
-          if (error instanceof UnauthenticatedError) {
-            await savingsAccount.auth();
-            return retry();
-          }
-          throw error;
+  describe('apiListeners', () => {
+    it('should allow to catch error', async () => {
+      const testError = new Error('test');
+      const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+        apiListeners: {
+          onFailed: async ({ error }) => {
+            expect(error).toBeInstanceOf(UnauthenticatedError);
+            throw testError;
+          },
         },
-      },
+      });
+      await expect(async () => {
+        await savingsAccount.getUser();
+      }).rejects.toThrow(testError);
     });
-    const strategies = await savingsAccount.getCurrentActiveStrategies();
-    expect(strategies.length).toBe(0);
+
+    it('should allow to retry', async () => {
+      const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+        apiListeners: {
+          onFailed: async ({ error, retry }) => {
+            if (error instanceof UnauthenticatedError) {
+              await savingsAccount.auth();
+              return retry();
+            }
+            throw error;
+          },
+        },
+      });
+      const user = await savingsAccount.getUser();
+      expect(user).toBeTruthy();
+    });
   });
 
   describe('authed methods', () => {
@@ -85,6 +104,24 @@ describe('savingsAccount', () => {
       });
       depositStrategyId = usdcEOAStrategy.id;
     });
+
+    it('should set headers for all clients when authed', async () => {
+      const { token } = await savingsAccount.auth();
+
+      // @ts-expect-error testing private method
+      expect(savingsAccount.savingsBackendClient.authClient.axios.defaults.headers.common.Authorization).toBe(
+        `Bearer ${token}`,
+      );
+      // @ts-expect-error testing private method
+      expect(savingsAccount.savingsBackendClient.skaClient.axios.defaults.headers.common.Authorization).toBe(
+        `Bearer ${token}`,
+      );
+      // @ts-expect-error testing private method
+      expect(savingsAccount.savingsBackendClient.dmsClient.axios.defaults.headers.common.Authorization).toBe(
+        `Bearer ${token}`,
+      );
+    });
+
     describe('should throw when not authorized and pass when authorized', () => {
       it('runDepositing', async () => {
         await expect(async () => {
@@ -130,7 +167,7 @@ describe('savingsAccount', () => {
 
         const result = await activateStrategy();
         expect(result).toBe(undefined);
-      });
+      }, 10_000);
 
       it('getCurrentActiveStrategies', async () => {
         await expect(async () => {

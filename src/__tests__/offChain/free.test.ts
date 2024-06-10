@@ -7,14 +7,17 @@ import { base } from 'viem/chains';
 
 import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
+import { createSavingsBackendClient } from '../../factories/createSavingsBackendClient';
 import { createStrategiesManager } from '../../factories/createStrategiesManager';
+
+const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
 
 describe('E2E SDK test without onchain transactions', () => {
   const makeForAccount = (account: PrivateKeyAccount) =>
     createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: account,
-      chainId: base.id, // TODO: maybe make it changeable
-      savingsBackendUrl: 'https://dev.api.wallchains.com',
+      chainId: base.id,
+      savingsBackendUrl,
       apiKey: 'api-key-to-be-removed', // TODO: Maybe not needed?
     });
 
@@ -23,9 +26,7 @@ describe('E2E SDK test without onchain transactions', () => {
     const account = privateKeyToAccount(privateKey);
     const savingsAccount = await makeForAccount(account);
     const { user } = await savingsAccount.auth();
-    expect(user.ownerships[0].signer_address).toBe(account.address);
-    expect(user.ownerships[0].aa_address).toBe(savingsAccount.aaAddress);
-    expect(user.ownerships[0].chain_id).toBe(base.id);
+    expect(user.signer_address).toBe(account.address);
   }, 10_000);
 
   it('auth should login on second request', async () => {
@@ -56,9 +57,13 @@ describe('E2E SDK test without onchain transactions', () => {
   }, 120_000);
 
   it('should be able to get strategy detailed info', async () => {
-    const manager = await createStrategiesManager({
-      chainId: base.id, // TODO: maybe make it changeable
-      savingsBackendUrl: 'https://dev.api.wallchains.com',
+    const savingsBackendClient = createSavingsBackendClient({
+      savingsBackendUrl,
+    });
+
+    const manager = createStrategiesManager({
+      chainId: base.id,
+      savingsBackendClient,
     });
     const detailedStrategies = await manager.getStrategiesDetails();
     expect(detailedStrategies[0].apy.current).toBeGreaterThan(0);

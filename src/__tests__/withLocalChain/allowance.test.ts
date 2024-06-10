@@ -41,59 +41,63 @@ describe('allowance', () => {
   // TODO: Add USDT verification for increased allowance (e.g. allowance should
   // be reset to 0 in meantime), will FAIL
 
-  it.each([['WETH' as BaseTokenName]])('can issue allowance properly for %s', async tokenName => {
-    const tokenAddress = tokenAddresses[base.id][tokenName];
-    // Setup
+  it.each([['WETH' as BaseTokenName]])(
+    'can issue allowance properly for %s',
+    async tokenName => {
+      const tokenAddress = tokenAddresses[base.id][tokenName];
+      // Setup
 
-    // Act: send some funds via transferFrom
-    await expect(
-      testClient.simulateContract({
-        account: anotherAccount,
+      // Act: send some funds via transferFrom
+      await expect(
+        testClient.simulateContract({
+          account: anotherAccount,
+          address: tokenAddress,
+          functionName: 'transferFrom',
+          abi: transferFromAbi,
+          args: [eoaAccount.address, anotherAccount.address, 1n],
+        }),
+      ).rejects.toThrow();
+
+      await ensureAccountHasTokenAndGas({
+        tokenAddress,
+        client: testClient,
+        account: eoaAccount,
+      });
+
+      // Act: approve allowance
+      const { request: requestApprove } = await testClient.simulateContract({
+        account: eoaAccount,
         address: tokenAddress,
-        functionName: 'transferFrom',
-        abi: transferFromAbi,
-        args: [eoaAccount.address, anotherAccount.address, 1n],
-      }),
-    ).rejects.toThrow();
+        functionName: 'approve',
+        abi: approveAbi,
+        args: [anotherAccount.address, 1n],
+      });
+      await testClient.writeContract(requestApprove);
 
-    await ensureAccountHasTokenAndGas({
-      tokenAddress,
-      client: testClient,
-      account: eoaAccount,
-    });
+      // Act: persist writes
+      await testClient.mine({ blocks: 1 });
 
-    // Act: approve allowance
-    const { request: requestApprove } = await testClient.simulateContract({
-      account: eoaAccount,
-      address: tokenAddress,
-      functionName: 'approve',
-      abi: approveAbi,
-      args: [anotherAccount.address, 1n],
-    });
-    await testClient.writeContract(requestApprove);
+      // Act: check allowance is persisted
+      await expect(
+        testClient.readContract({
+          address: tokenAddress,
+          functionName: 'allowance',
+          abi: parseAbi(['function allowance(address owner, address spender) external view returns (uint256)']),
+          args: [eoaAccount.address, anotherAccount.address],
+        }),
+      ).resolves.toBe(1n);
 
-    // Act: persist writes
-    await testClient.mine({ blocks: 1 });
-
-    // Act: check allowance is persisted
-    await expect(
-      testClient.readContract({
-        address: tokenAddress,
-        functionName: 'allowance',
-        abi: parseAbi(['function allowance(address owner, address spender) external view returns (uint256)']),
-        args: [eoaAccount.address, anotherAccount.address],
-      }),
-    ).resolves.toBe(1n);
-
-    // Act: send some funds via transferFrom and expect no funds
-    await expect(
-      testClient.simulateContract({
-        account: anotherAccount,
-        address: tokenAddress,
-        functionName: 'transferFrom',
-        abi: transferFromAbi,
-        args: [eoaAccount.address, anotherAccount.address, 1n],
-      }),
-    ).resolves.toBeTruthy();
-  });
+      // Act: send some funds via transferFrom and expect no funds
+      await expect(
+        testClient.simulateContract({
+          account: anotherAccount,
+          address: tokenAddress,
+          functionName: 'transferFrom',
+          abi: transferFromAbi,
+          args: [eoaAccount.address, anotherAccount.address, 1n],
+        }),
+      ).resolves.toBeTruthy();
+    },
+    10_000,
+  );
 });
