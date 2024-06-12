@@ -14,10 +14,18 @@ import {
   UserOpsFailedApiErrorSchema,
 } from './__generated__/createApiClient';
 
-export class ForbiddenError extends ApiError<ForbiddenApiError> {}
-export class SkaNotFoundError extends ApiError<SkaNotFoundApiError> {}
-export class SkaAlreadyExistsError extends ApiError<SkaAlreadyExistsApiError> {}
-export class UserOpsFailedError extends ApiError<UserOpsFailedApiError> {}
+export class ForbiddenError extends ApiError<ForbiddenApiError> {
+  readonly name = ForbiddenError.name;
+}
+export class SkaNotFoundError extends ApiError<SkaNotFoundApiError> {
+  readonly name = SkaNotFoundError.name;
+}
+export class SkaAlreadyExistsError extends ApiError<SkaAlreadyExistsApiError> {
+  readonly name = SkaAlreadyExistsError.name;
+}
+export class UserOpsFailedError extends ApiError<UserOpsFailedApiError> {
+  readonly name = UserOpsFailedError.name;
+}
 
 type SkaOnlyError = ForbiddenError | SkaNotFoundError | SkaAlreadyExistsError | UserOpsFailedError;
 

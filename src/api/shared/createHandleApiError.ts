@@ -30,7 +30,7 @@ export const createHandleApiError = (errorSchemaAndClasses: ErrorSchemaAndClasse
   errorSchemaAndClasses.forEach(({ schema, ErrorClass }) => {
     const { success, data } = schema.safeParse(response.data);
     if (success) {
-      throw new ErrorClass(data);
+      throw new ErrorClass(data.detail ?? data.code ?? JSON.stringify(data));
     }
   });
 

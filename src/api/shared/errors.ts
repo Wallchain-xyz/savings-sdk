@@ -2,6 +2,8 @@
 import { HTTPValidationError, UnauthenticatedApiError } from '../auth/__generated__/createApiClient';
 
 export class ApiError<OriginalError = unknown> extends Error {
+  readonly name = ApiError.name;
+
   originalError?: OriginalError;
 
   constructor(originalError?: OriginalError) {
@@ -10,12 +12,20 @@ export class ApiError<OriginalError = unknown> extends Error {
   }
 }
 
-export class UnknownAPIError extends ApiError<unknown> {}
+export class UnknownAPIError extends ApiError<unknown> {
+  readonly name = UnknownAPIError.name;
+}
 
-export class ServerAPIError extends ApiError<unknown> {}
+export class ServerAPIError extends ApiError<unknown> {
+  readonly name = ServerAPIError.name;
+}
 
-export class ValidationError extends ApiError<HTTPValidationError> {}
+export class ValidationError extends ApiError<HTTPValidationError> {
+  readonly name = ValidationError.name;
+}
 
-export class UnauthenticatedError extends ApiError<UnauthenticatedApiError> {}
+export class UnauthenticatedError extends ApiError<UnauthenticatedApiError> {
+  readonly name = UnauthenticatedError.name;
+}
 
 export type SharedError = UnauthenticatedError | ValidationError;

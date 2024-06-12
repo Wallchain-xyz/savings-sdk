@@ -14,10 +14,18 @@ import {
   UserNotFoundApiErrorSchema,
 } from './__generated__/createApiClient';
 
-export class UserAlreadyExistsError extends ApiError<UserAlreadyExistsApiError> {}
-export class UserNotFoundError extends ApiError<UserNotFoundApiError> {}
-export class SignatureExpiredForbiddenError extends ApiError<SignatureExpiredForbiddenApiError> {}
-export class NotAdminForbiddenError extends ApiError<NotAdminForbiddenApiError> {}
+export class UserAlreadyExistsError extends ApiError<UserAlreadyExistsApiError> {
+  readonly name = UserAlreadyExistsError.name;
+}
+export class UserNotFoundError extends ApiError<UserNotFoundApiError> {
+  readonly name = UserNotFoundError.name;
+}
+export class SignatureExpiredForbiddenError extends ApiError<SignatureExpiredForbiddenApiError> {
+  readonly name = SignatureExpiredForbiddenError.name;
+}
+export class NotAdminForbiddenError extends ApiError<NotAdminForbiddenApiError> {
+  readonly name = NotAdminForbiddenError.name;
+}
 
 type AuthOnlyError =
   | UserAlreadyExistsError

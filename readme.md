@@ -43,8 +43,7 @@ const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
   privateKeyAccount: account,
   chainId: 8453,
   savingsBackendUrl: 'https://api.wallchains.com',
-  bundlerChainAPIKey: 'key-1',
-  sponsorshipAPIKey: 'key-2',
+  apiKey: 'key-1',
 });
 ```
 

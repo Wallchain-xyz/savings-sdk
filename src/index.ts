@@ -1,3 +1,4 @@
+export { createSavingsBackendClient } from './factories/createSavingsBackendClient';
 export { createPimlicoPaymaster } from './factories/createPimlicoPaymaster';
 export { createSKAccount } from './factories/createSKAccount';
 export { createSavingsAccountFromPrivateKeyAccount } from './factories/createSavingsAccountFromPrivateKeyAccount';

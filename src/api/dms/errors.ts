@@ -8,7 +8,9 @@ import {
   UnsupportedChainApiErrorSchema,
 } from './__generated__/createApiClient';
 
-class UnsupportedChainError extends ApiError<UnsupportedChainApiError> {}
+class UnsupportedChainError extends ApiError<UnsupportedChainApiError> {
+  readonly name = UnsupportedChainError.name;
+}
 
 type DmsOnlyError = UnsupportedChainError;
 
