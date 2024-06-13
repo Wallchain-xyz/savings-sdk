@@ -7,17 +7,23 @@ import { ChainHelper } from './ChainHelper';
 import { USDC_SOURCE_ACCOUNT_ADDRESS, USDC_TOKEN_ADDRESS } from './consts';
 
 interface Params {
-  eoaAddress: Address;
+  address: Address;
   chainHelper: ChainHelper;
   testClient: ExtendedTestClient;
+  amount?: bigint;
 }
 
-export async function topUpEoaWithUsdcAmountToDeposit({ eoaAddress, chainHelper, testClient }: Params) {
-  const usdcSourceAddressTokenAmount = await chainHelper.getERC20TokenAmount({
-    tokenAddress: USDC_TOKEN_ADDRESS,
-    accountAddress: USDC_SOURCE_ACCOUNT_ADDRESS,
-  });
-  const amountToDeposit = usdcSourceAddressTokenAmount / 1_000_000n;
+export async function topUpUSDC({ address, chainHelper, testClient, amount }: Params) {
+  let topUpAmount;
+  if (!amount) {
+    const usdcSourceAddressTokenAmount = await chainHelper.getERC20TokenAmount({
+      tokenAddress: USDC_TOKEN_ADDRESS,
+      accountAddress: USDC_SOURCE_ACCOUNT_ADDRESS,
+    });
+    topUpAmount = usdcSourceAddressTokenAmount / 1_000_000n;
+  } else {
+    topUpAmount = amount;
+  }
 
   await testClient.impersonateAccount({
     address: USDC_SOURCE_ACCOUNT_ADDRESS,
@@ -34,20 +40,20 @@ export async function topUpEoaWithUsdcAmountToDeposit({ eoaAddress, chainHelper,
     data: encodeFunctionData({
       abi: parseAbi(['function transfer(address to, uint256 value) view returns (uint256)']),
       functionName: 'transfer',
-      args: [eoaAddress, amountToDeposit],
+      args: [address, topUpAmount],
     }),
   });
 
-  const topUpEoaUsdcHashReceipt = await chainHelper.waitForTransactionReceipt(topUpEoaUsdcHash);
-  if (topUpEoaUsdcHashReceipt.status !== 'success') {
-    throw new Error('Can not take USDC');
+  const topUpUSDCReceipt = await chainHelper.waitForTransactionReceipt(topUpEoaUsdcHash);
+  if (topUpUSDCReceipt.status !== 'success') {
+    throw new Error('Failed to top up USDC');
   }
-  const eoaUsdcAmount = await chainHelper.getERC20TokenAmount({
+  const targetUSDCBalance = await chainHelper.getERC20TokenAmount({
     tokenAddress: USDC_TOKEN_ADDRESS,
-    accountAddress: eoaAddress,
+    accountAddress: address,
   });
 
-  expect(eoaUsdcAmount).toBe(amountToDeposit);
+  expect(targetUSDCBalance).toBeGreaterThanOrEqual(topUpAmount);
 
-  return amountToDeposit;
+  return topUpAmount;
 }

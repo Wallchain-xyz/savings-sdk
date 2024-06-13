@@ -53,7 +53,7 @@ export abstract class ZerodevAAAccount extends AAAccount {
     });
     return {
       txnHash: receipt.receipt.transactionHash,
-      success: receipt.receipt.status === 'success',
+      success: receipt.success && receipt.receipt.status === 'success',
     };
   }
 }

@@ -391,5 +391,266 @@
         ]
       }
     ]
+  },
+  {
+    "id": "856a815e-dc16-41a0-84c8-1a94dd7f763b",
+    "type": "moonwellAA",
+    "chainId": 8453,
+    "name": "Moonwell USDC",
+    "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Moonwell",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/20734.png",
+    "bondTokenAddress": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+    "defi_llama_pool_id": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
+    "permissions": [
+      {
+        "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+        "functionName": "mint",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "mintAmount",
+                "type": "uint256"
+              }
+            ],
+            "name": "mint",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ]
+      },
+      {
+        "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+        "functionName": "redeem",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "redeem",
+            "type": "function",
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "redeemTokens",
+                "type": "uint256"
+              }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "approve",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "approve",
+            "type": "function",
+            "inputs": [
+              {
+                "type": "address",
+                "name": "spender"
+              },
+              {
+                "type": "uint256",
+                "name": "value"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "2935fab9-23be-41d0-b58c-9fa46a12078f",
+    "type": "moonwellEOA",
+    "chainId": 8453,
+    "name": "Moonwell USDC",
+    "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Moonwell",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/20734.png",
+    "bondTokenAddress": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+    "defi_llama_pool_id": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
+    "permissions": [
+      {
+        "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+        "functionName": "mint",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "mintAmount",
+                "type": "uint256"
+              }
+            ],
+            "name": "mint",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ]
+      },
+      {
+        "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
+        "functionName": "redeem",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "redeem",
+            "type": "function",
+            "inputs": [
+              {
+                "internalType": "uint256",
+                "name": "redeemTokens",
+                "type": "uint256"
+              }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "approve",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "approve",
+            "type": "function",
+            "inputs": [
+              {
+                "type": "address",
+                "name": "spender"
+              },
+              {
+                "type": "uint256",
+                "name": "value"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "transferFrom",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "name": "transferFrom",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "{{eoaAddress}}"
+          },
+          {
+            "operator": 0,
+            "value": "{{aaAddress}}"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "transfer",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "name": "transfer",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "{{eoaAddress}}"
+          }
+        ]
+      }
+    ]
   }
 ]

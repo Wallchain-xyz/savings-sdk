@@ -29,6 +29,8 @@ export type DepositStrategyId = string;
 export enum DepositStrategyType {
   beefyAA = 'beefyAA',
   beefyEOA = 'beefyEOA',
+  moonwellAA = 'moonwellAA',
+  moonwellEOA = 'moonwellEOA',
 }
 
 export interface DepositStrategyConfig {

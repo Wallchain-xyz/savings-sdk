@@ -9,7 +9,7 @@ import { ChainHelper } from '../utils/ChainHelper';
 import { LOCAL_BUNDLER_URL, LOCAL_CHAIN_RPC_URL, LOCAL_PAYMASTER_RPC_URL, USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 import { ensureEoaAddressUsdcAllowance } from '../utils/ensureEoaAddressUsdcAllowance';
-import { topUpEoaWithUsdcAmountToDeposit } from '../utils/topUpEoaWithUsdcAmountToDeposit';
+import { topUpUSDC } from '../utils/topUpUSDC';
 import { waitForSeconds } from '../utils/waitForSeconds';
 
 const chain = base;
@@ -36,8 +36,8 @@ describe.skip('auto deposit', () => {
   it('can deposit USDC on Base', async () => {
     const eoaAddress = eoaAccount.address;
 
-    const usdcAmountToDeposit = await topUpEoaWithUsdcAmountToDeposit({
-      eoaAddress,
+    const usdcAmountToDeposit = await topUpUSDC({
+      address: eoaAddress,
       chainHelper,
       testClient,
     });

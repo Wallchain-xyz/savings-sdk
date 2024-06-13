@@ -7,10 +7,11 @@ import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/Saving
 import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
 import { AccountDepositStrategy } from './AccountDepositStrategy';
-import { BeefyEOAStrategy } from './beefy/BeefyEOAStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
 import { DepositStrategy, DepositStrategyConfig } from './DepositStrategy';
+import { EOADepositStrategy } from './EOADepositStrategy';
+import { MoonwellERC20Strategy } from './moonwell/MoonwellERC20Strategy';
 import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
 
 const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
@@ -58,13 +59,20 @@ export class StrategiesManager {
       const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
 
       const strategiesArray = strategyConfigs.map(strategyConfig => {
-        if (strategyConfig.type === 'beefyAA') {
+        let strategy: DepositStrategy;
+        if (strategyConfig.type === 'beefyAA' || strategyConfig.type === 'beefyEOA') {
           if (strategyConfig.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
-            return new BeefyNativeStrategy(strategyConfig, this.publicClient);
+            strategy = new BeefyNativeStrategy(strategyConfig, this.publicClient);
           }
-          return new BeefyERC20Strategy(strategyConfig, this.publicClient);
+          strategy = new BeefyERC20Strategy(strategyConfig, this.publicClient);
         }
-        return new BeefyEOAStrategy(strategyConfig, this.publicClient);
+        if (strategyConfig.type === 'moonwellAA' || strategyConfig.type === 'moonwellEOA') {
+          strategy = new MoonwellERC20Strategy(strategyConfig, this.publicClient);
+        }
+        if (strategyConfig.type === 'beefyEOA' || strategyConfig.type === 'moonwellEOA') {
+          return new EOADepositStrategy(strategyConfig, strategy!);
+        }
+        return strategy!;
       });
       this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
     } else {

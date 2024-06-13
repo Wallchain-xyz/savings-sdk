@@ -1,15 +1,26 @@
 import { Address, encodeFunctionData } from 'viem';
 
-import { Txn } from '../../AAProviders/shared/Txn';
-import { erc20ABI } from '../../utils/erc20ABI';
+import { Txn } from '../AAProviders/shared/Txn';
+import { erc20ABI } from '../utils/erc20ABI';
 
-import { CreateDepositTxnsParams, CreateWithdrawTxnsParams, ParamsValuesByKey } from '../DepositStrategy';
+import {
+  CreateDepositTxnsParams,
+  CreateWithdrawTxnsParams,
+  DepositStrategy,
+  DepositStrategyConfig,
+  ParamsValuesByKey,
+} from './DepositStrategy';
 
-import { BeefyERC20Strategy } from './BeefyERC20Strategy';
+export class EOADepositStrategy extends DepositStrategy {
+  private innerStrategy: DepositStrategy;
 
-export class BeefyEOAStrategy extends BeefyERC20Strategy {
   get isEOA() {
     return true;
+  }
+
+  constructor(config: DepositStrategyConfig, erc20Strategy: DepositStrategy) {
+    super(config);
+    this.innerStrategy = erc20Strategy;
   }
 
   async createDepositTxns({ amount, paramValuesByKey }: CreateDepositTxnsParams): Promise<Txn[]> {
@@ -27,13 +38,13 @@ export class BeefyEOAStrategy extends BeefyERC20Strategy {
           ],
         }),
       },
-      ...(await super.createDepositTxns({ amount, paramValuesByKey })),
+      ...(await this.innerStrategy.createDepositTxns({ amount, paramValuesByKey })),
     ];
   }
 
   async createWithdrawTxns({ amount, paramValuesByKey }: CreateWithdrawTxnsParams): Promise<Txn[]> {
     return [
-      ...(await super.createWithdrawTxns({ amount, paramValuesByKey })),
+      ...(await this.innerStrategy.createWithdrawTxns({ amount, paramValuesByKey })),
       {
         to: this.tokenAddress,
         value: 0n,
@@ -55,5 +66,13 @@ export class BeefyEOAStrategy extends BeefyERC20Strategy {
       throw new Error(`Parameter ${key} value ${value} is not valid address`);
     }
     return value as Address;
+  }
+
+  bondTokenAmountToTokenAmount(amount: bigint): Promise<bigint> {
+    return this.innerStrategy.bondTokenAmountToTokenAmount(amount);
+  }
+
+  tokenAmountToBondTokenAmount(amount: bigint): Promise<bigint> {
+    return this.innerStrategy.tokenAmountToBondTokenAmount(amount);
   }
 }
