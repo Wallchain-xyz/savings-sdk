@@ -1,11 +1,13 @@
 import { AxiosInstance, AxiosResponse } from 'axios';
 
-import { SkaError } from '../ska/errors';
+import { util } from 'zod';
 
-import { UnknownAPIError } from './errors';
+import { ApiError } from './errors';
+
+import assertNever = util.assertNever;
 
 interface OnFailedParams {
-  error: SkaError | UnknownAPIError;
+  error: ApiError;
   retry: () => Promise<AxiosResponse>;
 }
 
@@ -15,17 +17,24 @@ export interface AddApiListenersParams {
     onSuccess?: (value: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>;
     onFailed?: (params: OnFailedParams) => AxiosResponse | Promise<AxiosResponse>;
   };
+  handleApiError: (unknownError: unknown) => Promise<never>;
 }
 
-export function addApiListeners({ axios, apiListeners }: AddApiListenersParams) {
-  if (apiListeners) {
-    const { onSuccess, onFailed } = apiListeners;
-    axios.interceptors.response.use(
-      response => onSuccess?.(response) ?? response,
-      async error => {
-        const retry = () => axios.request(error.config);
-        return onFailed?.({ error, retry });
-      },
-    );
-  }
+export function addApiListeners({ axios, apiListeners, handleApiError }: AddApiListenersParams) {
+  axios.interceptors.response.use(
+    response => apiListeners?.onSuccess?.(response) ?? response,
+    async error => {
+      const retry = () => axios.request(error.config);
+      try {
+        const unexpectedValue = await handleApiError(error);
+        return assertNever(unexpectedValue);
+      } catch (handledApiError) {
+        const onFailed = apiListeners?.onFailed;
+        if (onFailed) {
+          return onFailed?.({ error: handledApiError as ApiError, retry });
+        }
+        throw handledApiError;
+      }
+    },
+  );
 }

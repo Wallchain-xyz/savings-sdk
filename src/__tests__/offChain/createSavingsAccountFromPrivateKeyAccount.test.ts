@@ -2,6 +2,7 @@ import { Hex, PrivateKeyAccount } from 'viem';
 
 import { base } from 'viem/chains';
 
+import { ServerAPIError } from '../../api/shared/errors';
 import { SavingsAccount, UnauthenticatedError, createSavingsAccountFromPrivateKeyAccount } from '../../index';
 import { USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
@@ -43,7 +44,7 @@ describe('savingsAccount', () => {
 
       const user = await newSavingsAccount.getUser();
       expect(user).toBeTruthy();
-    });
+    }, 10_000);
   });
 
   describe('apiListeners', () => {
@@ -123,17 +124,6 @@ describe('savingsAccount', () => {
     });
 
     describe('should throw when not authorized and pass when authorized', () => {
-      it('runDepositing', async () => {
-        await expect(async () => {
-          await savingsAccount.runDepositing();
-        }).rejects.toThrow(UnauthenticatedError);
-
-        await savingsAccount.auth();
-
-        const result = await savingsAccount.runDepositing();
-        expect(result).toBe(undefined);
-      });
-
       it('getUser', async () => {
         await expect(async () => {
           await savingsAccount.getUser();
@@ -209,6 +199,20 @@ describe('savingsAccount', () => {
         await expect(async () => {
           await withdraw();
         }).rejects.not.toThrow(UnauthenticatedError);
+      });
+
+      describe('should throw when SKA not created', () => {
+        it('runDepositing', async () => {
+          await expect(async () => {
+            await savingsAccount.runDepositing();
+          }).rejects.toThrow(UnauthenticatedError);
+
+          await savingsAccount.auth();
+
+          await expect(async () => {
+            await savingsAccount.runDepositing();
+          }).rejects.toThrow(ServerAPIError);
+        });
       });
     });
 

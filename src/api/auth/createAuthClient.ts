@@ -20,11 +20,10 @@ interface CreateAuthClientParams {
 
 export function createAuthClient({ baseUrl, zodiosOptions, apiListeners }: CreateAuthClientParams): ApiClient {
   const apiClient = createApiClient(baseUrl, zodiosOptions);
-  apiClient.axios.interceptors.response.use(
-    undefined,
-    // TODO: @merlin improve typing
-    createHandleApiError(errorSchemaAndClasses as ErrorSchemaAndClasses),
-  );
-  addApiListeners({ apiListeners, axios: apiClient.axios });
+  addApiListeners({
+    apiListeners,
+    axios: apiClient.axios,
+    handleApiError: createHandleApiError(errorSchemaAndClasses as ErrorSchemaAndClasses),
+  });
   return apiClient;
 }

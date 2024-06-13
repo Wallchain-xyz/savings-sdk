@@ -17,10 +17,12 @@ export const createHandleApiError = (errorSchemaAndClasses: ErrorSchemaAndClasse
 
     throw new UnknownAPIError(unknownError);
   }
-  const { response } = unknownError;
+  const axiosError = unknownError;
+
+  const { response } = axiosError;
   if (!response) {
     // TODO: @merlin log to sentry, unexpected error
-    throw new UnknownAPIError(unknownError);
+    throw new UnknownAPIError(axiosError);
   }
 
   if (response.status >= 500 && response.status <= 504) {
