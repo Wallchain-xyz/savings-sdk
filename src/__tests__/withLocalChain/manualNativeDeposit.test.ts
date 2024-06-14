@@ -1,11 +1,11 @@
-import { PrivateKeyAccount } from 'viem';
+import { PrivateKeyAccount, parseEther } from 'viem';
+
 import { base } from 'viem/chains';
 
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
 import { createHelperTestClient } from '../../testSuite/createHelperTestClient';
 import { ensureAnvilIsReady, ensureBundlerIsReady, ensurePaymasterIsReady } from '../../testSuite/healthCheck';
-
 import {
   ALLOWED_DECREASE_DURING_DEPOSIT,
   LOCAL_BUNDLER_URL,
@@ -13,17 +13,10 @@ import {
   LOCAL_PAYMASTER_RPC_URL,
 } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
-import { waitForSeconds } from '../utils/waitForSeconds';
 
-const chain = base;
-const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
+const chain = base; // TODO: maybe make it changeable
 
-// TODO: @merlin add support for anvil on SKA
-// eslint-disable-next-line jest/no-disabled-tests
-describe.each([
-  ['beefy usdc', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
-  ['moonwell usdc', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
-])('Auto deposit for %s', (_: string, strategyId: string) => {
+describe('manual deposit', () => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
 
@@ -35,52 +28,36 @@ describe.each([
 
   beforeEach(async () => {
     eoaAccount = createEoaAccount();
-    await testClient.ensureEnoughBalanceForGas({ address: eoaAccount.address });
     savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
       privateKeyAccount: eoaAccount,
       chainId: chain.id,
-      savingsBackendUrl,
+      savingsBackendUrl: 'http://localhost:8000',
       rpcUrl: LOCAL_CHAIN_RPC_URL,
       bundlerUrl: LOCAL_BUNDLER_URL,
       paymasterUrl: LOCAL_PAYMASTER_RPC_URL,
     });
-  });
+  }, 10000);
 
-  it('can deposit', async () => {
+  it('can deposit ETH on Base', async () => {
     // Arrange
-    const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
-    const startBalance = await testClient.setERC20Balance({
-      tokenAddress: strategy.tokenAddress,
-      accountAddress: eoaAccount.address,
+    const startBalance = parseEther('42');
+    const depositAmount = parseEther('1');
+    await testClient.setBalance({
+      address: savingsAccount.aaAddress,
+      value: startBalance,
     });
-    const depositAmount = startBalance / 2n;
+    // Beefy ETH on Base strategy
+    const strategy = savingsAccount.strategiesManager.getStrategy('018ecbc3-597e-739c-bfac-80d534743e3e');
 
     // Act
-    await testClient.setAllowance({
-      account: eoaAccount,
-      tokenAddress: strategy.tokenAddress,
-      spenderAddress: savingsAccount.aaAddress,
+    const userOpResult = await savingsAccount.deposit({
       amount: depositAmount,
+      depositStrategyId: strategy.id,
     });
-    await savingsAccount.auth();
-    await savingsAccount.activateStrategies({
-      activeStrategies: [
-        {
-          strategyId: strategy.id,
-          paramValuesByKey: {
-            eoaAddress: eoaAccount.address,
-          },
-        },
-      ],
-    });
-    await savingsAccount.runDepositing();
-    await waitForSeconds(5);
 
     // Assert
-    const balanceAfter = await testClient.getERC20Balance({
-      tokenAddress: strategy.tokenAddress,
-      accountAddress: eoaAccount.address,
-    });
+    expect(userOpResult.success).toBeTruthy();
+    const balanceAfter = await testClient.getBalance({ address: savingsAccount.aaAddress });
     expect(balanceAfter).toBeLessThanOrEqual(startBalance - depositAmount);
     const bondAmount = await testClient.getERC20Balance({
       tokenAddress: strategy.bondTokenAddress,

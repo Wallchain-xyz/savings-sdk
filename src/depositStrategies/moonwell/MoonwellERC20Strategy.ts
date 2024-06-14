@@ -10,14 +10,16 @@ import {
   DepositStrategyConfig,
 } from '../DepositStrategy';
 
-const moonwellABI = parseAbi([
+const moonwellAbi = parseAbi([
   'function mint(uint256 mintAmount) public',
   'function redeem(uint256 redeemTokens) public',
   'function exchangeRateStored() public view returns (uint)',
 ]);
 
+const MOONWELL_EXCHANGE_RATE_FACTOR = 10n ** 18n;
+
 export class MoonwellERC20Strategy extends DepositStrategy {
-  private moonwellContract: GetContractReturnType<typeof moonwellABI, PublicClient>;
+  private moonwellContract: GetContractReturnType<typeof moonwellAbi, PublicClient>;
 
   get isEOA() {
     return false;
@@ -27,7 +29,7 @@ export class MoonwellERC20Strategy extends DepositStrategy {
     super(config);
     this.moonwellContract = getContract({
       address: this.bondTokenAddress,
-      abi: moonwellABI,
+      abi: moonwellAbi,
       client: publicClient,
     });
   }
@@ -47,7 +49,7 @@ export class MoonwellERC20Strategy extends DepositStrategy {
         to: this.bondTokenAddress,
         value: 0n,
         data: encodeFunctionData({
-          abi: moonwellABI,
+          abi: moonwellAbi,
           functionName: 'mint',
           args: [amount],
         }),
@@ -61,7 +63,7 @@ export class MoonwellERC20Strategy extends DepositStrategy {
         to: this.bondTokenAddress,
         value: 0n,
         data: encodeFunctionData({
-          abi: moonwellABI,
+          abi: moonwellAbi,
           functionName: 'redeem',
           args: [amount],
         }),
@@ -71,11 +73,11 @@ export class MoonwellERC20Strategy extends DepositStrategy {
 
   async bondTokenAmountToTokenAmount(amount: bigint): Promise<bigint> {
     const rate = await this.moonwellContract.read.exchangeRateStored();
-    return (amount * rate) / 10n ** BigInt(18);
+    return (amount * rate) / MOONWELL_EXCHANGE_RATE_FACTOR;
   }
 
   async tokenAmountToBondTokenAmount(amount: bigint): Promise<bigint> {
     const rate = await this.moonwellContract.read.exchangeRateStored();
-    return (amount * 10n ** BigInt(18)) / rate;
+    return (amount * MOONWELL_EXCHANGE_RATE_FACTOR) / rate;
   }
 }

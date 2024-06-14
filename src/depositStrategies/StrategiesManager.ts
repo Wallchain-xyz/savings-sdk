@@ -6,10 +6,12 @@ import { SupportedChainId } from '../AAProviders/shared/chains';
 import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/SavingsBackendClient';
 import { NATIVE_TOKEN_ADDRESS } from '../consts';
 
+import { assertNever } from '../utils/assertNever';
+
 import { AccountDepositStrategy } from './AccountDepositStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
-import { DepositStrategy, DepositStrategyConfig } from './DepositStrategy';
+import { DepositStrategy, DepositStrategyConfig, DepositStrategyType } from './DepositStrategy';
 import { EOADepositStrategy } from './EOADepositStrategy';
 import { MoonwellERC20Strategy } from './moonwell/MoonwellERC20Strategy';
 import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
@@ -61,31 +63,30 @@ export class StrategiesManager {
       const strategiesArray = strategyConfigs.map(strategyConfig => {
         let strategy: DepositStrategy;
         switch (strategyConfig.type) {
-          case 'beefyAA':
-          case 'beefyEOA': {
+          case DepositStrategyType.beefyAA:
+          case DepositStrategyType.beefyEOA: {
             if (strategyConfig.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
               strategy = new BeefyNativeStrategy(strategyConfig, this.publicClient);
             } else {
               strategy = new BeefyERC20Strategy(strategyConfig, this.publicClient);
             }
             break;
-          }          
-          case 'moonwellAA':
-          case 'moonwellEOA': {
+          }
+          case DepositStrategyType.moonwellAA:
+          case DepositStrategyType.moonwellEOA: {
             strategy = new MoonwellERC20Strategy(strategyConfig, this.publicClient);
             break;
           }
           default:
             assertNever(strategyConfig.type);
         }
-        if (strategyConfig.type === 'beefyEOA' || strategyConfig.type === 'moonwellEOA') {
-          return new EOADepositStrategy(strategyConfig, strategy!);
+        if (
+          strategyConfig.type === DepositStrategyType.beefyEOA ||
+          strategyConfig.type === DepositStrategyType.moonwellEOA
+        ) {
+          return new EOADepositStrategy(strategyConfig, strategy);
         }
         return strategy;
-        if (strategyConfig.type === 'beefyEOA' || strategyConfig.type === 'moonwellEOA') {
-          return new EOADepositStrategy(strategyConfig, strategy!);
-        }
-        return strategy!;
       });
       this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
     } else {

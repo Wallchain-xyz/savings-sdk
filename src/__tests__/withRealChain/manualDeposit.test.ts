@@ -6,7 +6,6 @@ import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/creat
 
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
 import { HelperClient, createHelperRealClient } from '../../testSuite/createHelperRealClient';
-import { waitForSeconds } from '../utils/waitForSeconds';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
 const pimlicoApiKey = process.env.PIMLICO_API_KEY as string;
@@ -20,7 +19,7 @@ wrappedDescribe.each([
   ['beefy usdc eoa', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
   // ['moonwell usdc', '856a815e-dc16-41a0-84c8-1a94dd7f763b'],
   // ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
-])('Auto deposit for %s', (_: string, strategyId: string) => {
+])('Manual deposit for %s', (_: string, strategyId: string) => {
   let eoaAccount: PrivateKeyAccount;
   let client: HelperClient;
   let savingsAccount: SavingsAccount;
@@ -68,24 +67,9 @@ wrappedDescribe.each([
     const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
 
     // Act
-    await savingsAccount.auth();
     // Withdraw if already deposited
     await withdrawAll(strategy);
     const balanceBeforeDeposit = await getStrategyTokenBalance(strategy);
-    // Activate if not already
-    const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
-    if (!activeStrategies.some(activeStrategy => activeStrategy.id === strategy.id)) {
-      await savingsAccount.activateStrategies({
-        activeStrategies: [
-          {
-            strategyId: strategy.id,
-            paramValuesByKey: {
-              eoaAddress: eoaAccount.address,
-            },
-          },
-        ],
-      });
-    }
     if (strategy.isEOA) {
       await client.ensureAllowance({
         account: eoaAccount,
@@ -96,9 +80,10 @@ wrappedDescribe.each([
         amountToSet: balanceBeforeDeposit * 1_000_000n,
       });
     }
-
-    await savingsAccount.runDepositing();
-    await waitForSeconds(5);
+    await savingsAccount.deposit({
+      depositStrategyId: strategy.id,
+      amount: balanceBeforeDeposit,
+    });
     const balanceAfterDeposit = await getStrategyTokenBalance(strategy);
     // Withdraw for other tests to work
     await withdrawAll(strategy);

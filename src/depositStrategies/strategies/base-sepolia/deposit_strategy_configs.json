@@ -10,7 +10,7 @@
     "protocolName": "Beefy",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0x9418efe858e69872a09a33a436c82fde58d41113",
-    "beefy_vault_id": "compound-base-usdc",
+    "beefyVaultId": "compound-base-usdc",
     "permissions": [
       {
         "target": "0x9418efe858e69872a09a33a436c82fde58d41113",
@@ -99,7 +99,7 @@
     "protocolName": "Beefy",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0x9418efe858e69872a09a33a436c82fde58d41113",
-    "beefy_vault_id": "compound-base-usdc",
+    "beefyVaultId": "compound-base-usdc",
     "permissions": [
       {
         "target": "0x9418efe858e69872a09a33a436c82fde58d41113",

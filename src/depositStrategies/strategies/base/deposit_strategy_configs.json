@@ -10,7 +10,7 @@
     "protocolName": "Beefy",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
-    "beefy_vault_id": "compound-base-eth",
+    "beefyVaultId": "compound-base-eth",
     "permissions": [
       {
         "target": "0x62e5B9934dCB87618CFC74B222305D16C997E8c1",
@@ -59,7 +59,7 @@
     "protocolName": "Beefy",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
-    "beefy_vault_id": "compound-base-usdc",
+    "beefyVaultId": "compound-base-usdc",
     "permissions": [
       {
         "target": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
@@ -148,7 +148,7 @@
     "protocolName": "Beefy",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/7311.png",
     "bondTokenAddress": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
-    "beefy_vault_id": "compound-base-usdc",
+    "beefyVaultId": "compound-base-usdc",
     "permissions": [
       {
         "target": "0xeF6ED674486E54507d0f711C0d388BD8a1552E6F",
@@ -403,7 +403,7 @@
     "protocolName": "Moonwell",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/20734.png",
     "bondTokenAddress": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
-    "defi_llama_pool_id": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
+    "defiLlamaPoolId": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
     "permissions": [
       {
         "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
@@ -492,7 +492,7 @@
     "protocolName": "Moonwell",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/20734.png",
     "bondTokenAddress": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",
-    "defi_llama_pool_id": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
+    "defiLlamaPoolId": "69cf831d-624a-4f23-b5e3-c0f63ad1fa01",
     "permissions": [
       {
         "target": "0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22",

@@ -16,5 +16,3 @@ To be able to run E2E tests, you need to set following variables:
 
 - `free.test.ts` contains test that do not execute anything on chain. `TESTS_AA_OWNER_PRIVATE_KEY` is not required
   to run it.
-- `zerodev.test.ts` contains working examples on how to perform some actions via ZeroDev. It has minimal dependency
-  on sdk, it's goal to be a complete working script that performer core functionality.
