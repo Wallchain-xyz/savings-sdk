@@ -86,6 +86,27 @@ describe('savingsAccount', () => {
       const user = await savingsAccount.getUser();
       expect(user).toBeTruthy();
     });
+
+    it('should override old auth with new auth token', async () => {
+      const savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+        apiListeners: {
+          onFailed: async ({ error, retry }) => {
+            if (error instanceof UnauthenticatedError) {
+              await savingsAccount.auth();
+              return retry();
+            }
+            throw error;
+          },
+        },
+      });
+      savingsAccount.setAuthToken('wrong_token');
+      const user = await savingsAccount.getUser();
+      expect(user).toBeTruthy();
+    });
   });
 
   describe('authed methods', () => {

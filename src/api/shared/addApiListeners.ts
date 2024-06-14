@@ -2,7 +2,7 @@ import { AxiosInstance, AxiosResponse } from 'axios';
 
 import { util } from 'zod';
 
-import { ApiError } from './errors';
+import { ApiError, UnauthenticatedError } from './errors';
 
 import assertNever = util.assertNever;
 
@@ -24,13 +24,17 @@ export function addApiListeners({ axios, apiListeners, handleApiError }: AddApiL
   axios.interceptors.response.use(
     response => apiListeners?.onSuccess?.(response) ?? response,
     async error => {
-      const retry = () => axios.request(error.config);
       try {
         const unexpectedValue = await handleApiError(error);
         return assertNever(unexpectedValue);
       } catch (handledApiError) {
         const onFailed = apiListeners?.onFailed;
         if (onFailed) {
+          if (handledApiError instanceof UnauthenticatedError) {
+            // eslint-disable-next-line no-param-reassign
+            delete error.config.headers.Authorization;
+          }
+          const retry = () => axios.request(error.config);
           return onFailed?.({ error: handledApiError as ApiError, retry });
         }
         throw handledApiError;
