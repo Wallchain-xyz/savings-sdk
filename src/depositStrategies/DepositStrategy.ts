@@ -26,17 +26,21 @@ export interface CreateWithdrawTxnsParams {
 
 export type DepositStrategyId = string;
 
-export enum DepositStrategyType {
-  beefyAA = 'beefyAA',
-  beefyEOA = 'beefyEOA',
-  moonwellAA = 'moonwellAA',
-  moonwellEOA = 'moonwellEOA',
+export enum DepositStrategyProtocolType {
+  beefy = 'beefy',
+  moonwell = 'moonwell',
+}
+
+export enum DepositStrategyAccountType {
+  aa = 'aa',
+  eoa = 'eoa',
 }
 
 export interface DepositStrategyConfig {
   id: DepositStrategyId;
   name: string;
-  type: DepositStrategyType;
+  protocolType: DepositStrategyProtocolType;
+  accountType: DepositStrategyAccountType;
   permissions: Permission[];
   chainId: SupportedChainId;
   tokenAddress: Address;

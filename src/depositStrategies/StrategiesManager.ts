@@ -11,7 +11,12 @@ import { assertNever } from '../utils/assertNever';
 import { AccountDepositStrategy } from './AccountDepositStrategy';
 import { BeefyERC20Strategy } from './beefy/BeefyERC20Strategy';
 import { BeefyNativeStrategy } from './beefy/BeefyNativeStrategy';
-import { DepositStrategy, DepositStrategyConfig, DepositStrategyType } from './DepositStrategy';
+import {
+  DepositStrategy,
+  DepositStrategyAccountType,
+  DepositStrategyConfig,
+  DepositStrategyProtocolType,
+} from './DepositStrategy';
 import { EOADepositStrategy } from './EOADepositStrategy';
 import { MoonwellERC20Strategy } from './moonwell/MoonwellERC20Strategy';
 import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
@@ -62,9 +67,8 @@ export class StrategiesManager {
 
       const strategiesArray = strategyConfigs.map(strategyConfig => {
         let strategy: DepositStrategy;
-        switch (strategyConfig.type) {
-          case DepositStrategyType.beefyAA:
-          case DepositStrategyType.beefyEOA: {
+        switch (strategyConfig.protocolType) {
+          case DepositStrategyProtocolType.beefy: {
             if (strategyConfig.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
               strategy = new BeefyNativeStrategy(strategyConfig, this.publicClient);
             } else {
@@ -72,18 +76,14 @@ export class StrategiesManager {
             }
             break;
           }
-          case DepositStrategyType.moonwellAA:
-          case DepositStrategyType.moonwellEOA: {
+          case DepositStrategyProtocolType.moonwell: {
             strategy = new MoonwellERC20Strategy(strategyConfig, this.publicClient);
             break;
           }
           default:
-            assertNever(strategyConfig.type);
+            assertNever(strategyConfig.protocolType);
         }
-        if (
-          strategyConfig.type === DepositStrategyType.beefyEOA ||
-          strategyConfig.type === DepositStrategyType.moonwellEOA
-        ) {
+        if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
           return new EOADepositStrategy(strategyConfig, strategy);
         }
         return strategy;

@@ -1,7 +1,8 @@
 [
   {
     "id": "5b4b4a92-f6b1-4b66-8d95-f3e981c35879",
-    "type": "beefyAA",
+    "protocolType": "beefy",
+    "accountType": "aa",
     "chainId": 84532,
     "name": "Beefy USDC",
     "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
@@ -90,7 +91,8 @@
   },
   {
     "id": "890ff406-72b8-4e82-b6e1-892ecaa01a4f",
-    "type": "beefyEOA",
+    "protocolType": "beefy",
+    "accountType": "eoa",
     "chainId": 84532,
     "name": "Beefy USDC",
     "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",

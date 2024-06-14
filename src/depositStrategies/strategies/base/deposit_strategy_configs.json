@@ -1,7 +1,8 @@
 [
   {
     "id": "018ecbc3-597e-739c-bfac-80d534743e3e",
-    "type": "beefyAA",
+    "protocolType": "beefy",
+    "accountType": "aa",
     "chainId": 8453,
     "name": "Beefy ETH",
     "tokenAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -50,7 +51,8 @@
   },
   {
     "id": "018f04e0-73d5-77be-baec-c76bac26b4f3",
-    "type": "beefyAA",
+    "protocolType": "beefy",
+    "accountType": "aa",
     "chainId": 8453,
     "name": "Beefy USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -139,7 +141,8 @@
   },
   {
     "id": "018f94ed-f3b8-7dd5-8615-5b07650f5772",
-    "type": "beefyEOA",
+    "protocolType": "beefy",
+    "accountType": "eoa",
     "chainId": 8453,
     "name": "Beefy USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -394,7 +397,8 @@
   },
   {
     "id": "856a815e-dc16-41a0-84c8-1a94dd7f763b",
-    "type": "moonwellAA",
+    "protocolType": "moonwell",
+    "accountType": "aa",
     "chainId": 8453,
     "name": "Moonwell USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -483,7 +487,8 @@
   },
   {
     "id": "2935fab9-23be-41d0-b58c-9fa46a12078f",
-    "type": "moonwellEOA",
+    "protocolType": "moonwell",
+    "accountType": "eoa",
     "chainId": 8453,
     "name": "Moonwell USDC",
     "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
