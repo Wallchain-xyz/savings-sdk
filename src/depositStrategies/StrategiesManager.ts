@@ -60,15 +60,28 @@ export class StrategiesManager {
 
       const strategiesArray = strategyConfigs.map(strategyConfig => {
         let strategy: DepositStrategy;
-        if (strategyConfig.type === 'beefyAA' || strategyConfig.type === 'beefyEOA') {
-          if (strategyConfig.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
-            strategy = new BeefyNativeStrategy(strategyConfig, this.publicClient);
+        switch (strategyConfig.type) {
+          case 'beefyAA':
+          case 'beefyEOA': {
+            if (strategyConfig.tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS) {
+              strategy = new BeefyNativeStrategy(strategyConfig, this.publicClient);
+            } else {
+              strategy = new BeefyERC20Strategy(strategyConfig, this.publicClient);
+            }
+            break;
+          }          
+          case 'moonwellAA':
+          case 'moonwellEOA': {
+            strategy = new MoonwellERC20Strategy(strategyConfig, this.publicClient);
+            break;
           }
-          strategy = new BeefyERC20Strategy(strategyConfig, this.publicClient);
+          default:
+            assertNever(strategyConfig.type);
         }
-        if (strategyConfig.type === 'moonwellAA' || strategyConfig.type === 'moonwellEOA') {
-          strategy = new MoonwellERC20Strategy(strategyConfig, this.publicClient);
+        if (strategyConfig.type === 'beefyEOA' || strategyConfig.type === 'moonwellEOA') {
+          return new EOADepositStrategy(strategyConfig, strategy!);
         }
+        return strategy;
         if (strategyConfig.type === 'beefyEOA' || strategyConfig.type === 'moonwellEOA') {
           return new EOADepositStrategy(strategyConfig, strategy!);
         }
