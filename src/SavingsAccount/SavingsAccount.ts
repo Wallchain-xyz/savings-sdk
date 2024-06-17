@@ -125,7 +125,7 @@ export class SavingsAccount {
 
   async deposit({ depositStrategyId, amount }: WithdrawOrDepositParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
-    const txns = await strategy.createDepositTxns({
+    const txns = strategy.createDepositTxns({
       amount,
       paramValuesByKey: {
         // TODO: fetch parameter from strategy, do not use this constant here

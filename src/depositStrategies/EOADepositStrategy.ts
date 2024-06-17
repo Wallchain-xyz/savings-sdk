@@ -19,7 +19,7 @@ export class EOADepositStrategy extends DepositStrategy {
     this.innerStrategy = erc20Strategy;
   }
 
-  async createDepositTxns({ amount, paramValuesByKey }: CreateDepositTxnsParams): Promise<Txn[]> {
+  createDepositTxns({ amount, paramValuesByKey }: CreateDepositTxnsParams): Txn[] {
     return [
       {
         to: this.tokenAddress,
@@ -34,7 +34,7 @@ export class EOADepositStrategy extends DepositStrategy {
           ],
         }),
       },
-      ...(await this.innerStrategy.createDepositTxns({ amount, paramValuesByKey })),
+      ...this.innerStrategy.createDepositTxns({ amount, paramValuesByKey }),
     ];
   }
 

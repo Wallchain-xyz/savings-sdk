@@ -30,7 +30,7 @@ export class MoonwellERC20Strategy extends DepositStrategy {
     });
   }
 
-  async createDepositTxns({ amount }: CreateDepositTxnsParams): Promise<Txn[]> {
+  createDepositTxns({ amount }: CreateDepositTxnsParams): Txn[] {
     return [
       {
         to: this.tokenAddress,

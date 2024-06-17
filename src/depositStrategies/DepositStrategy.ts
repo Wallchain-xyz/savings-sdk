@@ -126,7 +126,7 @@ export abstract class DepositStrategy {
     return interpolatePermissions(permissions, paramValuesByKey);
   }
 
-  abstract createDepositTxns(params: CreateDepositTxnsParams): Promise<Txn[]>;
+  abstract createDepositTxns(params: CreateDepositTxnsParams): Txn[];
 
   abstract createWithdrawTxns(params: CreateWithdrawTxnsParams): Promise<Txn[]>;
 
