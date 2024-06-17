@@ -1,28 +1,29 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
-import { Txn } from '../../AAProviders/shared/Txn';
 import { erc20ABI } from '../../utils/erc20ABI';
-
-import { CreateDepositTxnsParams, CreateWithdrawTxnsParams } from '../DepositStrategy';
-
-import { BeefyStrategy } from './BeefyStrategy';
+import {
+  CreateDepositTxnsParams,
+  CreateWithdrawTxnsParams,
+  DepositStrategyWithActions,
+  DepositWithdrawActions,
+} from '../DepositStrategy';
 
 const erc20VaultABI = parseAbi(['function deposit(uint _amount) public', 'function withdraw(uint256 _shares) public']);
 
-export class BeefyERC20Strategy extends BeefyStrategy {
-  createDepositTxns({ amount }: CreateDepositTxnsParams): Txn[] {
-    return [
+export function beefyERC20Actions(strategy: DepositStrategyWithActions): DepositWithdrawActions {
+  return {
+    createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
-        to: this.tokenAddress,
+        to: strategy.tokenAddress,
         value: 0n,
         data: encodeFunctionData({
           abi: erc20ABI,
           functionName: 'approve',
-          args: [this.bondTokenAddress, amount],
+          args: [strategy.bondTokenAddress, amount],
         }),
       },
       {
-        to: this.bondTokenAddress,
+        to: strategy.bondTokenAddress,
         value: 0n,
         data: encodeFunctionData({
           abi: erc20VaultABI,
@@ -30,13 +31,11 @@ export class BeefyERC20Strategy extends BeefyStrategy {
           args: [amount],
         }),
       },
-    ];
-  }
+    ],
 
-  async createWithdrawTxns({ amount }: CreateWithdrawTxnsParams): Promise<Txn[]> {
-    return [
+    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => [
       {
-        to: this.bondTokenAddress,
+        to: strategy.bondTokenAddress,
         value: 0n,
         data: encodeFunctionData({
           abi: erc20VaultABI,
@@ -44,6 +43,6 @@ export class BeefyERC20Strategy extends BeefyStrategy {
           args: [amount],
         }),
       },
-    ];
-  }
+    ],
+  };
 }

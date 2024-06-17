@@ -62,75 +62,87 @@ interface ProtocolInfo {
   imageUrl: string;
 }
 
-export abstract class DepositStrategy {
-  protected config: DepositStrategyConfig;
-
-  get id(): string {
-    return this.config.id;
-  }
-
-  get name(): string {
-    return this.config.name;
-  }
-
-  get chainId(): SupportedChainId {
-    return this.config.chainId;
-  }
-
-  get tokenAddress(): Address {
-    return this.config.tokenAddress;
-  }
-
-  get bondTokenAddress(): Address {
-    return this.config.bondTokenAddress;
-  }
-
-  get tokenInfo(): TokenInfo {
-    return {
-      name: this.config.tokenName,
-      address: this.config.tokenAddress,
-      imageUrl: this.config.tokenImageURL,
-    };
-  }
-
-  get protocolInfo(): ProtocolInfo {
-    return {
-      name: this.config.protocolName,
-      imageUrl: this.config.protocolImageURL,
-    };
-  }
-
-  get isNative(): boolean {
-    return isAddressEqual(this.tokenAddress, NATIVE_TOKEN_ADDRESS);
-  }
-
-  get isEOA(): boolean {
-    return this.config.accountType === DepositStrategyAccountType.eoa;
-  }
-
+interface DepositStrategy_Base {
+  config: DepositStrategyConfig;
+  id: string;
+  name: string;
+  chainId: SupportedChainId;
+  tokenAddress: Address;
+  bondTokenAddress: Address;
+  tokenInfo: TokenInfo;
+  protocolInfo: ProtocolInfo;
+  isNative: boolean;
+  isEOA: boolean;
   params: string[];
+  getPermissions: (paramValuesByKey?: ParamsValuesByKey) => Permission[];
+}
 
-  protected constructor(config: DepositStrategyConfig) {
-    this.config = config;
-    this.params = [];
-    mapStringValuesDeep(this.config.permissions, value => {
-      if (value.startsWith('{{') && value.endsWith('}}')) {
-        this.params.push(value.slice(2, -2));
-      }
-      return value;
-    });
+// disallow redefining base properties
+type DepositStrategyActions = { [_ in keyof DepositStrategy_Base]?: undefined } & {
+  [key: string]: unknown;
+};
+
+export type DepositStrategyWithActions<actions extends DepositStrategyActions | unknown = unknown> =
+  DepositStrategy_Base &
+    Omit<actions, keyof DepositStrategy_Base> & {
+      extend: <newActions extends DepositStrategyActions>(
+        extender: (strategy: DepositStrategyWithActions<actions>) => newActions,
+      ) => DepositStrategyWithActions<actions & newActions>;
+    };
+
+export type BondTokenActions = {
+  bondTokenAmountToTokenAmount: (amount: bigint) => Promise<bigint>;
+  tokenAmountToBondTokenAmount: (amount: bigint) => Promise<bigint>;
+};
+
+export type DepositWithdrawActions = {
+  createDepositTxns: ({ amount }: CreateDepositTxnsParams) => Txn[];
+  createWithdrawTxns: ({ amount }: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+};
+
+export type DepositStrategy = DepositStrategyWithActions<BondTokenActions & DepositWithdrawActions>;
+
+export function createDepositStrategy(config: DepositStrategyConfig): DepositStrategyWithActions {
+  const params: string[] = [];
+  mapStringValuesDeep(config.permissions, value => {
+    if (value.startsWith('{{') && value.endsWith('}}')) {
+      params.push(value.slice(2, -2));
+    }
+    return value;
+  });
+
+  const strategy = {
+    config,
+    id: config.id,
+    name: config.name,
+    chainId: config.chainId,
+    tokenAddress: config.tokenAddress,
+    bondTokenAddress: config.bondTokenAddress,
+    tokenInfo: {
+      name: config.tokenName,
+      address: config.tokenAddress,
+      imageUrl: config.tokenImageURL,
+    },
+    protocolInfo: {
+      name: config.protocolName,
+      imageUrl: config.protocolImageURL,
+    },
+    isNative: isAddressEqual(config.tokenAddress, NATIVE_TOKEN_ADDRESS),
+    isEOA: config.accountType === DepositStrategyAccountType.eoa,
+    params,
+    getPermissions: (paramValuesByKey?: ParamsValuesByKey) => {
+      return interpolatePermissions(config.permissions, paramValuesByKey);
+    },
+  };
+
+  function extend(base: typeof strategy) {
+    type ExtendFn = (base: typeof strategy) => unknown;
+    return (extendFn: ExtendFn) => {
+      const extended = extendFn(base) as DepositStrategyActions;
+      const combined = { ...base, ...extended };
+      return Object.assign(combined, { extend: extend(combined as typeof strategy) });
+    };
   }
 
-  getPermissions(paramValuesByKey?: ParamsValuesByKey): Permission[] {
-    const { permissions } = this.config;
-    return interpolatePermissions(permissions, paramValuesByKey);
-  }
-
-  abstract createDepositTxns(params: CreateDepositTxnsParams): Txn[];
-
-  abstract createWithdrawTxns(params: CreateWithdrawTxnsParams): Promise<Txn[]>;
-
-  abstract bondTokenAmountToTokenAmount(amount: bigint): Promise<bigint>;
-
-  abstract tokenAmountToBondTokenAmount(amount: bigint): Promise<bigint>;
+  return Object.assign(strategy, { extend: extend(strategy) }) as DepositStrategyWithActions;
 }

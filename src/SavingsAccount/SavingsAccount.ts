@@ -12,8 +12,7 @@ import {
 
 import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 
-import { AccountDepositStrategy } from '../depositStrategies/AccountDepositStrategy';
-import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
@@ -97,16 +96,10 @@ export class SavingsAccount {
     await this.savingsBackendClient.runDepositing({ chainId: this.chainId });
   }
 
-  async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<AccountDepositStrategy[]> {
+  async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? [])
-      .map(activeStrategy =>
-        this.strategiesManager.getAccountStrategy(
-          activeStrategy.strategyId,
-          this.aaAddress,
-          this.privateKeyAccount.address,
-        ),
-      )
+      .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId))
       .filter(strategy => StrategiesManager.checkFilter(strategy, filter));
   }
 

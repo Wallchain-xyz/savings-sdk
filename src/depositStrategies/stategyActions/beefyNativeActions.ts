@@ -1,20 +1,22 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
-import { Txn } from '../../AAProviders/shared/Txn';
-import { CreateDepositTxnsParams, CreateWithdrawTxnsParams } from '../DepositStrategy';
-
-import { BeefyStrategy } from './BeefyStrategy';
+import {
+  CreateDepositTxnsParams,
+  CreateWithdrawTxnsParams,
+  DepositStrategyWithActions,
+  DepositWithdrawActions,
+} from '../DepositStrategy';
 
 const nativeVaultABI = parseAbi([
   'function depositBNB() public payable',
   'function withdrawBNB(uint256 _shares) public',
 ]);
 
-export class BeefyNativeStrategy extends BeefyStrategy {
-  createDepositTxns({ amount }: CreateDepositTxnsParams): Txn[] {
-    return [
+export function beefyNativeActions(strategy: DepositStrategyWithActions): DepositWithdrawActions {
+  return {
+    createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
-        to: this.bondTokenAddress,
+        to: strategy.bondTokenAddress,
         value: amount,
         data: encodeFunctionData({
           abi: nativeVaultABI,
@@ -22,13 +24,11 @@ export class BeefyNativeStrategy extends BeefyStrategy {
           args: [],
         }),
       },
-    ];
-  }
+    ],
 
-  async createWithdrawTxns({ amount }: CreateWithdrawTxnsParams): Promise<Txn[]> {
-    return [
+    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => [
       {
-        to: this.bondTokenAddress,
+        to: strategy.bondTokenAddress,
         value: 0n,
         data: encodeFunctionData({
           abi: nativeVaultABI,
@@ -36,6 +36,6 @@ export class BeefyNativeStrategy extends BeefyStrategy {
           args: [amount],
         }),
       },
-    ];
-  }
+    ],
+  };
 }
