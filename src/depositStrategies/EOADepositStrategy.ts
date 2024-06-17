@@ -14,10 +14,6 @@ import {
 export class EOADepositStrategy extends DepositStrategy {
   private innerStrategy: DepositStrategy;
 
-  get isEOA() {
-    return true;
-  }
-
   constructor(config: DepositStrategyConfig, erc20Strategy: DepositStrategy) {
     super(config);
     this.innerStrategy = erc20Strategy;

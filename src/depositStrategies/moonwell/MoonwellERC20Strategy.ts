@@ -21,10 +21,6 @@ const MOONWELL_EXCHANGE_RATE_FACTOR = 10n ** 18n;
 export class MoonwellERC20Strategy extends DepositStrategy {
   private moonwellContract: GetContractReturnType<typeof moonwellAbi, PublicClient>;
 
-  get isEOA() {
-    return false;
-  }
-
   constructor(config: DepositStrategyConfig, publicClient: PublicClient) {
     super(config);
     this.moonwellContract = getContract({

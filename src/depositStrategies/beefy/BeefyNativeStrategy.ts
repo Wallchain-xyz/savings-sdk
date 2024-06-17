@@ -11,10 +11,6 @@ const nativeVaultABI = parseAbi([
 ]);
 
 export class BeefyNativeStrategy extends BeefyStrategy {
-  get isEOA() {
-    return false;
-  }
-
   async createDepositTxns({ amount }: CreateDepositTxnsParams): Promise<Txn[]> {
     return [
       {

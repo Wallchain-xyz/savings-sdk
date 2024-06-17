@@ -10,10 +10,6 @@ import { BeefyStrategy } from './BeefyStrategy';
 const erc20VaultABI = parseAbi(['function deposit(uint _amount) public', 'function withdraw(uint256 _shares) public']);
 
 export class BeefyERC20Strategy extends BeefyStrategy {
-  get isEOA() {
-    return false;
-  }
-
   async createDepositTxns({ amount }: CreateDepositTxnsParams): Promise<Txn[]> {
     return [
       {

@@ -104,7 +104,9 @@ export abstract class DepositStrategy {
     return isAddressEqual(this.tokenAddress, NATIVE_TOKEN_ADDRESS);
   }
 
-  abstract readonly isEOA: boolean;
+  get isEOA(): boolean {
+    return this.config.accountType === DepositStrategyAccountType.eoa;
+  }
 
   params: string[];
 
