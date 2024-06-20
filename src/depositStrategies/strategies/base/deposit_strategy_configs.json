@@ -1012,5 +1012,360 @@
         ]
       }
     ]
+  },
+  {
+    "id": "8a8bce36-7e99-438e-ab03-cd6064b91072",
+    "protocolType": "aaveV3",
+    "accountType": "aa",
+    "chainId": 8453,
+    "name": "Seamless V3 USDC",
+    "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Seamless",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/28652.png",
+    "bondTokenAddress": "0x53e240c0f985175da046a62f26d490d1e259036e",
+    "poolAddress": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7",
+    "defiLlamaPoolId": "1fe6614c-f384-401d-8a63-e696e13c808c",
+    "permissions": [
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "supply",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "onBehalfOf",
+                "type": "address"
+              },
+              {
+                "internalType": "uint16",
+                "name": "referralCode",
+                "type": "uint16"
+              }
+            ],
+            "name": "supply",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          },
+          {
+            "operator": 1,
+            "value": 0
+          },
+          {
+            "operator": 0,
+            "value": "{{aaAddress}}"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "withdraw",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "withdraw",
+            "type": "function",
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "approve",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "approve",
+            "type": "function",
+            "inputs": [
+              {
+                "type": "address",
+                "name": "spender"
+              },
+              {
+                "type": "uint256",
+                "name": "value"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "5c76265d-0ad1-4829-abc7-9f282cbae198",
+    "protocolType": "aaveV3",
+    "accountType": "eoa",
+    "chainId": 8453,
+    "name": "Seamless V3 USDC",
+    "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenName": "USDC",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png",
+    "protocolName": "Seamless",
+    "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/28652.png",
+    "bondTokenAddress": "0x53e240c0f985175da046a62f26d490d1e259036e",
+    "poolAddress": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7",
+    "defiLlamaPoolId": "1fe6614c-f384-401d-8a63-e696e13c808c",
+    "permissions": [
+      {
+        "target": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7",
+        "functionName": "supply",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "onBehalfOf",
+                "type": "address"
+              },
+              {
+                "internalType": "uint16",
+                "name": "referralCode",
+                "type": "uint16"
+              }
+            ],
+            "name": "supply",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          },
+          {
+            "operator": 1,
+            "value": 0
+          },
+          {
+            "operator": 0,
+            "value": "{{aaAddress}}"
+          }
+        ]
+      },
+      {
+        "target": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7",
+        "functionName": "withdraw",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "withdraw",
+            "type": "function",
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "approve",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "name": "approve",
+            "type": "function",
+            "inputs": [
+              {
+                "type": "address",
+                "name": "spender"
+              },
+              {
+                "type": "uint256",
+                "name": "value"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "transferFrom",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "name": "transferFrom",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "{{eoaAddress}}"
+          },
+          {
+            "operator": 0,
+            "value": "{{aaAddress}}"
+          }
+        ]
+      },
+      {
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "transfer",
+        "valueLimit": "0x0",
+        "abi": [
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+              }
+            ],
+            "name": "transfer",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        "args": [
+          {
+            "operator": 0,
+            "value": "{{eoaAddress}}"
+          }
+        ]
+      }
+    ]
   }
 ]

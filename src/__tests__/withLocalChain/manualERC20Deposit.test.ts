@@ -26,6 +26,8 @@ describe.each([
   ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
   ['aave usdc', '484b91e5-7d5c-4476-b512-45a0a0e4a199'],
   ['aave usdc eoa', '1af624b4-5a99-42c8-a560-5966b956f2cf'],
+  ['seamless usdc', '8a8bce36-7e99-438e-ab03-cd6064b91072'],
+  ['seamless usdc eoa', '5c76265d-0ad1-4829-abc7-9f282cbae198'],
 ])('Manual deposit for %s', (_: string, strategyId: string) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
