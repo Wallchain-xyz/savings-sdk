@@ -1,6 +1,6 @@
 import { PublicClient, getContract, parseAbi } from 'viem';
 
-import { BondTokenActions, DepositStrategyWithActions } from '../DepositStrategy';
+import { BondTokenActions, DepositStrategyWithActions, MoonwellDepositStrategyConfig } from '../DepositStrategy';
 
 const moonwellAbi = parseAbi([
   'function mint(uint256 mintAmount) public',
@@ -12,7 +12,7 @@ const MOONWELL_EXCHANGE_RATE_FACTOR = 10n ** 18n;
 
 export function moonwellBondTokenActions(
   publicClient: PublicClient,
-): (strategy: DepositStrategyWithActions) => BondTokenActions {
+): (strategy: DepositStrategyWithActions<MoonwellDepositStrategyConfig>) => BondTokenActions {
   return (strategy: DepositStrategyWithActions) => {
     const moonwellContract = getContract({
       address: strategy.bondTokenAddress,

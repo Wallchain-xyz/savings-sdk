@@ -14,6 +14,8 @@ import {
   DepositStrategyProtocolType,
   createDepositStrategy,
 } from './DepositStrategy';
+import { aaveV3BondTokenActions } from './stategyActions/aaveV3BondTokenActions';
+import { aaveV3ERC20Actions } from './stategyActions/aaveV3ERC20Actions';
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
 import { beefyERC20Actions } from './stategyActions/beefyERC20Actions';
 import { beefyNativeActions } from './stategyActions/beefyNativeActions';
@@ -64,9 +66,10 @@ export class StrategiesManager {
       const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
 
       const strategiesArray = strategyConfigs.map(strategyConfig => {
-        let strategy = createDepositStrategy(strategyConfig);
+        let strategy;
         switch (strategyConfig.protocolType) {
           case DepositStrategyProtocolType.beefy: {
+            strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(beefyBondTokenActions(publicClient));
             if (strategy.isNative) {
               strategy = strategy.extend(beefyNativeActions);
@@ -76,15 +79,22 @@ export class StrategiesManager {
             break;
           }
           case DepositStrategyProtocolType.moonwell: {
+            strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(moonwellBondTokenActions(publicClient));
             strategy = strategy.extend(moonwellERC20Actions);
             break;
           }
+          case DepositStrategyProtocolType.aaveV3: {
+            strategy = createDepositStrategy(strategyConfig);
+            strategy = strategy.extend(aaveV3BondTokenActions);
+            strategy = strategy.extend(aaveV3ERC20Actions);
+            break;
+          }
           default:
-            assertNever(strategyConfig.protocolType);
+            assertNever(strategyConfig);
         }
         if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
-          strategy = (strategy as DepositStrategy).extend(eoaActions);
+          strategy = strategy.extend(eoaActions);
         }
         return strategy as DepositStrategy;
       });

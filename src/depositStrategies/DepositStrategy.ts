@@ -29,6 +29,7 @@ export type DepositStrategyId = string;
 export enum DepositStrategyProtocolType {
   beefy = 'beefy',
   moonwell = 'moonwell',
+  aaveV3 = 'aaveV3',
 }
 
 export enum DepositStrategyAccountType {
@@ -36,10 +37,10 @@ export enum DepositStrategyAccountType {
   eoa = 'eoa',
 }
 
-export interface DepositStrategyConfig {
+interface DepositStrategyConfig_Base {
   id: DepositStrategyId;
   name: string;
-  protocolType: DepositStrategyProtocolType;
+
   accountType: DepositStrategyAccountType;
   permissions: Permission[];
   chainId: SupportedChainId;
@@ -50,6 +51,24 @@ export interface DepositStrategyConfig {
   protocolImageURL: string;
   bondTokenAddress: Address;
 }
+
+export interface BeefyDepositStrategyConfig extends DepositStrategyConfig_Base {
+  protocolType: DepositStrategyProtocolType.beefy;
+}
+
+export interface MoonwellDepositStrategyConfig extends DepositStrategyConfig_Base {
+  protocolType: DepositStrategyProtocolType.moonwell;
+}
+
+export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base {
+  protocolType: DepositStrategyProtocolType.aaveV3;
+  poolAddress: Address;
+}
+
+export type DepositStrategyConfig =
+  | BeefyDepositStrategyConfig
+  | MoonwellDepositStrategyConfig
+  | AaveV3DepositStrategyConfig;
 
 interface TokenInfo {
   name: string;
@@ -62,8 +81,8 @@ interface ProtocolInfo {
   imageUrl: string;
 }
 
-interface DepositStrategy_Base {
-  config: DepositStrategyConfig;
+interface DepositStrategy_Base<config extends DepositStrategyConfig = DepositStrategyConfig> {
+  config: config;
   id: string;
   name: string;
   chainId: SupportedChainId;
@@ -82,13 +101,15 @@ type DepositStrategyActions = { [_ in keyof DepositStrategy_Base]?: undefined } 
   [key: string]: unknown;
 };
 
-export type DepositStrategyWithActions<actions extends DepositStrategyActions | unknown = unknown> =
-  DepositStrategy_Base &
-    Omit<actions, keyof DepositStrategy_Base> & {
-      extend: <newActions extends DepositStrategyActions>(
-        extender: (strategy: DepositStrategyWithActions<actions>) => newActions,
-      ) => DepositStrategyWithActions<actions & newActions>;
-    };
+export type DepositStrategyWithActions<
+  config extends DepositStrategyConfig = DepositStrategyConfig,
+  actions extends DepositStrategyActions | unknown = unknown,
+> = DepositStrategy_Base<config> &
+  Omit<actions, keyof DepositStrategy_Base> & {
+    extend: <newActions extends DepositStrategyActions>(
+      extender: (strategy: DepositStrategyWithActions<config, actions>) => newActions,
+    ) => DepositStrategyWithActions<config, actions & newActions>;
+  };
 
 export type BondTokenActions = {
   bondTokenAmountToTokenAmount: (amount: bigint) => Promise<bigint>;
@@ -100,9 +121,14 @@ export type DepositWithdrawActions = {
   createWithdrawTxns: ({ amount }: CreateWithdrawTxnsParams) => Promise<Txn[]>;
 };
 
-export type DepositStrategy = DepositStrategyWithActions<BondTokenActions & DepositWithdrawActions>;
+export type DepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig> = DepositStrategyWithActions<
+  config,
+  BondTokenActions & DepositWithdrawActions
+>;
 
-export function createDepositStrategy(config: DepositStrategyConfig): DepositStrategyWithActions {
+export function createDepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig>(
+  config: config,
+): DepositStrategyWithActions<config> {
   const params: string[] = [];
   mapStringValuesDeep(config.permissions, value => {
     if (value.startsWith('{{') && value.endsWith('}}')) {
@@ -144,5 +170,5 @@ export function createDepositStrategy(config: DepositStrategyConfig): DepositStr
     };
   }
 
-  return Object.assign(strategy, { extend: extend(strategy) }) as DepositStrategyWithActions;
+  return Object.assign(strategy, { extend: extend(strategy) }) as DepositStrategyWithActions<config>;
 }

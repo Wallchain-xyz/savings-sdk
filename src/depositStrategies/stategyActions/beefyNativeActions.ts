@@ -1,6 +1,7 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
 import {
+  BeefyDepositStrategyConfig,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
   DepositStrategyWithActions,
@@ -12,7 +13,9 @@ const nativeVaultABI = parseAbi([
   'function withdrawBNB(uint256 _shares) public',
 ]);
 
-export function beefyNativeActions(strategy: DepositStrategyWithActions): DepositWithdrawActions {
+export function beefyNativeActions(
+  strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
+): DepositWithdrawActions {
   return {
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {

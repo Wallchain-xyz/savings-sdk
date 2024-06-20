@@ -1,6 +1,6 @@
 import { PublicClient, getContract, parseAbi } from 'viem';
 
-import { BondTokenActions, DepositStrategyWithActions } from '../DepositStrategy';
+import { BeefyDepositStrategyConfig, BondTokenActions, DepositStrategyWithActions } from '../DepositStrategy';
 
 const vaultAbi = parseAbi([
   'function getPricePerFullShare() public view returns (uint256)',
@@ -9,7 +9,7 @@ const vaultAbi = parseAbi([
 
 export function beefyBondTokenActions(
   publicClient: PublicClient,
-): (strategy: DepositStrategyWithActions) => BondTokenActions {
+): (strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>) => BondTokenActions {
   return (strategy: DepositStrategyWithActions) => {
     const vaultContract = getContract({
       address: strategy.bondTokenAddress,

@@ -2,6 +2,7 @@ import { encodeFunctionData, parseAbi } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
 import {
+  BeefyDepositStrategyConfig,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
   DepositStrategyWithActions,
@@ -10,7 +11,9 @@ import {
 
 const erc20VaultABI = parseAbi(['function deposit(uint _amount) public', 'function withdraw(uint256 _shares) public']);
 
-export function beefyERC20Actions(strategy: DepositStrategyWithActions): DepositWithdrawActions {
+export function beefyERC20Actions(
+  strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
+): DepositWithdrawActions {
   return {
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {

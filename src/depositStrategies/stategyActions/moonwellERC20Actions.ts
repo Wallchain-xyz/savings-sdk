@@ -6,6 +6,7 @@ import {
   CreateWithdrawTxnsParams,
   DepositStrategyWithActions,
   DepositWithdrawActions,
+  MoonwellDepositStrategyConfig,
 } from '../DepositStrategy';
 
 const moonwellAbi = parseAbi([
@@ -14,7 +15,9 @@ const moonwellAbi = parseAbi([
   'function exchangeRateStored() public view returns (uint)',
 ]);
 
-export function moonwellERC20Actions(strategy: DepositStrategyWithActions): DepositWithdrawActions {
+export function moonwellERC20Actions(
+  strategy: DepositStrategyWithActions<MoonwellDepositStrategyConfig>,
+): DepositWithdrawActions {
   return {
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {

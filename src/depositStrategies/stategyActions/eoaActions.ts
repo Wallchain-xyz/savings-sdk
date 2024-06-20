@@ -5,6 +5,7 @@ import {
   BondTokenActions,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositStrategyConfig,
   DepositStrategyWithActions,
   DepositWithdrawActions,
   ParamsValuesByKey,
@@ -21,9 +22,10 @@ function ensureAddress(params: ParamsValuesByKey, key: string): Address {
   return value as Address;
 }
 
-export function eoaActions<Actions extends DepositWithdrawActions & BondTokenActions>(
-  strategy: DepositStrategyWithActions<Actions>,
-): DepositWithdrawActions {
+export function eoaActions<
+  config extends DepositStrategyConfig,
+  Actions extends DepositWithdrawActions & BondTokenActions,
+>(strategy: DepositStrategyWithActions<config, Actions>): DepositWithdrawActions {
   return {
     createDepositTxns: ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => [
       {

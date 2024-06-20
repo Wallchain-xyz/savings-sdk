@@ -24,6 +24,8 @@ describe.each([
   ['beefy usdc eoa', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
   ['moonwell usdc', '856a815e-dc16-41a0-84c8-1a94dd7f763b'],
   ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
+  ['aave usdc', '484b91e5-7d5c-4476-b512-45a0a0e4a199'],
+  ['aave usdc eoa', '1af624b4-5a99-42c8-a560-5966b956f2cf'],
 ])('Manual deposit for %s', (_: string, strategyId: string) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
@@ -45,7 +47,7 @@ describe.each([
       bundlerUrl: LOCAL_BUNDLER_URL,
       paymasterUrl: LOCAL_PAYMASTER_RPC_URL,
     });
-  });
+  }, 10_000);
 
   it('can deposit', async () => {
     // Arrange
