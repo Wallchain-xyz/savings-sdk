@@ -57,7 +57,6 @@ wrappedDescribe.each([
     if (bondTokenAmount) {
       await savingsAccount.withdraw({
         depositStrategyId: strategy.id,
-        amount: bondTokenAmount,
       });
     }
   }

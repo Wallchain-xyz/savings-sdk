@@ -66,7 +66,7 @@ describe.each([
     await savingsAccount.activateStrategies({
       activeStrategies: [
         {
-          strategyId: strategy.id,
+          strategyId,
           paramValuesByKey: {
             eoaAddress: eoaAccount.address,
           },
@@ -77,11 +77,11 @@ describe.each([
     await waitForSeconds(5);
 
     // Assert
-    const balanceAfter = await testClient.getERC20Balance({
+    const balanceAfterDepositing = await testClient.getERC20Balance({
       tokenAddress: strategy.tokenAddress,
       accountAddress: eoaAccount.address,
     });
-    expect(balanceAfter).toBeLessThanOrEqual(startBalance - depositAmount);
+    expect(balanceAfterDepositing).toBeLessThanOrEqual(startBalance - depositAmount);
     const bondAmount = await testClient.getERC20Balance({
       tokenAddress: strategy.bondTokenAddress,
       accountAddress: savingsAccount.aaAddress,

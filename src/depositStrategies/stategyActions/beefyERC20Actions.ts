@@ -9,7 +9,12 @@ import {
   DepositWithdrawActions,
 } from '../DepositStrategy';
 
-const erc20VaultABI = parseAbi(['function deposit(uint _amount) public', 'function withdraw(uint256 _shares) public']);
+const erc20VaultABI = parseAbi([
+  'function deposit(uint _amount) public',
+  'function withdraw(uint256 _shares) public',
+  // TODO: @merlin migrate from withdraw to withdrawAll
+  // 'function withdrawAll() public',
+]);
 
 export function beefyERC20Actions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
@@ -36,16 +41,30 @@ export function beefyERC20Actions(
       },
     ],
 
-    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => [
-      {
-        to: strategy.bondTokenAddress,
-        value: 0n,
-        data: encodeFunctionData({
-          abi: erc20VaultABI,
-          functionName: 'withdraw',
-          args: [amount],
-        }),
-      },
-    ],
+    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
+      // if (amount === undefined) {
+      //   return [
+      //     {
+      //       to: strategy.bondTokenAddress,
+      //       value: 0n,
+      //       data: encodeFunctionData({
+      //         abi: erc20VaultABI,
+      //         functionName: 'withdrawAll',
+      //       }),
+      //     },
+      //   ];
+      // }
+      return [
+        {
+          to: strategy.bondTokenAddress,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: erc20VaultABI,
+            functionName: 'withdraw',
+            args: [amount],
+          }),
+        },
+      ];
+    },
   };
 }

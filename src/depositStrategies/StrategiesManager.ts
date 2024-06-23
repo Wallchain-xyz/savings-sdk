@@ -86,7 +86,7 @@ export class StrategiesManager {
           }
           case DepositStrategyProtocolType.aaveV3: {
             strategy = createDepositStrategy(strategyConfig);
-            strategy = strategy.extend(aaveV3BondTokenActions);
+            strategy = strategy.extend(aaveV3BondTokenActions(publicClient));
             strategy = strategy.extend(aaveV3ERC20Actions);
             break;
           }

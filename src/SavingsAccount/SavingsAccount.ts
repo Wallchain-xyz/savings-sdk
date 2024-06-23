@@ -30,7 +30,9 @@ interface WithdrawOrDepositParams {
   amount: bigint;
 }
 
-interface WithdrawParams extends WithdrawOrDepositParams, Omit<PauseDepositingParams, 'chainId'> {}
+interface WithdrawParams extends Omit<WithdrawOrDepositParams, 'amount'>, Omit<PauseDepositingParams, 'chainId'> {
+  amount?: bigint;
+}
 
 interface ActivateStrategiesParams {
   activeStrategies: ActiveStrategy[];
@@ -137,7 +139,7 @@ export class SavingsAccount {
       });
     }
     const txns = await strategy.createWithdrawTxns({
-      amount,
+      amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),
       paramValuesByKey: {
         // TODO: fetch parameter from strategy, do not use this constant here
         eoaAddress: this.privateKeyAccount.address,

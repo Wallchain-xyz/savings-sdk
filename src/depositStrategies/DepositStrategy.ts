@@ -114,11 +114,12 @@ export type DepositStrategyWithActions<
 export type BondTokenActions = {
   bondTokenAmountToTokenAmount: (amount: bigint) => Promise<bigint>;
   tokenAmountToBondTokenAmount: (amount: bigint) => Promise<bigint>;
+  getBondTokenBalance: (address: Address) => Promise<bigint>;
 };
 
 export type DepositWithdrawActions = {
-  createDepositTxns: ({ amount }: CreateDepositTxnsParams) => Txn[];
-  createWithdrawTxns: ({ amount }: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+  createDepositTxns: (params: CreateDepositTxnsParams) => Txn[];
+  createWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
 };
 
 export type DepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig> = DepositStrategyWithActions<

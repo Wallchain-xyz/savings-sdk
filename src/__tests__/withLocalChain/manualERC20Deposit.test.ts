@@ -99,6 +99,8 @@ describe.each([
       accountAddress: tokenOwnerAddress,
     });
     const depositAmount = startBalance / 2n;
+
+    // TODO: @merlin ask @roman why is this only for  aave and seamless
     if (strategy.isEOA) {
       await testClient.setAllowance({
         account: eoaAccount,
@@ -107,6 +109,7 @@ describe.each([
         amount: depositAmount,
       });
     }
+
     await savingsAccount.deposit({
       amount: depositAmount,
       depositStrategyId: strategy.id,
@@ -114,10 +117,6 @@ describe.each([
 
     // Act
     const userOpResult = await savingsAccount.withdraw({
-      amount: await testClient.getERC20Balance({
-        tokenAddress: strategy.bondTokenAddress,
-        accountAddress: savingsAccount.aaAddress,
-      }),
       depositStrategyId: strategy.id,
     });
 
