@@ -10,7 +10,7 @@ import { AAProvider, CreateSKAccountParams } from '../shared/AAProvider';
 import { BundlerType } from '../shared/BundlerType';
 import { PrimaryAAAccount } from '../shared/PrimaryAAAccount';
 
-import { KernelClient } from './shared';
+import { KERNEL_VERSION, KernelClient } from './shared';
 import { ZerodevPrimaryAAAccount } from './ZerodevPrimaryAAAccount';
 import { ZerodevSKAccount } from './ZerodevSKAccount';
 
@@ -43,10 +43,12 @@ export class ZerodevAAProvider implements AAProvider {
     });
     const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
       signer,
+      kernelVersion: KERNEL_VERSION,
       entryPoint: ENTRYPOINT_ADDRESS_V06,
     });
     const aaAccount = await createKernelAccount(publicClient, {
       entryPoint: ENTRYPOINT_ADDRESS_V06,
+      kernelVersion: KERNEL_VERSION,
       plugins: {
         sudo: ecdsaValidator,
       },
@@ -66,6 +68,7 @@ export class ZerodevAAProvider implements AAProvider {
     const sessionKeyAccount = await deserializeSessionKeyAccount(
       publicClient,
       ENTRYPOINT_ADDRESS_V06,
+      KERNEL_VERSION,
       serializedSKAData,
       skaSigner,
     );

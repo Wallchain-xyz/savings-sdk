@@ -12,7 +12,7 @@ import { type Abi, Address, PublicClient, encodeFunctionData, getAbiItem, toFunc
 import { CreateSKAResult, CreateSessionKeyParams, PrimaryAAAccount } from '../shared/PrimaryAAAccount';
 import { Txn } from '../shared/Txn';
 
-import { ECDSAValidator } from './shared';
+import { ECDSAValidator, KERNEL_VERSION } from './shared';
 import { ZerodevAAAccount, ZerodevAAAccountParams } from './ZerodevAAAccount';
 
 interface ZerodevPrimaryAAAccountParams extends ZerodevAAAccountParams {
@@ -48,6 +48,7 @@ export class ZerodevPrimaryAAAccount extends ZerodevAAAccount implements Primary
     const sessionKeyValidator = await signerToSessionKeyValidator(this.publicClient, {
       entryPoint: ENTRYPOINT_ADDRESS_V06,
       signer: addressToEmptyAccount(skaAddress),
+      kernelVersion: KERNEL_VERSION,
       validatorData: {
         // Next cast requires casting compatible enum, but typescript is not happy about this cast
         permissions: permissions as unknown as ZerodevPermission<Abi, string>[],
@@ -55,6 +56,7 @@ export class ZerodevPrimaryAAAccount extends ZerodevAAAccount implements Primary
     });
     const sessionKeyAccount = await createKernelAccount(this.publicClient, {
       entryPoint: ENTRYPOINT_ADDRESS_V06,
+      kernelVersion: KERNEL_VERSION,
       plugins: {
         sudo: this.ecdsaValidator,
         regular: sessionKeyValidator,
