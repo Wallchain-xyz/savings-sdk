@@ -1,5 +1,5 @@
-import { KERNEL_V2_4 } from '@zerodev/sdk/_types/constants';
 import { KernelAccountClient } from '@zerodev/sdk/clients/kernelAccountClient';
+import { KERNEL_V2_4 } from '@zerodev/sdk/constants';
 import { ENTRYPOINT_ADDRESS_V06 } from 'permissionless';
 import { Chain, Transport } from 'viem';
 
