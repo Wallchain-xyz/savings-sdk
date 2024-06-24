@@ -42,6 +42,10 @@ export function beefyERC20Actions(
     ],
 
     createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
+      // TODO: @merlin think how to remove this duplication
+      if (amount === 0n) {
+        return [];
+      }
       // if (amount === undefined) {
       //   return [
       //     {

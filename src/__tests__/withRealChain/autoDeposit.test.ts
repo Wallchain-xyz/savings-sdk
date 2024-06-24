@@ -6,7 +6,7 @@ import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/creat
 
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
 import { HelperClient, createHelperRealClient } from '../../testSuite/createHelperRealClient';
-import { USDC_TOKEN_ADDRESS } from '../utils/consts';
+import { ALLOWED_DECREASE_DURING_DEPOSIT, USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { waitForSeconds } from '../utils/waitForSeconds';
 
 const privateKey = process.env.PRIVATE_KEY as Hex;
@@ -45,25 +45,12 @@ wrappedDescribe('with proper setup', () => {
     });
   }
 
-  async function withdrawAll(strategy: DepositStrategy) {
-    const bondTokenAmount = await client.getERC20Balance({
-      tokenAddress: strategy.bondTokenAddress,
-      accountAddress: savingsAccount.aaAddress,
-    });
-    if (bondTokenAmount) {
-      await savingsAccount.withdraw({
-        depositStrategyId: strategy.id,
-        amount: bondTokenAmount,
-      });
-    }
-  }
-
   wrappedDescribe.each([
     ['beefy eth', '018ecbc3-597e-739c-bfac-80d534743e3e'],
     ['beefy usdc', '018f04e0-73d5-77be-baec-c76bac26b4f3'],
     ['beefy usdc eoa', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
-    // ['moonwell usdc', '856a815e-dc16-41a0-84c8-1a94dd7f763b'],
-    // ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
+    ['moonwell usdc', '856a815e-dc16-41a0-84c8-1a94dd7f763b'],
+    ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
   ])('Auto deposit for %s', (_: string, strategyId: string) => {
     it('can deposit', async () => {
       // Arrange
@@ -72,15 +59,17 @@ wrappedDescribe('with proper setup', () => {
       // Act
       await savingsAccount.auth();
       // Withdraw if already deposited
-      await withdrawAll(strategy);
+      await savingsAccount.withdraw({
+        depositStrategyId: strategyId,
+      });
       const balanceBeforeDeposit = await getStrategyTokenBalance(strategy);
       // Activate if not already
       const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
-      if (!activeStrategies.some(activeStrategy => activeStrategy.id === strategy.id)) {
+      if (!activeStrategies.some(activeStrategy => activeStrategy.id === strategyId)) {
         await savingsAccount.activateStrategies({
           activeStrategies: [
             {
-              strategyId: strategy.id,
+              strategyId,
               paramValuesByKey: {
                 eoaAddress: eoaAccount.address,
               },
@@ -103,20 +92,23 @@ wrappedDescribe('with proper setup', () => {
       await waitForSeconds(5);
       const balanceAfterDeposit = await getStrategyTokenBalance(strategy);
       // Withdraw for other tests to work
-      await withdrawAll(strategy);
+      await savingsAccount.withdraw({
+        depositStrategyId: strategyId,
+      });
 
       // Assert
       expect(balanceBeforeDeposit).toBeGreaterThan(balanceAfterDeposit);
     }, 120_000);
   });
 
-  // TODO: @merlin check this doesn't work for some reason
-  // eslint-disable-next-line jest/no-disabled-tests
-  describe.skip('with all strategies for USDC', () => {
+  describe('with all strategies for USDC', () => {
     it('can deposit using all strategies for USDC', async () => {
       const tokenAddress = USDC_TOKEN_ADDRESS;
 
       await savingsAccount.auth();
+
+      const initialWithdrawUserOpResult = await savingsAccount.withdrawAll();
+      expect(initialWithdrawUserOpResult.success).toBeTruthy();
 
       const supportedEoaStrategies = savingsAccount.strategiesManager.findAllStrategies({ isEOA: true });
       const activeStrategies = await savingsAccount.getCurrentActiveStrategies();
@@ -159,6 +151,30 @@ wrappedDescribe('with proper setup', () => {
 
       // Assert
       expect(balanceBeforeDeposit).toBeGreaterThan(balanceAfterDeposit);
-    }, 30_000);
+
+      const finalWithdrawUserOpResult = await savingsAccount.withdrawAll();
+      expect(finalWithdrawUserOpResult.success).toBeTruthy();
+
+      const balanceAfterWithdraw = await getStrategyTokenBalance({
+        isEOA: true,
+        isNative: false,
+        tokenAddress,
+      });
+
+      expect(balanceAfterWithdraw).toBeGreaterThan(balanceBeforeDeposit - ALLOWED_DECREASE_DURING_DEPOSIT);
+    }, 45_000);
+  });
+
+  describe('withdrawAll', () => {
+    it('does not fail when have no bond tokens', async () => {
+      await savingsAccount.auth();
+      const initialWithdrawUserOpResult = await savingsAccount.withdrawAll();
+      expect(initialWithdrawUserOpResult.success).toBeTruthy();
+
+      const secondWithdrawUserOpResult = await savingsAccount.withdrawAll();
+      expect(secondWithdrawUserOpResult.success).toBeTruthy();
+      // TODO: @merlin fix this test, so when nothing to withdraw txnHash is not send to chain
+      // expect(secondWithdrawUserOpResult.txnHash).toBeUndefined();
+    }, 15_000);
   });
 });

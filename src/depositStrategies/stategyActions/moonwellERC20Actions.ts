@@ -40,16 +40,22 @@ export function moonwellERC20Actions(
       },
     ],
 
-    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => [
-      {
-        to: strategy.bondTokenAddress,
-        value: 0n,
-        data: encodeFunctionData({
-          abi: moonwellAbi,
-          functionName: 'redeem',
-          args: [amount],
-        }),
-      },
-    ],
+    createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
+      // TODO: @merlin think how to remove this duplication
+      if (amount === 0n) {
+        return [];
+      }
+      return [
+        {
+          to: strategy.bondTokenAddress,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: moonwellAbi,
+            functionName: 'redeem',
+            args: [amount],
+          }),
+        },
+      ];
+    },
   };
 }

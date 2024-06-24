@@ -49,25 +49,13 @@ wrappedDescribe.each([
     });
   }
 
-  async function withdrawAll(strategy: DepositStrategy) {
-    const bondTokenAmount = await client.getERC20Balance({
-      tokenAddress: strategy.bondTokenAddress,
-      accountAddress: savingsAccount.aaAddress,
-    });
-    if (bondTokenAmount) {
-      await savingsAccount.withdraw({
-        depositStrategyId: strategy.id,
-      });
-    }
-  }
-
   it('can deposit', async () => {
     // Arrange
     const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
 
     // Act
     // Withdraw if already deposited
-    await withdrawAll(strategy);
+    await savingsAccount.withdraw({ depositStrategyId: strategyId });
     const balanceBeforeDeposit = await getStrategyTokenBalance(strategy);
     if (strategy.isEOA) {
       await client.ensureAllowance({
@@ -80,12 +68,14 @@ wrappedDescribe.each([
       });
     }
     await savingsAccount.deposit({
-      depositStrategyId: strategy.id,
+      depositStrategyId: strategyId,
       amount: balanceBeforeDeposit,
     });
     const balanceAfterDeposit = await getStrategyTokenBalance(strategy);
     // Withdraw for other tests to work
-    await withdrawAll(strategy);
+    await savingsAccount.withdraw({
+      depositStrategyId: strategyId,
+    });
 
     // Assert
     expect(balanceBeforeDeposit).toBeGreaterThan(balanceAfterDeposit);

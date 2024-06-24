@@ -218,6 +218,23 @@ await savingsAccount.withdraw({
 });
 ```
 
+or avoid passing amount to withdraw everything from particular strategy
+
+```ts
+await savingsAccount.withdraw({
+  depositStrategyId: '<id of DepositStrategy to use>',
+  pauseUntilDatetime: 'Optional Date object to pause automatic depositing until',
+});
+```
+
+or use a separate method to withdraw all money from all user's active strategies
+
+```ts
+await savingsAccount.withdrawAll({
+  pauseUntilDatetime: 'Optional Date object to pause automatic depositing until',
+});
+```
+
 You can also manually deposit it back:
 
 ```ts

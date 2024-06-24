@@ -40,17 +40,26 @@ export function eoaActions<
       ...strategy.createDepositTxns({ amount, paramValuesByKey }),
     ],
 
-    createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => [
-      ...(await strategy.createWithdrawTxns({ amount, paramValuesByKey })),
-      {
-        to: strategy.tokenAddress,
-        value: 0n,
-        data: encodeFunctionData({
-          abi: erc20ABI,
-          functionName: 'transfer',
-          args: [ensureAddress(paramValuesByKey, 'eoaAddress'), await strategy.bondTokenAmountToTokenAmount(amount)],
-        }),
-      },
-    ],
+    createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => {
+      // TODO: @merlin think how to remove this duplication
+      if (amount === 0n) {
+        return [];
+      }
+      const withdrawTxnsPromise = strategy.createWithdrawTxns({ amount, paramValuesByKey });
+      const tokenAmountPromise = strategy.bondTokenAmountToTokenAmount(amount);
+
+      return [
+        ...(await withdrawTxnsPromise),
+        {
+          to: strategy.tokenAddress,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: erc20ABI,
+            functionName: 'transfer',
+            args: [ensureAddress(paramValuesByKey, 'eoaAddress'), await tokenAmountPromise],
+          }),
+        },
+      ];
+    },
   };
 }

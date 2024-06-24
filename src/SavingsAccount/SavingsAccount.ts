@@ -131,12 +131,41 @@ export class SavingsAccount {
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
+  async withdrawAll(pauseUntilDatetime?: WithdrawParams['pauseUntilDatetime']): Promise<UserOpResult> {
+    if (pauseUntilDatetime) {
+      this.savingsBackendClient
+        .pauseDepositing({
+          pauseUntilDatetime,
+        })
+        // eslint-disable-next-line no-console
+        .catch(error => console.error(error));
+    }
+
+    const currentActiveStrategies = await this.getCurrentActiveStrategies();
+    const txns = await Promise.all(
+      currentActiveStrategies.map(async strategy => {
+        return strategy.createWithdrawTxns({
+          amount: await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress),
+          paramValuesByKey: {
+            // TODO: fetch parameter from strategy, do not use this constant here
+            eoaAddress: this.privateKeyAccount.address,
+            aaAddress: this.aaAddress,
+          },
+        });
+      }),
+    );
+    return this.primaryAAAccount.sendTxnsAndWait(txns.flat());
+  }
+
   async withdraw({ depositStrategyId, amount, pauseUntilDatetime }: WithdrawParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     if (pauseUntilDatetime) {
-      await this.savingsBackendClient.pauseDepositing({
-        pauseUntilDatetime,
-      });
+      this.savingsBackendClient
+        .pauseDepositing({
+          pauseUntilDatetime,
+        })
+        // eslint-disable-next-line no-console
+        .catch(error => console.error(error));
     }
     const txns = await strategy.createWithdrawTxns({
       amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),

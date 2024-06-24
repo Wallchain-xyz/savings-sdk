@@ -204,21 +204,19 @@ describe('savingsAccount', () => {
       });
 
       it('withdraw with pauseUntilDatetime', async () => {
-        async function withdraw() {
+        await expect(async () => {
           await savingsAccount.withdraw({
             depositStrategyId,
-            amount: 100_000n,
             pauseUntilDatetime: new Date(),
           });
-        }
-
-        await expect(async () => {
-          await withdraw();
         }).rejects.toThrow(UnauthenticatedError);
 
         await savingsAccount.auth();
         await expect(async () => {
-          await withdraw();
+          await savingsAccount.withdraw({
+            depositStrategyId,
+            pauseUntilDatetime: new Date(),
+          });
         }).rejects.not.toThrow(UnauthenticatedError);
       });
 
@@ -242,7 +240,6 @@ describe('savingsAccount', () => {
         await expect(async () => {
           await savingsAccount.withdraw({
             depositStrategyId,
-            amount: 100_000n,
           });
         }).rejects.not.toThrow(UnauthenticatedError);
       });
