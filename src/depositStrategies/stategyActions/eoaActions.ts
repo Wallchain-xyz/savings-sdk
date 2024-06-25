@@ -41,10 +41,6 @@ export function eoaActions<
     ],
 
     createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => {
-      // TODO: @merlin think how to remove this duplication
-      if (amount === 0n) {
-        return [];
-      }
       const withdrawTxnsPromise = strategy.createWithdrawTxns({ amount, paramValuesByKey });
       const tokenAmountPromise = strategy.bondTokenAmountToTokenAmount(amount);
 

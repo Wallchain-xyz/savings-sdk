@@ -3,7 +3,12 @@ import { Hex, PrivateKeyAccount } from 'viem';
 import { base } from 'viem/chains';
 
 import { ServerAPIError } from '../../api/shared/errors';
-import { SavingsAccount, UnauthenticatedError, createSavingsAccountFromPrivateKeyAccount } from '../../index';
+import {
+  SavingsAccount,
+  StrategyNotFoundError,
+  UnauthenticatedError,
+  createSavingsAccountFromPrivateKeyAccount,
+} from '../../index';
 import { USDC_TOKEN_ADDRESS } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 
@@ -177,7 +182,7 @@ describe('savingsAccount', () => {
         await savingsAccount.auth();
 
         const result = await activateStrategy();
-        expect(result).toBe(undefined);
+        expect(result).toBeUndefined();
       }, 10_000);
 
       it('getCurrentActiveStrategies', async () => {
@@ -200,7 +205,7 @@ describe('savingsAccount', () => {
         await savingsAccount.auth();
 
         const result = await savingsAccount.deactivateAllStrategies();
-        expect(result).toBe(undefined);
+        expect(result).toBeUndefined();
       });
 
       it('withdraw with pauseUntilDatetime', async () => {
@@ -251,6 +256,58 @@ describe('savingsAccount', () => {
             amount: 100_000n,
           });
         }).rejects.not.toThrow(UnauthenticatedError);
+      });
+    });
+  });
+
+  describe('with savings account', () => {
+    let savingsAccount: SavingsAccount;
+    beforeEach(async () => {
+      savingsAccount = await createSavingsAccountFromPrivateKeyAccount({
+        privateKeyAccount: eoaAccount,
+        chainId: chain.id,
+        savingsBackendUrl,
+        apiKey: pimlicoApiKey,
+      });
+    });
+
+    describe('withdraw', () => {
+      it('throws not found error when incorrect strategy id is passed', async () => {
+        await expect(() => {
+          return savingsAccount.withdraw({
+            amount: 0n,
+            depositStrategyId: 'incorrect string',
+          });
+        }).rejects.toThrow(StrategyNotFoundError);
+      });
+
+      it('returns undefined hash if 0 amount passed', async () => {
+        const userOpResult = await savingsAccount.withdraw({
+          amount: 0n,
+          depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e',
+        });
+        expect(userOpResult.success).toBe(true);
+        expect(userOpResult.txnHash).toBeUndefined();
+      });
+    });
+
+    describe('deposit', () => {
+      it('throws not found error when incorrect strategy id is passed', async () => {
+        await expect(() => {
+          return savingsAccount.deposit({
+            amount: 0n,
+            depositStrategyId: 'incorrect string',
+          });
+        }).rejects.toThrow(StrategyNotFoundError);
+      });
+
+      it('returns undefined hash if 0 amount passed', async () => {
+        const userOpResult = await savingsAccount.deposit({
+          amount: 0n,
+          depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e',
+        });
+        expect(userOpResult.success).toBe(true);
+        expect(userOpResult.txnHash).toBeUndefined();
       });
     });
   });

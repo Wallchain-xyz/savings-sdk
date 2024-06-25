@@ -15,14 +15,16 @@ import {
   createDepositStrategy,
 } from './DepositStrategy';
 import { aaveV3BondTokenActions } from './stategyActions/aaveV3BondTokenActions';
-import { aaveV3ERC20Actions } from './stategyActions/aaveV3ERC20Actions';
+import { aaveV3ERC20DepositWithdrawActions } from './stategyActions/aaveV3ERC20DepositWithdrawActions';
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
-import { beefyERC20Actions } from './stategyActions/beefyERC20Actions';
-import { beefyNativeActions } from './stategyActions/beefyNativeActions';
+import { beefyERC20DepositWithdrawActions } from './stategyActions/beefyERC20DepositWithdrawActions';
+import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeDepositWithdrawActions';
 import { eoaActions } from './stategyActions/eoaActions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
-import { moonwellERC20Actions } from './stategyActions/moonwellERC20Actions';
+import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
+import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
 import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
+import { StrategyNotFoundError } from './StrategyNotFoundError';
 
 const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
   ({
@@ -72,22 +74,22 @@ export class StrategiesManager {
             strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(beefyBondTokenActions(publicClient));
             if (strategy.isNative) {
-              strategy = strategy.extend(beefyNativeActions);
+              strategy = strategy.extend(beefyNativeDepositWithdrawActions);
             } else {
-              strategy = strategy.extend(beefyERC20Actions);
+              strategy = strategy.extend(beefyERC20DepositWithdrawActions);
             }
             break;
           }
           case DepositStrategyProtocolType.moonwell: {
             strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(moonwellBondTokenActions(publicClient));
-            strategy = strategy.extend(moonwellERC20Actions);
+            strategy = strategy.extend(moonwellERC20DepositWithdrawActions);
             break;
           }
           case DepositStrategyProtocolType.aaveV3: {
             strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(aaveV3BondTokenActions(publicClient));
-            strategy = strategy.extend(aaveV3ERC20Actions);
+            strategy = strategy.extend(aaveV3ERC20DepositWithdrawActions);
             break;
           }
           default:
@@ -96,6 +98,7 @@ export class StrategiesManager {
         if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
           strategy = strategy.extend(eoaActions);
         }
+        strategy = strategy.extend(zeroDepositWithdrawActions);
         return strategy as DepositStrategy;
       });
       this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
@@ -106,7 +109,7 @@ export class StrategiesManager {
 
   getStrategy(strategyId: string): DepositStrategy {
     if (!(strategyId in this.strategiesById)) {
-      throw new Error(`Deposit with id - ${strategyId} not found.`);
+      throw new StrategyNotFoundError(strategyId);
     }
     return this.strategiesById[strategyId];
   }

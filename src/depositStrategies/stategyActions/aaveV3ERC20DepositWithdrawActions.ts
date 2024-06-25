@@ -14,7 +14,7 @@ const aaveV3Abi = parseAbi([
   'function withdraw(address asset, uint256 amount, address to) public',
 ]);
 
-export function aaveV3ERC20Actions(
+export function aaveV3ERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<AaveV3DepositStrategyConfig>,
 ): DepositWithdrawActions {
   return {
@@ -39,22 +39,16 @@ export function aaveV3ERC20Actions(
       },
     ],
 
-    createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => {
-      // TODO: @merlin think how to remove this duplication
-      if (amount === 0n) {
-        return [];
-      }
-      return [
-        {
-          to: strategy.config.poolAddress,
-          value: 0n,
-          data: encodeFunctionData({
-            abi: aaveV3Abi,
-            functionName: 'withdraw',
-            args: [strategy.tokenAddress, amount, paramValuesByKey.aaAddress as Address],
-          }),
-        },
-      ];
-    },
+    createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => [
+      {
+        to: strategy.config.poolAddress,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: aaveV3Abi,
+          functionName: 'withdraw',
+          args: [strategy.tokenAddress, amount, paramValuesByKey.aaAddress as Address],
+        }),
+      },
+    ],
   };
 }

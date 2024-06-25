@@ -173,8 +173,7 @@ wrappedDescribe('with proper setup', () => {
 
       const secondWithdrawUserOpResult = await savingsAccount.withdrawAll();
       expect(secondWithdrawUserOpResult.success).toBeTruthy();
-      // TODO: @merlin fix this test, so when nothing to withdraw txnHash is not send to chain
-      // expect(secondWithdrawUserOpResult.txnHash).toBeUndefined();
-    }, 15_000);
+      expect(secondWithdrawUserOpResult.txnHash).toBeUndefined();
+    }, 30_000);
   });
 });

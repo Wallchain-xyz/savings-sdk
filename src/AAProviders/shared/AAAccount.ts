@@ -10,7 +10,7 @@ export interface WaitParams {
 }
 
 export interface UserOpResult {
-  txnHash: Hash;
+  txnHash: Hash | undefined;
   success: boolean;
 }
 
@@ -29,7 +29,10 @@ export abstract class AAAccount {
     this.paymaster = paymaster;
   }
 
-  async sendTxns(txns: Txn[]): Promise<Hash> {
+  async sendTxns(txns: Txn[]): Promise<Hash | undefined> {
+    if (txns.length === 0) {
+      return undefined;
+    }
     let userOp = await this.buildUserOp(txns);
     if (this.paymaster) {
       userOp = await this.paymaster.addPaymasterIntoUserOp(userOp);
@@ -39,6 +42,12 @@ export abstract class AAAccount {
 
   async sendTxnsAndWait(txns: Txn[]): Promise<UserOpResult> {
     const userOpHash = await this.sendTxns(txns);
+    if (userOpHash === undefined) {
+      return {
+        success: true,
+        txnHash: undefined,
+      };
+    }
     return this.waitForUserOp(userOpHash);
   }
 }

@@ -1,5 +1,6 @@
 import { encodeFunctionData, parseAbi } from 'viem';
 
+import { erc20ABI } from '../../utils/erc20ABI';
 import {
   BeefyDepositStrategyConfig,
   CreateDepositTxnsParams,
@@ -8,55 +9,59 @@ import {
   DepositWithdrawActions,
 } from '../DepositStrategy';
 
-const nativeVaultABI = parseAbi([
-  'function depositBNB() public payable',
-  'function withdrawBNB(uint256 _shares) public',
-  'function balanceOf(address owner) view returns (uint256)',
-  // TODO: @merlin migrate from withdrawBNB to withdrawAllBNB
-  // 'function withdrawAllBNB() public nonpayable',
+const erc20VaultABI = parseAbi([
+  'function deposit(uint _amount) public',
+  'function withdraw(uint256 _shares) public',
+  // TODO: @merlin migrate from withdraw to withdrawAll
+  // 'function withdrawAll() public',
 ]);
 
-export function beefyNativeActions(
+export function beefyERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
 ): DepositWithdrawActions {
   return {
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
-        to: strategy.bondTokenAddress,
-        value: amount,
+        to: strategy.tokenAddress,
+        value: 0n,
         data: encodeFunctionData({
-          abi: nativeVaultABI,
-          functionName: 'depositBNB',
-          args: [],
+          abi: erc20ABI,
+          functionName: 'approve',
+          args: [strategy.bondTokenAddress, amount],
+        }),
+      },
+      {
+        to: strategy.bondTokenAddress,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: erc20VaultABI,
+          functionName: 'deposit',
+          args: [amount],
         }),
       },
     ],
 
     createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
       // TODO: @merlin think how to remove this duplication
-      if (amount === 0n) {
-        return [];
-      }
       // if (amount === undefined) {
       //   return [
       //     {
       //       to: strategy.bondTokenAddress,
       //       value: 0n,
       //       data: encodeFunctionData({
-      //         abi: vaultAbi,
-      //         functionName: 'withdrawAllBNB',
+      //         abi: erc20VaultABI,
+      //         functionName: 'withdrawAll',
       //       }),
       //     },
       //   ];
       // }
-
       return [
         {
           to: strategy.bondTokenAddress,
           value: 0n,
           data: encodeFunctionData({
-            abi: nativeVaultABI,
-            functionName: 'withdrawBNB',
+            abi: erc20VaultABI,
+            functionName: 'withdraw',
             args: [amount],
           }),
         },
