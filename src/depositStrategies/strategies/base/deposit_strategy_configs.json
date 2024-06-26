@@ -1029,7 +1029,7 @@
     "defiLlamaPoolId": "1fe6614c-f384-401d-8a63-e696e13c808c",
     "permissions": [
       {
-        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "target": "0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7",
         "functionName": "supply",
         "valueLimit": "0x0",
         "abi": [
