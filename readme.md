@@ -125,17 +125,16 @@ In order to persist session after reload you should:
   `localStorage.setItem(`savingsSdkToken\_${eoaAddress}`, token)`
 
 - pass it as authorization header when initializing `SavingsAccount`:
-  ````ts
-      const token = localStorage.getItem(`savingsSdkToken_${eoaAddress}`);
-      const savingsAccount = createSavingsAccountFromPrivateKeyAccount({
-        privateKeyAccount,
-        chainId,
-        apiKey,
-        savingsBackendUrl,
-      });
-      savingsAccount.setAuthToken(token);
-    ```
-  ````
+  ```ts
+  const token = localStorage.getItem(`savingsSdkToken_${eoaAddress}`);
+  const savingsAccount = createSavingsAccountFromPrivateKeyAccount({
+    privateKeyAccount,
+    chainId,
+    apiKey,
+    savingsBackendUrl,
+  });
+  savingsAccount.setAuthToken(token);
+  ```
 
 #### Methods that don't require authentication
 
