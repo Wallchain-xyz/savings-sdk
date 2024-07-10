@@ -1,7 +1,12 @@
 import { ADDRESS_ZERO } from '@biconomy/account';
 import { Address, encodeFunctionData, parseAbi } from 'viem';
 
-import { USDC_SOURCE_ACCOUNT_ADDRESS, USDC_TOKEN_ADDRESS } from '../../__tests__/utils/consts';
+import {
+  USDC_SOURCE_ACCOUNT_ADDRESS,
+  USDC_TOKEN_ADDRESS,
+  WETH_SOURCE_ACCOUNT_ADDRESS,
+  WETH_TOKEN_ADDRESS,
+} from '../../__tests__/utils/consts';
 import { ExtendedTestClient } from '../createExtendedTestClient';
 
 import { ensureEnoughBalanceForGas } from './ensureEnoughBalanceForGas';
@@ -15,6 +20,7 @@ export interface SetERC20BalanceParams {
 
 const DONOR_ADDRESS_BY_TOKEN: { [key: Address]: Address | undefined } = {
   [USDC_TOKEN_ADDRESS]: USDC_SOURCE_ACCOUNT_ADDRESS,
+  [WETH_TOKEN_ADDRESS]: WETH_SOURCE_ACCOUNT_ADDRESS,
 };
 
 export async function setERC20Balance(

@@ -8,7 +8,9 @@ services:
       "--host", "0.0.0.0",
       "--block-time", "1",
       "--silent",
-      "--fork-url", "https://go.getblock.io/df4af3f3a0db4af382f683fdd6e803dd",  # Romasku free getblock
+      # "--fork-url", "https://eth-mainnet.nodereal.io/v1/104b7453b73041e5ac509697c21d463f",   # Romasku free nodereal eth mainnet
+      # "--fork-block-number", "20250000"  # Jul-06-2024 08:57:11 PM
+      "--fork-url", "https://go.getblock.io/df4af3f3a0db4af382f683fdd6e803dd",  # Romasku free getblock base
       "--fork-block-number", "14500000"  # May-15-2024 04:09:07 PM
     ]
     healthcheck:

@@ -1,6 +1,6 @@
 import { Address, Chain, PublicClient, Transport, isAddressEqual } from 'viem';
 
-import { base, baseSepolia } from 'viem/chains';
+import { base, baseSepolia, mainnet } from 'viem/chains';
 
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/SavingsBackendClient';
@@ -22,11 +22,13 @@ import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeD
 import { eoaActions } from './stategyActions/eoaActions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
+import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
+import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
-import { baseSepoliaStrategyConfigs, baseStrategyConfigs } from './strategies';
+import { baseSepoliaStrategyConfigs, baseStrategyConfigs, mainnetStrategyConfigs } from './strategies';
 import { StrategyNotFoundError } from './StrategyNotFoundError';
 
-const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) =>
+const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs | typeof mainnetStrategyConfigs)[number]) =>
   ({
     ...strategy,
     permissions: strategy.permissions.map(permission => ({
@@ -38,6 +40,7 @@ const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs)[number]) 
 const strategiesDataByChainId = {
   [base.id]: baseStrategyConfigs.map(fixBigIntMissingInJSON),
   [baseSepolia.id]: baseSepoliaStrategyConfigs.map(fixBigIntMissingInJSON),
+  [mainnet.id]: mainnetStrategyConfigs.map(fixBigIntMissingInJSON),
 };
 
 export interface StrategiesFilter {
@@ -90,6 +93,16 @@ export class StrategiesManager {
             strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(aaveV3BondTokenActions(publicClient));
             strategy = strategy.extend(aaveV3ERC20DepositWithdrawActions);
+            break;
+          }
+          case DepositStrategyProtocolType.etherFi: {
+            strategy = createDepositStrategy(strategyConfig);
+            strategy = strategy.extend(vedaBondTokenActions(publicClient));
+            strategy = strategy.extend(
+              vedaERC20Actions({
+                publicClient,
+              }),
+            );
             break;
           }
           default:
