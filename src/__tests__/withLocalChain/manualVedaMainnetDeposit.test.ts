@@ -19,7 +19,9 @@ import { createEoaAccount } from '../utils/createEoaAccount';
 const chain = mainnet;
 const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
 
-describe.each([['etherfi weth', 'c38d9a08-a0de-4866-bf16-e433a03848ff']])(
+// Requires mainnet local fork
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip.each([['etherfi weth', 'c38d9a08-a0de-4866-bf16-e433a03848ff']])(
   'Manual deposit for %s',
   (_: string, strategyId: string) => {
     let eoaAccount: PrivateKeyAccount;
@@ -44,9 +46,7 @@ describe.each([['etherfi weth', 'c38d9a08-a0de-4866-bf16-e433a03848ff']])(
       });
     }, 10_000);
 
-    // Requires mainnet local fork
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('can deposit', async () => {
+    it('can deposit', async () => {
       // Arrange
       const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
       const tokenOwnerAddress = strategy.isEOA ? eoaAccount.address : savingsAccount.aaAddress;
@@ -85,9 +85,7 @@ describe.each([['etherfi weth', 'c38d9a08-a0de-4866-bf16-e433a03848ff']])(
       expect(depositEquivalent).toBeGreaterThanOrEqual(depositAmount - ALLOWED_DECREASE_DURING_DEPOSIT);
     }, 120_000);
 
-    // Requires mainnet local fork
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('can withdraw', async () => {
+    it('can withdraw', async () => {
       // Arrange
       const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
       const tokenOwnerAddress = strategy.isEOA ? eoaAccount.address : savingsAccount.aaAddress;
