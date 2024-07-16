@@ -95,7 +95,7 @@ export class StrategiesManager {
             strategy = strategy.extend(aaveV3ERC20DepositWithdrawActions);
             break;
           }
-          case DepositStrategyProtocolType.etherFi: {
+          case DepositStrategyProtocolType.veda: {
             strategy = createDepositStrategy(strategyConfig);
             strategy = strategy.extend(vedaBondTokenActions(publicClient));
             strategy = strategy.extend(

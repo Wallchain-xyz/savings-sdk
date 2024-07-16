@@ -30,7 +30,7 @@ export enum DepositStrategyProtocolType {
   beefy = 'beefy',
   moonwell = 'moonwell',
   aaveV3 = 'aaveV3',
-  etherFi = 'etherFi',
+  veda = 'veda',
 }
 
 export enum DepositStrategyAccountType {
@@ -66,8 +66,8 @@ export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base 
   poolAddress: Address;
 }
 
-export interface EtherFiDepositStrategyConfig extends DepositStrategyConfig_Base {
-  protocolType: DepositStrategyProtocolType.etherFi;
+export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base {
+  protocolType: DepositStrategyProtocolType.veda;
   tellerAddress: Address;
   accountantAddress: Address;
   atomicQueueAddress: Address;
@@ -77,7 +77,7 @@ export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
   | AaveV3DepositStrategyConfig
-  | EtherFiDepositStrategyConfig;
+  | VedaDepositStrategyConfig;
 
 interface TokenInfo {
   name: string;

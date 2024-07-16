@@ -1,7 +1,7 @@
 import { Address, PublicClient, getContract, parseAbi } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
-import { BondTokenActions, DepositStrategyWithActions, EtherFiDepositStrategyConfig } from '../DepositStrategy';
+import { BondTokenActions, DepositStrategyWithActions, VedaDepositStrategyConfig } from '../DepositStrategy';
 
 const accountantAbi = parseAbi(['function getRateInQuoteSafe(address quote) public view returns (uint256)']);
 
@@ -9,7 +9,7 @@ const accountantAbi = parseAbi(['function getRateInQuoteSafe(address quote) publ
 
 export function vedaBondTokenActions(
   publicClient: PublicClient,
-): (strategy: DepositStrategyWithActions<EtherFiDepositStrategyConfig>) => BondTokenActions {
+): (strategy: DepositStrategyWithActions<VedaDepositStrategyConfig>) => BondTokenActions {
   return strategy => {
     const accountantContract = getContract({
       address: strategy.config.accountantAddress,

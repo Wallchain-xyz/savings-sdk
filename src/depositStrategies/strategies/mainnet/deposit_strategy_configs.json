@@ -1,13 +1,13 @@
 [
   {
     "id": "c38d9a08-a0de-4866-bf16-e433a03848ff",
-    "protocolType": "etherFi",
+    "protocolType": "veda",
     "accountType": "aa",
-    "chainId": 8453,
+    "chainId": 1,
     "name": "Ether.fi King Karak LRT",
     "tokenAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "tokenName": "WETH",
-    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/1027.png",
+    "tokenImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/2396.png",
     "protocolName": "Ether.fi",
     "protocolImageURL": "https://s2.coinmarketcap.com/static/img/coins/200x200/29814.png",
     "bondTokenAddress": "0x7223442cad8e9cA474fC40109ab981608F8c4273",

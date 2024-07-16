@@ -6,7 +6,7 @@ import {
   CreateWithdrawTxnsParams,
   DepositStrategyWithActions,
   DepositWithdrawActions,
-  EtherFiDepositStrategyConfig,
+  VedaDepositStrategyConfig,
 } from '../DepositStrategy';
 
 const tellerAbi = parseAbi(['function deposit(address depositAsset,uint256 depositAmount,uint256 minimumMint) public']);
@@ -23,6 +23,7 @@ const atomicQueueAbi = parseAbi([
 interface VedaERC20ActionsParams {
   publicClient: PublicClient;
   withdrawDelaySeconds?: number;
+  // Veda withdrawal gas compensation factor
   withdrawDiscountNumeratorDenominator?: [bigint, bigint];
 }
 
@@ -31,7 +32,7 @@ export function vedaERC20Actions({
   withdrawDelaySeconds = 7 * 24 * 3600,
   withdrawDiscountNumeratorDenominator = [9999n, 10000n], // 0.01%
 }: VedaERC20ActionsParams): (
-  strategy: DepositStrategyWithActions<EtherFiDepositStrategyConfig>,
+  strategy: DepositStrategyWithActions<VedaDepositStrategyConfig>,
 ) => DepositWithdrawActions {
   return strategy => {
     const accountantContract = getContract({
