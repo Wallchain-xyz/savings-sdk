@@ -23,13 +23,13 @@ const atomicQueueAbi = parseAbi([
 interface VedaERC20ActionsParams {
   publicClient: PublicClient;
   withdrawDelaySeconds?: number;
-  withdrawDiscountFraction?: [bigint, bigint];
+  withdrawDiscountNumeratorDenominator?: [bigint, bigint];
 }
 
 export function vedaERC20Actions({
   publicClient,
   withdrawDelaySeconds = 7 * 24 * 3600,
-  withdrawDiscountFraction = [9999n, 10000n], // 0.01%
+  withdrawDiscountNumeratorDenominator = [9999n, 10000n], // 0.01%
 }: VedaERC20ActionsParams): (
   strategy: DepositStrategyWithActions<EtherFiDepositStrategyConfig>,
 ) => DepositWithdrawActions {
@@ -64,7 +64,8 @@ export function vedaERC20Actions({
 
       createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
         const currentPrice = await accountantContract.read.getRateInQuoteSafe([strategy.config.tokenAddress]);
-        const discountedPrice = (currentPrice * withdrawDiscountFraction[0]) / withdrawDiscountFraction[1];
+        const [numerator, denominator] = withdrawDiscountNumeratorDenominator;
+        const discountedPrice = (currentPrice * numerator) / denominator;
         return [
           {
             to: strategy.config.bondTokenAddress,
