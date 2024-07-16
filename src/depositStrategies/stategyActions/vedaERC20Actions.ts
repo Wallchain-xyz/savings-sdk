@@ -1,11 +1,12 @@
-import { PublicClient, encodeFunctionData, getContract, parseAbi } from 'viem';
+import { Address, PublicClient, encodeFunctionData, getContract, parseAbi } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
 import {
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositMultistepWithdrawActions,
   DepositStrategyWithActions,
-  DepositWithdrawActions,
+  ParamsValuesByKey,
   VedaDepositStrategyConfig,
 } from '../DepositStrategy';
 
@@ -14,8 +15,9 @@ const tellerAbi = parseAbi(['function deposit(address depositAsset,uint256 depos
 const accountantAbi = parseAbi(['function getRateInQuoteSafe(address quote) public view returns (uint256)']);
 
 const atomicQueueAbi = parseAbi([
-  'struct AdditionalRecipient { uint64 deadline; uint88 atomicPrice; uint96 offerAmount; bool inSolve;}',
-  'function updateAtomicRequest(address offer, address want, AdditionalRecipient userRequest) external',
+  'struct AtomicRequest { uint64 deadline; uint88 atomicPrice; uint96 offerAmount; bool inSolve;}',
+  'function updateAtomicRequest(address offer, address want, AtomicRequest userRequest) external',
+  'function getUserAtomicRequest(address user, address offer, address want) view returns (AtomicRequest)',
 ]);
 
 // Docs: https://docs.veda.tech/
@@ -33,15 +35,21 @@ export function vedaERC20Actions({
   withdrawDiscountNumeratorDenominator = [9999n, 10000n], // 0.01%
 }: VedaERC20ActionsParams): (
   strategy: DepositStrategyWithActions<VedaDepositStrategyConfig>,
-) => DepositWithdrawActions {
+) => DepositMultistepWithdrawActions {
   return strategy => {
     const accountantContract = getContract({
       address: strategy.config.accountantAddress,
       abi: accountantAbi,
       client: publicClient,
     });
+    const queueContract = getContract({
+      address: strategy.config.atomicQueueAddress,
+      abi: atomicQueueAbi,
+      client: publicClient,
+    });
 
     return {
+      instantWithdraw: false,
       createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
         {
           to: strategy.config.tokenAddress,
@@ -63,7 +71,7 @@ export function vedaERC20Actions({
         },
       ],
 
-      createWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
+      createInitiateWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
         const currentPrice = await accountantContract.read.getRateInQuoteSafe([strategy.config.tokenAddress]);
         const [numerator, denominator] = withdrawDiscountNumeratorDenominator;
         const discountedPrice = (currentPrice * numerator) / denominator;
@@ -97,6 +105,21 @@ export function vedaERC20Actions({
           },
         ];
       },
+
+      getWithdrawStatus: async (paramValuesByKey: ParamsValuesByKey) => {
+        const res = await queueContract.read.getUserAtomicRequest([
+          paramValuesByKey.aaAddress as Address,
+          strategy.bondTokenAddress,
+          strategy.tokenAddress,
+        ]);
+
+        return {
+          amount: res.offerAmount,
+          canBeCompleted: false,
+        };
+      },
+
+      createCompleteWithdrawTxns: async () => [],
     };
   };
 }

@@ -9,6 +9,7 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 import { mapStringValuesDeep } from '../utils/mapValuesDeep';
 
 import { interpolatePermissions } from './InterpolatePermissions';
+import { StrategyConfigRaw, StrategyId } from './strategies';
 
 export interface ParamsValuesByKey {
   [key: string]: string | null;
@@ -24,7 +25,7 @@ export interface CreateWithdrawTxnsParams {
   paramValuesByKey: ParamsValuesByKey;
 }
 
-export type DepositStrategyId = string;
+export type DepositStrategyId = StrategyId;
 
 export enum DepositStrategyProtocolType {
   beefy = 'beefy',
@@ -39,7 +40,6 @@ export enum DepositStrategyAccountType {
 }
 
 interface DepositStrategyConfig_Base {
-  id: DepositStrategyId;
   name: string;
 
   accountType: DepositStrategyAccountType;
@@ -54,19 +54,23 @@ interface DepositStrategyConfig_Base {
 }
 
 export interface BeefyDepositStrategyConfig extends DepositStrategyConfig_Base {
+  id: (StrategyConfigRaw & { protocolType: 'beefy' })['id'];
   protocolType: DepositStrategyProtocolType.beefy;
 }
 
 export interface MoonwellDepositStrategyConfig extends DepositStrategyConfig_Base {
+  id: (StrategyConfigRaw & { protocolType: 'moonwell' })['id'];
   protocolType: DepositStrategyProtocolType.moonwell;
 }
 
 export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base {
+  id: (StrategyConfigRaw & { protocolType: 'aaveV3' })['id'];
   protocolType: DepositStrategyProtocolType.aaveV3;
   poolAddress: Address;
 }
 
 export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base {
+  id: (StrategyConfigRaw & { protocolType: 'veda' })['id'];
   protocolType: DepositStrategyProtocolType.veda;
   tellerAddress: Address;
   accountantAddress: Address;
@@ -91,8 +95,8 @@ interface ProtocolInfo {
 }
 
 interface DepositStrategy_Base<config extends DepositStrategyConfig = DepositStrategyConfig> {
+  id: DepositStrategyId;
   config: config;
-  id: string;
   name: string;
   chainId: SupportedChainId;
   tokenAddress: Address;
@@ -114,7 +118,7 @@ export type DepositStrategyWithActions<
   config extends DepositStrategyConfig = DepositStrategyConfig,
   actions extends DepositStrategyActions | unknown = unknown,
 > = DepositStrategy_Base<config> &
-  Omit<actions, keyof DepositStrategy_Base> & {
+  actions & {
     extend: <newActions extends DepositStrategyActions>(
       extender: (strategy: DepositStrategyWithActions<config, actions>) => newActions,
     ) => DepositStrategyWithActions<config, actions & newActions>;
@@ -126,14 +130,34 @@ export type BondTokenActions = {
   getBondTokenBalance: (address: Address) => Promise<bigint>;
 };
 
-export type DepositWithdrawActions = {
+type DepositActions = {
   createDepositTxns: (params: CreateDepositTxnsParams) => Txn[];
+};
+
+type WithdrawActions = {
+  instantWithdraw: true;
   createWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
 };
 
+export interface WithdrawStatus {
+  amount: bigint;
+  canBeCompleted: boolean;
+}
+
+type MultiStepWithdrawActions = {
+  instantWithdraw: false;
+  createInitiateWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+  getWithdrawStatus: (paramValuesByKey: ParamsValuesByKey) => Promise<WithdrawStatus>;
+  createCompleteWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+};
+
+export type DepositWithdrawActions = DepositActions & WithdrawActions;
+
+export type DepositMultistepWithdrawActions = DepositActions & MultiStepWithdrawActions;
+
 export type DepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig> = DepositStrategyWithActions<
   config,
-  BondTokenActions & DepositWithdrawActions
+  BondTokenActions & (DepositWithdrawActions | DepositMultistepWithdrawActions)
 >;
 
 export function createDepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig>(

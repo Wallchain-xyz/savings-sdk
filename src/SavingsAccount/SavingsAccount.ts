@@ -12,7 +12,8 @@ import {
 
 import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
 
-import { DepositStrategy, DepositStrategyId } from '../depositStrategies/DepositStrategy';
+import { DepositStrategy, DepositStrategyId, WithdrawStatus } from '../depositStrategies/DepositStrategy';
+import { InstantWithdrawStrategyId, MultistepWithdrawStrategyId } from '../depositStrategies/strategies';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
@@ -30,12 +31,22 @@ interface WithdrawOrDepositParams {
   amount: bigint;
 }
 
-interface WithdrawParams extends Omit<WithdrawOrDepositParams, 'amount'>, Omit<PauseDepositingParams, 'chainId'> {
+interface InstantWithdrawParams
+  extends Omit<WithdrawOrDepositParams, 'amount'>,
+    Omit<PauseDepositingParams, 'chainId'> {
+  depositStrategyId: InstantWithdrawStrategyId;
+  amount?: bigint;
+}
+
+interface MultistepWithdrawParams
+  extends Omit<WithdrawOrDepositParams, 'amount'>,
+    Omit<PauseDepositingParams, 'chainId'> {
+  depositStrategyId: MultistepWithdrawStrategyId;
   amount?: bigint;
 }
 
 interface ActivateStrategiesParams {
-  activeStrategies: ActiveStrategy[];
+  activeStrategies: (ActiveStrategy & { strategyId: DepositStrategyId })[];
   skipRevokeOnChain?: boolean;
 }
 
@@ -101,7 +112,7 @@ export class SavingsAccount {
   async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? [])
-      .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId))
+      .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId as DepositStrategyId))
       .filter(strategy => StrategiesManager.checkFilter(strategy, filter));
   }
 
@@ -131,49 +142,66 @@ export class SavingsAccount {
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
-  async withdrawAll(pauseUntilDatetime?: WithdrawParams['pauseUntilDatetime']): Promise<UserOpResult> {
-    if (pauseUntilDatetime) {
-      this.savingsBackendClient
-        .pauseDepositing({
-          pauseUntilDatetime,
-        })
-        // eslint-disable-next-line no-console
-        .catch(error => console.error(error));
-    }
+  async withdrawAll(pauseUntilDatetime?: PauseDepositingParams['pauseUntilDatetime']): Promise<UserOpResult> {
+    this.pauseIfNeeded(pauseUntilDatetime);
 
     const currentActiveStrategies = await this.getCurrentActiveStrategies();
     const txns = await Promise.all(
       currentActiveStrategies.map(async strategy => {
-        return strategy.createWithdrawTxns({
-          amount: await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress),
-          paramValuesByKey: {
-            // TODO: fetch parameter from strategy, do not use this constant here
-            eoaAddress: this.privateKeyAccount.address,
-            aaAddress: this.aaAddress,
-          },
-        });
+        const params = await this.buildWithdrawParams(strategy);
+        if (strategy.instantWithdraw) {
+          return strategy.createWithdrawTxns(params);
+        }
+        return strategy.createInitiateWithdrawTxns(params);
       }),
     );
     return this.primaryAAAccount.sendTxnsAndWait(txns.flat());
   }
 
-  async withdraw({ depositStrategyId, amount, pauseUntilDatetime }: WithdrawParams): Promise<UserOpResult> {
+  async withdraw({ depositStrategyId, amount, pauseUntilDatetime }: InstantWithdrawParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
-    if (pauseUntilDatetime) {
-      this.savingsBackendClient
-        .pauseDepositing({
-          pauseUntilDatetime,
-        })
-        // eslint-disable-next-line no-console
-        .catch(error => console.error(error));
-    }
-    const txns = await strategy.createWithdrawTxns({
-      amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),
-      paramValuesByKey: {
-        // TODO: fetch parameter from strategy, do not use this constant here
-        eoaAddress: this.privateKeyAccount.address,
-        aaAddress: this.aaAddress,
-      },
+    this.pauseIfNeeded(pauseUntilDatetime);
+    const params = await this.buildWithdrawParams(strategy, amount);
+    const txns = await strategy.createWithdrawTxns(params);
+    return this.primaryAAAccount.sendTxnsAndWait(txns);
+  }
+
+  async initiateWithdraw({
+    depositStrategyId,
+    amount,
+    pauseUntilDatetime,
+  }: MultistepWithdrawParams): Promise<UserOpResult> {
+    const strategy = this.strategiesManager.getStrategy(depositStrategyId);
+    this.pauseIfNeeded(pauseUntilDatetime);
+    const params = await this.buildWithdrawParams(strategy, amount);
+    const txns = await strategy.createInitiateWithdrawTxns(params);
+    return this.primaryAAAccount.sendTxnsAndWait(txns);
+  }
+
+  async getWithdrawStatus(depositStrategyId: MultistepWithdrawStrategyId): Promise<WithdrawStatus> {
+    const strategy = this.strategiesManager.getStrategy(depositStrategyId);
+    return strategy.getWithdrawStatus({
+      // TODO: fetch parameter from strategy, do not use this constant here
+      eoaAddress: this.privateKeyAccount.address,
+      aaAddress: this.aaAddress,
+    });
+  }
+
+  async completeWithdraw({
+    depositStrategyId,
+    amount,
+    pauseUntilDatetime,
+  }: MultistepWithdrawParams): Promise<UserOpResult> {
+    const strategy = this.strategiesManager.getStrategy(depositStrategyId);
+    this.pauseIfNeeded(pauseUntilDatetime);
+    const paramValuesByKey = {
+      // TODO: fetch parameter from strategy, do not use this constant here
+      eoaAddress: this.privateKeyAccount.address,
+      aaAddress: this.aaAddress,
+    };
+    const txns = await strategy.createCompleteWithdrawTxns({
+      amount: amount ?? (await strategy.getWithdrawStatus(paramValuesByKey)).amount,
+      paramValuesByKey,
     });
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
@@ -207,6 +235,28 @@ export class SavingsAccount {
 
   setAuthToken(authToken: string): void {
     this.savingsBackendClient.setAuthHeaders(authToken);
+  }
+
+  private pauseIfNeeded(pauseUntilDatetime: PauseDepositingParams['pauseUntilDatetime']) {
+    if (pauseUntilDatetime) {
+      this.savingsBackendClient
+        .pauseDepositing({
+          pauseUntilDatetime,
+        })
+        // eslint-disable-next-line no-console
+        .catch(error => console.error(error));
+    }
+  }
+
+  private async buildWithdrawParams(strategy: DepositStrategy, amount?: bigint) {
+    return {
+      amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),
+      paramValuesByKey: {
+        // TODO: fetch parameter from strategy, do not use this constant here
+        eoaAddress: this.privateKeyAccount.address,
+        aaAddress: this.aaAddress,
+      },
+    };
   }
 
   private createAuthMessage(): WallchainAuthMessage {

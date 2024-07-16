@@ -1,12 +1,13 @@
-// TODO: @merlin - temp solution to avoid failing TS either in build or in tests
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-import baseStrategyConfigsJson from './base/deposit_strategy_configs.json' with { type: 'json' };
-import baseSepoliaStrategyConfigsJson from './base-sepolia/deposit_strategy_configs.json' with { type: 'json' };
-import mainnetStrategyConfigsJson from './mainnet/deposit_strategy_configs.json' with { type: 'json' };
+import { baseStrategyConfigs } from './base/deposit_strategy_configs';
+import { baseSepoliaStrategyConfigs } from './base-sepolia/deposit_strategy_configs';
+import { mainnetStrategyConfigs } from './mainnet/deposit_strategy_configs';
 
-export const baseStrategyConfigs = baseStrategyConfigsJson
+export { baseStrategyConfigs, baseSepoliaStrategyConfigs, mainnetStrategyConfigs };
 
-export const baseSepoliaStrategyConfigs = baseSepoliaStrategyConfigsJson
+export type StrategyConfigRaw = (typeof baseStrategyConfigs | typeof baseSepoliaStrategyConfigs | typeof mainnetStrategyConfigs)[number];
 
-export const mainnetStrategyConfigs = mainnetStrategyConfigsJson
+export type StrategyId = StrategyConfigRaw['id'];
+
+export type MultistepWithdrawStrategyId = (StrategyConfigRaw & { id: string, protocolType: 'veda' })['id'];
+
+export type InstantWithdrawStrategyId = Exclude<StrategyId, MultistepWithdrawStrategyId>;

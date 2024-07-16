@@ -20,6 +20,7 @@ export function beefyNativeDepositWithdrawActions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
 ): DepositWithdrawActions {
   return {
+    instantWithdraw: true,
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.bondTokenAddress,

@@ -18,6 +18,7 @@ export function aaveV3ERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<AaveV3DepositStrategyConfig>,
 ): DepositWithdrawActions {
   return {
+    instantWithdraw: true,
     createDepositTxns: ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,

@@ -1,10 +1,10 @@
-import { createTestClient, http, publicActions, walletActions } from 'viem';
+import { Chain, createTestClient, http, publicActions, walletActions } from 'viem';
 
 import { base } from 'viem/chains';
 
-export function createExtendedTestClient() {
+export function createExtendedTestClient(chain: Chain = base) {
   return createTestClient({
-    chain: base,
+    chain,
     mode: 'anvil',
     transport: http('http://localhost:8545'),
   })

@@ -25,17 +25,25 @@ import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellER
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
-import { baseSepoliaStrategyConfigs, baseStrategyConfigs, mainnetStrategyConfigs } from './strategies';
+import {
+  InstantWithdrawStrategyId,
+  MultistepWithdrawStrategyId,
+  StrategyConfigRaw,
+  StrategyId,
+  baseSepoliaStrategyConfigs,
+  baseStrategyConfigs,
+  mainnetStrategyConfigs,
+} from './strategies';
 import { StrategyNotFoundError } from './StrategyNotFoundError';
 
-const fixBigIntMissingInJSON = (strategy: (typeof baseStrategyConfigs | typeof mainnetStrategyConfigs)[number]) =>
+const fixBigIntMissingInJSON = (strategy: StrategyConfigRaw) =>
   ({
     ...strategy,
     permissions: strategy.permissions.map(permission => ({
       ...permission,
       valueLimit: BigInt(permission.valueLimit),
     })),
-  } as DepositStrategyConfig);
+  } as unknown as DepositStrategyConfig);
 
 const strategiesDataByChainId = {
   [base.id]: baseStrategyConfigs.map(fixBigIntMissingInJSON),
@@ -109,7 +117,7 @@ export class StrategiesManager {
             assertNever(strategyConfig);
         }
         if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
-          strategy = strategy.extend(eoaActions);
+          strategy = strategy.extend(eoaActions(publicClient));
         }
         strategy = strategy.extend(zeroDepositWithdrawActions);
         return strategy as DepositStrategy;
@@ -120,7 +128,17 @@ export class StrategiesManager {
     }
   }
 
-  getStrategy(strategyId: string): DepositStrategy {
+  getStrategy<IdType extends InstantWithdrawStrategyId>(
+    strategyId: IdType,
+  ): DepositStrategy & { instantWithdraw: true; id: IdType };
+
+  getStrategy<IdType extends MultistepWithdrawStrategyId>(
+    strategyId: IdType,
+  ): DepositStrategy & { instantWithdraw: false; id: IdType };
+
+  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy & { id: IdType };
+
+  getStrategy(strategyId: StrategyId): DepositStrategy {
     if (!(strategyId in this.strategiesById)) {
       throw new StrategyNotFoundError(strategyId);
     }

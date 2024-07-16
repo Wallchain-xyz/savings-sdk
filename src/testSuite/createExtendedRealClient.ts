@@ -1,10 +1,10 @@
-import { createClient, http, publicActions, walletActions } from 'viem';
+import { Chain, createClient, http, publicActions, walletActions } from 'viem';
 
 import { base } from 'viem/chains';
 
-export function createExtendedRealClient() {
+export function createExtendedRealClient(chain: Chain = base) {
   return createClient({
-    chain: base,
+    chain,
     transport: http(),
   })
     .extend(publicActions)

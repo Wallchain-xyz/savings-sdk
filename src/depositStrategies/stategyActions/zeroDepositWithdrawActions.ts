@@ -1,6 +1,5 @@
 import {
-  CreateDepositTxnsParams,
-  CreateWithdrawTxnsParams,
+  DepositMultistepWithdrawActions,
   DepositStrategyConfig,
   DepositStrategyWithActions,
   DepositWithdrawActions,
@@ -8,20 +7,22 @@ import {
 
 export function zeroDepositWithdrawActions<
   config extends DepositStrategyConfig,
-  Actions extends DepositWithdrawActions,
->(strategy: DepositStrategyWithActions<config, Actions>): DepositWithdrawActions {
+  Actions extends DepositWithdrawActions | DepositMultistepWithdrawActions,
+>(strategy: DepositStrategyWithActions<config, Actions>): DepositWithdrawActions | DepositMultistepWithdrawActions {
+  if (strategy.instantWithdraw) {
+    return {
+      instantWithdraw: true,
+      createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+      createWithdrawTxns: async params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+    };
+  }
   return {
-    createDepositTxns: ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => {
-      if (amount === 0n) {
-        return [];
-      }
-      return strategy.createDepositTxns({ amount, paramValuesByKey });
-    },
-    createWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => {
-      if (amount === 0n) {
-        return [];
-      }
-      return strategy.createWithdrawTxns({ amount, paramValuesByKey });
-    },
+    instantWithdraw: false,
+    getWithdrawStatus: strategy.getWithdrawStatus,
+    createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+    createInitiateWithdrawTxns: async params =>
+      params.amount === 0n ? [] : strategy.createInitiateWithdrawTxns(params),
+    createCompleteWithdrawTxns: async params =>
+      params.amount === 0n ? [] : strategy.createCompleteWithdrawTxns(params),
   };
 }
