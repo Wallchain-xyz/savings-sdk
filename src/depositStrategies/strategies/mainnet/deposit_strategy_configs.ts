@@ -1,6 +1,7 @@
 export const mainnetStrategyConfigs = [
   {
     id: 'c38d9a08-a0de-4866-bf16-e433a03848ff',
+    isSingleStepWithdraw: false,
     protocolType: 'veda',
     accountType: 'aa',
     chainId: 8453,
@@ -191,6 +192,7 @@ export const mainnetStrategyConfigs = [
   },
   {
     id: 'c1d136de-ee0c-4652-9708-836939241d3a',
+    isSingleStepWithdraw: false,
     protocolType: 'veda',
     accountType: 'eoa',
     chainId: 8453,

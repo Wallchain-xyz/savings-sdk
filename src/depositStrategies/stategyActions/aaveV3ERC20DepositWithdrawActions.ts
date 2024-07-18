@@ -5,8 +5,8 @@ import {
   AaveV3DepositStrategyConfig,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
-  DepositWithdrawActions,
 } from '../DepositStrategy';
 
 const aaveV3Abi = parseAbi([
@@ -16,9 +16,8 @@ const aaveV3Abi = parseAbi([
 
 export function aaveV3ERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<AaveV3DepositStrategyConfig>,
-): DepositWithdrawActions {
+): DepositSingleStepWithdrawActions<AaveV3DepositStrategyConfig> {
   return {
-    instantWithdraw: true,
     createDepositTxns: ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,

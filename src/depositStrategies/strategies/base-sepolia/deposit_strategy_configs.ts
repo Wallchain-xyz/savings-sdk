@@ -1,6 +1,7 @@
 export const baseSepoliaStrategyConfigs = [
   {
     id: '5b4b4a92-f6b1-4b66-8d95-f3e981c35879',
+    isSingleStepWithdraw: true,
     protocolType: 'beefy',
     accountType: 'aa',
     chainId: 84532,
@@ -91,6 +92,7 @@ export const baseSepoliaStrategyConfigs = [
   },
   {
     id: '890ff406-72b8-4e82-b6e1-892ecaa01a4f',
+    isSingleStepWithdraw: true,
     protocolType: 'beefy',
     accountType: 'eoa',
     chainId: 84532,

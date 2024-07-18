@@ -4,8 +4,8 @@ import {
   BeefyDepositStrategyConfig,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
-  DepositWithdrawActions,
 } from '../DepositStrategy';
 
 const nativeVaultABI = parseAbi([
@@ -18,9 +18,8 @@ const nativeVaultABI = parseAbi([
 
 export function beefyNativeDepositWithdrawActions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
-): DepositWithdrawActions {
+): DepositSingleStepWithdrawActions<BeefyDepositStrategyConfig> {
   return {
-    instantWithdraw: true,
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.bondTokenAddress,

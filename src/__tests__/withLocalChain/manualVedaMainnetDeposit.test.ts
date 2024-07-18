@@ -2,7 +2,7 @@ import { PrivateKeyAccount, encodeFunctionData, parseAbi } from 'viem';
 
 import { mainnet } from 'viem/chains';
 
-import { MultistepWithdrawStrategyId } from '../../depositStrategies/strategies';
+import { MultiStepWithdrawStrategyId } from '../../depositStrategies/strategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
 import { createHelperTestClient } from '../../testSuite/createHelperTestClient';
@@ -25,7 +25,7 @@ const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:
 describe.skip.each([
   ['etherfi weth', 'c38d9a08-a0de-4866-bf16-e433a03848ff'],
   ['etherfi weth eoa', 'c1d136de-ee0c-4652-9708-836939241d3a'],
-] as const)('Manual deposit for %s', (_: string, strategyId: MultistepWithdrawStrategyId) => {
+] as const)('Manual deposit for %s', (_: string, strategyId: MultiStepWithdrawStrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
 

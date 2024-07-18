@@ -116,7 +116,7 @@ describe.each([
     });
 
     // Act
-    const userOpResult = await savingsAccount.withdraw({
+    const userOpResult = await savingsAccount.singleStepWithdraw({
       depositStrategyId: strategy.id,
     });
 

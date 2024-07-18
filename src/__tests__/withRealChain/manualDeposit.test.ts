@@ -55,7 +55,7 @@ wrappedDescribe.each([
 
     // Act
     // Withdraw if already deposited
-    await savingsAccount.withdraw({ depositStrategyId: strategyId });
+    await savingsAccount.singleStepWithdraw({ depositStrategyId: strategyId });
     const balanceBeforeDeposit = await getStrategyTokenBalance(strategy);
     if (strategy.isEOA) {
       await client.ensureAllowance({
@@ -73,7 +73,7 @@ wrappedDescribe.each([
     });
     const balanceAfterDeposit = await getStrategyTokenBalance(strategy);
     // Withdraw for other tests to work
-    await savingsAccount.withdraw({
+    await savingsAccount.singleStepWithdraw({
       depositStrategyId: strategyId,
     });
 

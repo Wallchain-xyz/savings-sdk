@@ -2,6 +2,7 @@ import { Hex, PrivateKeyAccount } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { DepositStrategy } from '../../depositStrategies/DepositStrategy';
+import { SingleStepWithdrawStrategyId } from '../../depositStrategies/strategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
@@ -51,7 +52,7 @@ wrappedDescribe('with proper setup', () => {
     ['beefy usdc eoa', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
     ['moonwell usdc', '856a815e-dc16-41a0-84c8-1a94dd7f763b'],
     ['moonwell usdc eoa', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
-  ])('Auto deposit for %s', (_: string, strategyId: string) => {
+  ] as const)('Auto deposit for %s', (_: string, strategyId: SingleStepWithdrawStrategyId) => {
     it('can deposit', async () => {
       // Arrange
       const strategy = savingsAccount.strategiesManager.getStrategy(strategyId);
@@ -59,7 +60,7 @@ wrappedDescribe('with proper setup', () => {
       // Act
       await savingsAccount.auth();
       // Withdraw if already deposited
-      await savingsAccount.withdraw({
+      await savingsAccount.singleStepWithdraw({
         depositStrategyId: strategyId,
       });
       const balanceBeforeDeposit = await getStrategyTokenBalance(strategy);
@@ -92,7 +93,7 @@ wrappedDescribe('with proper setup', () => {
       await waitForSeconds(5);
       const balanceAfterDeposit = await getStrategyTokenBalance(strategy);
       // Withdraw for other tests to work
-      await savingsAccount.withdraw({
+      await savingsAccount.singleStepWithdraw({
         depositStrategyId: strategyId,
       });
 

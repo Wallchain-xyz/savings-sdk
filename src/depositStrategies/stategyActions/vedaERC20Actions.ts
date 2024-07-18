@@ -4,9 +4,8 @@ import { erc20ABI } from '../../utils/erc20ABI';
 import {
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
-  DepositMultistepWithdrawActions,
+  DepositMultiStepWithdrawActions,
   DepositStrategyWithActions,
-  ParamsValuesByKey,
   VedaDepositStrategyConfig,
 } from '../DepositStrategy';
 
@@ -35,7 +34,7 @@ export function vedaERC20Actions({
   withdrawDiscountNumeratorDenominator = [9999n, 10000n], // 0.01%
 }: VedaERC20ActionsParams): (
   strategy: DepositStrategyWithActions<VedaDepositStrategyConfig>,
-) => DepositMultistepWithdrawActions {
+) => DepositMultiStepWithdrawActions<VedaDepositStrategyConfig> {
   return strategy => {
     const accountantContract = getContract({
       address: strategy.config.accountantAddress,
@@ -49,7 +48,6 @@ export function vedaERC20Actions({
     });
 
     return {
-      instantWithdraw: false,
       createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
         {
           to: strategy.config.tokenAddress,
@@ -106,9 +104,9 @@ export function vedaERC20Actions({
         ];
       },
 
-      getWithdrawStatus: async (paramValuesByKey: ParamsValuesByKey) => {
+      getPendingWithdrawal: async (aaAddress: Address) => {
         const res = await queueContract.read.getUserAtomicRequest([
-          paramValuesByKey.aaAddress as Address,
+          aaAddress,
           strategy.bondTokenAddress,
           strategy.tokenAddress,
         ]);

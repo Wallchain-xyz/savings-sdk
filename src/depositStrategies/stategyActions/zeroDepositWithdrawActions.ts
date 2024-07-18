@@ -1,24 +1,23 @@
 import {
-  DepositMultistepWithdrawActions,
+  DepositMultiStepWithdrawActions,
+  DepositSingleStepWithdrawActions,
+  DepositStrategy,
   DepositStrategyConfig,
-  DepositStrategyWithActions,
-  DepositWithdrawActions,
 } from '../DepositStrategy';
 
-export function zeroDepositWithdrawActions<
-  config extends DepositStrategyConfig,
-  Actions extends DepositWithdrawActions | DepositMultistepWithdrawActions,
->(strategy: DepositStrategyWithActions<config, Actions>): DepositWithdrawActions | DepositMultistepWithdrawActions {
-  if (strategy.instantWithdraw) {
+export function zeroDepositWithdrawActions(
+  strategy: DepositStrategy,
+):
+  | DepositSingleStepWithdrawActions<{ isSingleStepWithdraw: true } & DepositStrategyConfig>
+  | DepositMultiStepWithdrawActions<{ isSingleStepWithdraw: false } & DepositStrategyConfig> {
+  if (strategy.isSingleStepWithdraw) {
     return {
-      instantWithdraw: true,
       createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
       createWithdrawTxns: async params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
     };
   }
   return {
-    instantWithdraw: false,
-    getWithdrawStatus: strategy.getWithdrawStatus,
+    getPendingWithdrawal: strategy.getPendingWithdrawal,
     createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
     createInitiateWithdrawTxns: async params =>
       params.amount === 0n ? [] : strategy.createInitiateWithdrawTxns(params),

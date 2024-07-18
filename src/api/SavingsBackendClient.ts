@@ -1,10 +1,13 @@
 import { Address, Hex } from 'viem';
 
+import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
+
 import { LoginResponse, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
 import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
 import {
-  ActiveStrategy,
+  ActiveStrategy as BEActiveStrategy,
+  SKA as BESKA,
   chain_id as ChainId,
   UserOperation,
   createApiClient as createSKAClient,
@@ -14,6 +17,11 @@ import { SkaNotFoundError } from './ska/errors';
 type SKAClient = ReturnType<typeof createSKAClient>;
 type AuthClient = ReturnType<typeof createAuthClient>;
 type DMSClient = ReturnType<typeof createDMSClient>;
+
+// BE Schema doesn't doesn't ids enum, so we have to fix types here
+export type ActiveStrategy = BEActiveStrategy & { strategyId: DepositStrategyId };
+
+type SKA = { activeStrategies: ActiveStrategy[] } & BESKA;
 
 interface SavingsBackendClientParams {
   skaClient: SKAClient;
@@ -115,12 +123,12 @@ export class SavingsBackendClient {
   async getWalletSKA(userAddress: Address, chainId: ChainId) {
     // TODO: @merlin maybe we can use cache here
     try {
-      return await this.skaClient.getSKA({
+      return (await this.skaClient.getSKA({
         params: {
           aa_address: userAddress,
           chain_id: chainId,
         },
-      });
+      })) as SKA;
     } catch (error) {
       if (error instanceof SkaNotFoundError) {
         return undefined;

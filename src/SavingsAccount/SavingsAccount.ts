@@ -4,16 +4,15 @@ import { UserOpResult } from '../AAProviders/shared/AAAccount';
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
 import {
+  ActiveStrategy,
   GetUserReturnType,
   PauseDepositingParams,
   SavingsBackendClient,
   WallchainAuthMessage,
 } from '../api/SavingsBackendClient';
 
-import { ActiveStrategy } from '../api/ska/__generated__/createApiClient';
-
-import { DepositStrategy, DepositStrategyId, WithdrawStatus } from '../depositStrategies/DepositStrategy';
-import { InstantWithdrawStrategyId, MultistepWithdrawStrategyId } from '../depositStrategies/strategies';
+import { DepositStrategy, DepositStrategyId, PendingWithdrawal } from '../depositStrategies/DepositStrategy';
+import { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from '../depositStrategies/strategies';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
 
 type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
@@ -31,22 +30,22 @@ interface WithdrawOrDepositParams {
   amount: bigint;
 }
 
-interface InstantWithdrawParams
+interface SingleStepWithdrawParams
   extends Omit<WithdrawOrDepositParams, 'amount'>,
     Omit<PauseDepositingParams, 'chainId'> {
-  depositStrategyId: InstantWithdrawStrategyId;
+  depositStrategyId: SingleStepWithdrawStrategyId;
   amount?: bigint;
 }
 
-interface MultistepWithdrawParams
+interface MultiStepWithdrawParams
   extends Omit<WithdrawOrDepositParams, 'amount'>,
     Omit<PauseDepositingParams, 'chainId'> {
-  depositStrategyId: MultistepWithdrawStrategyId;
+  depositStrategyId: MultiStepWithdrawStrategyId;
   amount?: bigint;
 }
 
 interface ActivateStrategiesParams {
-  activeStrategies: (ActiveStrategy & { strategyId: DepositStrategyId })[];
+  activeStrategies: ActiveStrategy[];
   skipRevokeOnChain?: boolean;
 }
 
@@ -112,7 +111,7 @@ export class SavingsAccount {
   async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? [])
-      .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId as DepositStrategyId))
+      .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId))
       .filter(strategy => StrategiesManager.checkFilter(strategy, filter));
   }
 
@@ -149,7 +148,7 @@ export class SavingsAccount {
     const txns = await Promise.all(
       currentActiveStrategies.map(async strategy => {
         const params = await this.buildWithdrawParams(strategy);
-        if (strategy.instantWithdraw) {
+        if (strategy.isSingleStepWithdraw) {
           return strategy.createWithdrawTxns(params);
         }
         return strategy.createInitiateWithdrawTxns(params);
@@ -158,7 +157,11 @@ export class SavingsAccount {
     return this.primaryAAAccount.sendTxnsAndWait(txns.flat());
   }
 
-  async withdraw({ depositStrategyId, amount, pauseUntilDatetime }: InstantWithdrawParams): Promise<UserOpResult> {
+  async singleStepWithdraw({
+    depositStrategyId,
+    amount,
+    pauseUntilDatetime,
+  }: SingleStepWithdrawParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const params = await this.buildWithdrawParams(strategy, amount);
@@ -170,28 +173,28 @@ export class SavingsAccount {
     depositStrategyId,
     amount,
     pauseUntilDatetime,
-  }: MultistepWithdrawParams): Promise<UserOpResult> {
-    const strategy = this.strategiesManager.getStrategy(depositStrategyId);
+  }: MultiStepWithdrawParams): Promise<UserOpResult> {
+    const strategy = this.strategiesManager.getStrategy<MultiStepWithdrawStrategyId>(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const params = await this.buildWithdrawParams(strategy, amount);
+    if (!strategy.isSingleStepWithdraw) {
+      const txns = await strategy.createInitiateWithdrawTxns(params);
+      return this.primaryAAAccount.sendTxnsAndWait(txns);
+    }
     const txns = await strategy.createInitiateWithdrawTxns(params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
-  async getWithdrawStatus(depositStrategyId: MultistepWithdrawStrategyId): Promise<WithdrawStatus> {
+  async getPendingWithdrawal(depositStrategyId: MultiStepWithdrawStrategyId): Promise<PendingWithdrawal> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
-    return strategy.getWithdrawStatus({
-      // TODO: fetch parameter from strategy, do not use this constant here
-      eoaAddress: this.privateKeyAccount.address,
-      aaAddress: this.aaAddress,
-    });
+    return strategy.getPendingWithdrawal(this.aaAddress);
   }
 
   async completeWithdraw({
     depositStrategyId,
     amount,
     pauseUntilDatetime,
-  }: MultistepWithdrawParams): Promise<UserOpResult> {
+  }: MultiStepWithdrawParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const paramValuesByKey = {
@@ -200,7 +203,7 @@ export class SavingsAccount {
       aaAddress: this.aaAddress,
     };
     const txns = await strategy.createCompleteWithdrawTxns({
-      amount: amount ?? (await strategy.getWithdrawStatus(paramValuesByKey)).amount,
+      amount: amount ?? (await strategy.getPendingWithdrawal(this.aaAddress)).amount,
       paramValuesByKey,
     });
     return this.primaryAAAccount.sendTxnsAndWait(txns);
@@ -248,7 +251,7 @@ export class SavingsAccount {
     }
   }
 
-  private async buildWithdrawParams(strategy: DepositStrategy, amount?: bigint) {
+  private async buildWithdrawParams(strategy: Pick<DepositStrategy, 'getBondTokenBalance'>, amount?: bigint) {
     return {
       amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),
       paramValuesByKey: {

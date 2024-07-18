@@ -1,6 +1,7 @@
 import { PrivateKeyAccount } from 'viem';
 import { base } from 'viem/chains';
 
+import { DepositStrategyId } from '../../depositStrategies/DepositStrategy';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 import { SavingsAccount } from '../../SavingsAccount/SavingsAccount';
 import { createHelperTestClient } from '../../testSuite/createHelperTestClient';
@@ -23,7 +24,7 @@ const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:
 describe.each([
   ['beefy usdc', '018f94ed-f3b8-7dd5-8615-5b07650f5772'],
   ['moonwell usdc', '2935fab9-23be-41d0-b58c-9fa46a12078f'],
-])('Auto deposit for %s', (_: string, strategyId: string) => {
+] as const)('Auto deposit for %s', (_: string, strategyId: DepositStrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
 

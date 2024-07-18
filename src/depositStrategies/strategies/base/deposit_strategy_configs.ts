@@ -1,6 +1,7 @@
 export const baseStrategyConfigs = [
   {
     id: '018ecbc3-597e-739c-bfac-80d534743e3e',
+    isSingleStepWithdraw: true,
     protocolType: 'beefy',
     accountType: 'aa',
     chainId: 8453,
@@ -51,6 +52,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '018f04e0-73d5-77be-baec-c76bac26b4f3',
+    isSingleStepWithdraw: true,
     protocolType: 'beefy',
     accountType: 'aa',
     chainId: 8453,
@@ -141,6 +143,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '018f94ed-f3b8-7dd5-8615-5b07650f5772',
+    isSingleStepWithdraw: true,
     protocolType: 'beefy',
     accountType: 'eoa',
     chainId: 8453,
@@ -397,6 +400,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '856a815e-dc16-41a0-84c8-1a94dd7f763b',
+    isSingleStepWithdraw: true,
     protocolType: 'moonwell',
     accountType: 'aa',
     chainId: 8453,
@@ -487,6 +491,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '2935fab9-23be-41d0-b58c-9fa46a12078f',
+    isSingleStepWithdraw: true,
     protocolType: 'moonwell',
     accountType: 'eoa',
     chainId: 8453,
@@ -660,6 +665,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '484b91e5-7d5c-4476-b512-45a0a0e4a199',
+    isSingleStepWithdraw: true,
     protocolType: 'aaveV3',
     accountType: 'aa',
     chainId: 8453,
@@ -796,6 +802,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '1af624b4-5a99-42c8-a560-5966b956f2cf',
+    isSingleStepWithdraw: true,
     protocolType: 'aaveV3',
     accountType: 'eoa',
     chainId: 8453,
@@ -1015,6 +1022,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '8a8bce36-7e99-438e-ab03-cd6064b91072',
+    isSingleStepWithdraw: true,
     protocolType: 'aaveV3',
     accountType: 'aa',
     chainId: 8453,
@@ -1151,6 +1159,7 @@ export const baseStrategyConfigs = [
   },
   {
     id: '5c76265d-0ad1-4829-abc7-9f282cbae198',
+    isSingleStepWithdraw: true,
     protocolType: 'aaveV3',
     accountType: 'eoa',
     chainId: 8453,

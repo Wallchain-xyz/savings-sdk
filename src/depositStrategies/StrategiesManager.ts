@@ -19,15 +19,17 @@ import { aaveV3ERC20DepositWithdrawActions } from './stategyActions/aaveV3ERC20D
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
 import { beefyERC20DepositWithdrawActions } from './stategyActions/beefyERC20DepositWithdrawActions';
 import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeDepositWithdrawActions';
-import { eoaActions } from './stategyActions/eoaActions';
+import { eoaDepositActions } from './stategyActions/eoaActions/eoaDepositActions';
+import { eoaMultiStepWithdrawActions } from './stategyActions/eoaActions/eoaMultiStepWithdrawActions';
+import { eoaSingleStepWithdrawActions } from './stategyActions/eoaActions/eoaSingleStepWithdrawActions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
 import {
-  InstantWithdrawStrategyId,
-  MultistepWithdrawStrategyId,
+  MultiStepWithdrawStrategyId,
+  SingleStepWithdrawStrategyId,
   StrategyConfigRaw,
   StrategyId,
   baseSepoliaStrategyConfigs,
@@ -117,7 +119,12 @@ export class StrategiesManager {
             assertNever(strategyConfig);
         }
         if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
-          strategy = strategy.extend(eoaActions(publicClient));
+          if (strategy.isSingleStepWithdraw) {
+            strategy = strategy.extend(eoaSingleStepWithdrawActions);
+          } else if (!strategy.isSingleStepWithdraw) {
+            strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
+          }
+          strategy = strategy.extend(eoaDepositActions);
         }
         strategy = strategy.extend(zeroDepositWithdrawActions);
         return strategy as DepositStrategy;
@@ -128,21 +135,21 @@ export class StrategiesManager {
     }
   }
 
-  getStrategy<IdType extends InstantWithdrawStrategyId>(
+  getStrategy<IdType extends SingleStepWithdrawStrategyId>(
     strategyId: IdType,
-  ): DepositStrategy & { instantWithdraw: true; id: IdType };
+  ): DepositStrategy<{ isSingleStepWithdraw: true; id: IdType } & DepositStrategyConfig>;
 
-  getStrategy<IdType extends MultistepWithdrawStrategyId>(
+  getStrategy<IdType extends MultiStepWithdrawStrategyId>(
     strategyId: IdType,
-  ): DepositStrategy & { instantWithdraw: false; id: IdType };
+  ): DepositStrategy<{ isSingleStepWithdraw: false; id: IdType } & DepositStrategyConfig>;
 
-  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy & { id: IdType };
+  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy<{ id: IdType } & DepositStrategyConfig>;
 
-  getStrategy(strategyId: StrategyId): DepositStrategy {
+  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy<DepositStrategyConfig & { id: IdType }> {
     if (!(strategyId in this.strategiesById)) {
       throw new StrategyNotFoundError(strategyId);
     }
-    return this.strategiesById[strategyId];
+    return this.strategiesById[strategyId] as DepositStrategy<DepositStrategyConfig & { id: IdType }>;
   }
 
   getStrategies(): DepositStrategy[] {

@@ -5,8 +5,8 @@ import {
   BeefyDepositStrategyConfig,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
-  DepositWithdrawActions,
 } from '../DepositStrategy';
 
 const erc20VaultABI = parseAbi([
@@ -18,9 +18,8 @@ const erc20VaultABI = parseAbi([
 
 export function beefyERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
-): DepositWithdrawActions {
+): DepositSingleStepWithdrawActions<BeefyDepositStrategyConfig> {
   return {
-    instantWithdraw: true,
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,

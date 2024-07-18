@@ -9,7 +9,7 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 import { mapStringValuesDeep } from '../utils/mapValuesDeep';
 
 import { interpolatePermissions } from './InterpolatePermissions';
-import { StrategyConfigRaw, StrategyId } from './strategies';
+import { AaveV3StrategyId, BeefyStrategyId, MoonwellStrategyId, StrategyId, VedaStrategyId } from './strategies';
 
 export interface ParamsValuesByKey {
   [key: string]: string | null;
@@ -54,27 +54,31 @@ interface DepositStrategyConfig_Base {
 }
 
 export interface BeefyDepositStrategyConfig extends DepositStrategyConfig_Base {
-  id: (StrategyConfigRaw & { protocolType: 'beefy' })['id'];
+  id: BeefyStrategyId;
   protocolType: DepositStrategyProtocolType.beefy;
+  isSingleStepWithdraw: true;
 }
 
 export interface MoonwellDepositStrategyConfig extends DepositStrategyConfig_Base {
-  id: (StrategyConfigRaw & { protocolType: 'moonwell' })['id'];
+  id: MoonwellStrategyId;
   protocolType: DepositStrategyProtocolType.moonwell;
+  isSingleStepWithdraw: true;
 }
 
 export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base {
-  id: (StrategyConfigRaw & { protocolType: 'aaveV3' })['id'];
+  id: AaveV3StrategyId;
   protocolType: DepositStrategyProtocolType.aaveV3;
   poolAddress: Address;
+  isSingleStepWithdraw: true;
 }
 
 export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base {
-  id: (StrategyConfigRaw & { protocolType: 'veda' })['id'];
+  id: VedaStrategyId;
   protocolType: DepositStrategyProtocolType.veda;
   tellerAddress: Address;
   accountantAddress: Address;
   atomicQueueAddress: Address;
+  isSingleStepWithdraw: false;
 }
 
 export type DepositStrategyConfig =
@@ -95,8 +99,9 @@ interface ProtocolInfo {
 }
 
 interface DepositStrategy_Base<config extends DepositStrategyConfig = DepositStrategyConfig> {
-  id: DepositStrategyId;
+  id: config['id'];
   config: config;
+  isSingleStepWithdraw: config['isSingleStepWithdraw'];
   name: string;
   chainId: SupportedChainId;
   tokenAddress: Address;
@@ -130,35 +135,44 @@ export type BondTokenActions = {
   getBondTokenBalance: (address: Address) => Promise<bigint>;
 };
 
-type DepositActions = {
+export type DepositActions = {
   createDepositTxns: (params: CreateDepositTxnsParams) => Txn[];
 };
 
-type WithdrawActions = {
-  instantWithdraw: true;
-  createWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
-};
+export type SingleStepWithdrawActions<config extends DepositStrategyConfig> =
+  config['isSingleStepWithdraw'] extends true
+    ? {
+        createWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+      }
+    : never;
 
-export interface WithdrawStatus {
+export interface PendingWithdrawal {
   amount: bigint;
   canBeCompleted: boolean;
 }
 
-type MultiStepWithdrawActions = {
-  instantWithdraw: false;
-  createInitiateWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
-  getWithdrawStatus: (paramValuesByKey: ParamsValuesByKey) => Promise<WithdrawStatus>;
-  createCompleteWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
-};
+export type MultiStepWithdrawActions<config extends DepositStrategyConfig> =
+  config['isSingleStepWithdraw'] extends false
+    ? {
+        createInitiateWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+        getPendingWithdrawal: (aaAddress: Address) => Promise<PendingWithdrawal>;
+        createCompleteWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+      }
+    : never;
 
-export type DepositWithdrawActions = DepositActions & WithdrawActions;
+export type DepositSingleStepWithdrawActions<config extends DepositStrategyConfig> = SingleStepWithdrawActions<config> &
+  DepositActions;
 
-export type DepositMultistepWithdrawActions = DepositActions & MultiStepWithdrawActions;
+export type DepositMultiStepWithdrawActions<config extends DepositStrategyConfig> = MultiStepWithdrawActions<config> &
+  DepositActions;
 
-export type DepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig> = DepositStrategyWithActions<
-  config,
-  BondTokenActions & (DepositWithdrawActions | DepositMultistepWithdrawActions)
->;
+export type DepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig> =
+  | (config extends { isSingleStepWithdraw: true }
+      ? DepositStrategyWithActions<config, BondTokenActions & DepositSingleStepWithdrawActions<config>>
+      : never)
+  | (config extends { isSingleStepWithdraw: false }
+      ? DepositStrategyWithActions<config, BondTokenActions & DepositMultiStepWithdrawActions<config>>
+      : never);
 
 export function createDepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig>(
   config: config,
@@ -174,6 +188,7 @@ export function createDepositStrategy<config extends DepositStrategyConfig = Dep
   const strategy = {
     config,
     id: config.id,
+    isSingleStepWithdraw: config.isSingleStepWithdraw,
     name: config.name,
     chainId: config.chainId,
     tokenAddress: config.tokenAddress,

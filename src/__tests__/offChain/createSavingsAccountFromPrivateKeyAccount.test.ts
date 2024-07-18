@@ -210,7 +210,7 @@ describe('savingsAccount', () => {
 
       it('withdraw with pauseUntilDatetime', async () => {
         await expect(async () => {
-          await savingsAccount.withdraw({
+          await savingsAccount.singleStepWithdraw({
             depositStrategyId,
             pauseUntilDatetime: new Date(),
           });
@@ -218,7 +218,7 @@ describe('savingsAccount', () => {
 
         await savingsAccount.auth();
         await expect(async () => {
-          await savingsAccount.withdraw({
+          await savingsAccount.singleStepWithdraw({
             depositStrategyId,
             pauseUntilDatetime: new Date(),
           });
@@ -243,7 +243,7 @@ describe('savingsAccount', () => {
     describe('should not throw when not authorized', () => {
       it('withdraw without pauseUntilDatetime', async () => {
         await expect(async () => {
-          await savingsAccount.withdraw({
+          await savingsAccount.singleStepWithdraw({
             depositStrategyId,
           });
         }).rejects.not.toThrow(UnauthenticatedError);
@@ -274,7 +274,7 @@ describe('savingsAccount', () => {
     describe('withdraw', () => {
       it('throws not found error when incorrect strategy id is passed', async () => {
         await expect(() => {
-          return savingsAccount.withdraw({
+          return savingsAccount.singleStepWithdraw({
             amount: 0n,
             depositStrategyId: 'incorrect string',
           });
@@ -282,7 +282,7 @@ describe('savingsAccount', () => {
       });
 
       it('returns undefined hash if 0 amount passed', async () => {
-        const userOpResult = await savingsAccount.withdraw({
+        const userOpResult = await savingsAccount.singleStepWithdraw({
           amount: 0n,
           depositStrategyId: '018ecbc3-597e-739c-bfac-80d534743e3e',
         });

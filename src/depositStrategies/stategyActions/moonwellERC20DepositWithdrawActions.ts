@@ -4,8 +4,8 @@ import { erc20ABI } from '../../utils/erc20ABI';
 import {
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
+  DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
-  DepositWithdrawActions,
   MoonwellDepositStrategyConfig,
 } from '../DepositStrategy';
 
@@ -17,9 +17,8 @@ const moonwellAbi = parseAbi([
 
 export function moonwellERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<MoonwellDepositStrategyConfig>,
-): DepositWithdrawActions {
+): DepositSingleStepWithdrawActions<MoonwellDepositStrategyConfig> {
   return {
-    instantWithdraw: true,
     createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,
