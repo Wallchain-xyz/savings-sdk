@@ -39,7 +39,7 @@ export enum DepositStrategyAccountType {
   eoa = 'eoa',
 }
 
-interface DepositStrategyConfig_Base {
+interface DepositStrategyConfig_Base<TIsSingleStepWithdraw extends boolean = boolean> {
   name: string;
 
   accountType: DepositStrategyAccountType;
@@ -51,34 +51,31 @@ interface DepositStrategyConfig_Base {
   protocolName: string;
   protocolImageURL: string;
   bondTokenAddress: Address;
+  isSingleStepWithdraw: TIsSingleStepWithdraw;
 }
 
-export interface BeefyDepositStrategyConfig extends DepositStrategyConfig_Base {
+export interface BeefyDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
   id: BeefyStrategyId;
   protocolType: DepositStrategyProtocolType.beefy;
-  isSingleStepWithdraw: true;
 }
 
-export interface MoonwellDepositStrategyConfig extends DepositStrategyConfig_Base {
+export interface MoonwellDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
   id: MoonwellStrategyId;
   protocolType: DepositStrategyProtocolType.moonwell;
-  isSingleStepWithdraw: true;
 }
 
-export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base {
+export interface AaveV3DepositStrategyConfig extends DepositStrategyConfig_Base<true> {
   id: AaveV3StrategyId;
   protocolType: DepositStrategyProtocolType.aaveV3;
   poolAddress: Address;
-  isSingleStepWithdraw: true;
 }
 
-export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base {
+export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
   id: VedaStrategyId;
   protocolType: DepositStrategyProtocolType.veda;
   tellerAddress: Address;
   accountantAddress: Address;
   atomicQueueAddress: Address;
-  isSingleStepWithdraw: false;
 }
 
 export type DepositStrategyConfig =
@@ -86,6 +83,16 @@ export type DepositStrategyConfig =
   | MoonwellDepositStrategyConfig
   | AaveV3DepositStrategyConfig
   | VedaDepositStrategyConfig;
+
+type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends BeefyStrategyId
+  ? BeefyDepositStrategyConfig
+  : TStrategyId extends MoonwellStrategyId
+  ? MoonwellDepositStrategyConfig
+  : TStrategyId extends AaveV3StrategyId
+  ? AaveV3DepositStrategyConfig
+  : TStrategyId extends VedaStrategyId
+  ? VedaDepositStrategyConfig
+  : never;
 
 interface TokenInfo {
   name: string;
@@ -173,6 +180,10 @@ export type DepositStrategy<config extends DepositStrategyConfig = DepositStrate
   | (config extends { isSingleStepWithdraw: false }
       ? DepositStrategyWithActions<config, BondTokenActions & DepositMultiStepWithdrawActions<config>>
       : never);
+
+export type IdBasedDepositStrategy<TStrategyId extends StrategyId> = DepositStrategy<
+  IdBasedStrategyConfig<TStrategyId>
+>;
 
 export function createDepositStrategy<config extends DepositStrategyConfig = DepositStrategyConfig>(
   config: config,

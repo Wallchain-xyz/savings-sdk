@@ -8,9 +8,13 @@ export type StrategyConfigRaw = (typeof baseStrategyConfigs | typeof baseSepolia
 
 export type StrategyId = StrategyConfigRaw['id'];
 
-export type SingleStepWithdrawStrategyId = (StrategyConfigRaw & { id: string, isSingleStepWithdraw: true })['id'];
+type SingleStepWithdrawStrategyConfigRaw = StrategyConfigRaw & { isSingleStepWithdraw: true };
 
-export type MultiStepWithdrawStrategyId = (StrategyConfigRaw & { id: string, isSingleStepWithdraw: false })['id'];
+export type SingleStepWithdrawStrategyId = SingleStepWithdrawStrategyConfigRaw['id'];
+
+type MultiStepWithdrawStrategyConfigRaw = StrategyConfigRaw & { isSingleStepWithdraw: false };
+
+export type MultiStepWithdrawStrategyId = MultiStepWithdrawStrategyConfigRaw['id'];
 
 export type BeefyStrategyId =  (StrategyConfigRaw & { protocolType: 'beefy'  })['id'];
 

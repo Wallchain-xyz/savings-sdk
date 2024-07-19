@@ -12,6 +12,7 @@ import {
   DepositStrategyAccountType,
   DepositStrategyConfig,
   DepositStrategyProtocolType,
+  IdBasedDepositStrategy,
   createDepositStrategy,
 } from './DepositStrategy';
 import { aaveV3BondTokenActions } from './stategyActions/aaveV3BondTokenActions';
@@ -28,8 +29,6 @@ import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
 import {
-  MultiStepWithdrawStrategyId,
-  SingleStepWithdrawStrategyId,
   StrategyConfigRaw,
   StrategyId,
   baseSepoliaStrategyConfigs,
@@ -71,85 +70,78 @@ export class StrategiesManager {
 
   private chainId: SupportedChainId;
 
-  private strategiesById: { [key: string]: DepositStrategy };
+  private strategiesById: Partial<{ [key in StrategyId]: IdBasedDepositStrategy<StrategyId> }> = {};
 
   constructor({ publicClient, savingsBackendClient, chainId }: ConstructorParams) {
     this.savingsBackendClient = savingsBackendClient;
     this.chainId = chainId;
 
-    if (chainId in strategiesDataByChainId) {
-      const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
-
-      const strategiesArray = strategyConfigs.map(strategyConfig => {
-        let strategy;
-        switch (strategyConfig.protocolType) {
-          case DepositStrategyProtocolType.beefy: {
-            strategy = createDepositStrategy(strategyConfig);
-            strategy = strategy.extend(beefyBondTokenActions(publicClient));
-            if (strategy.isNative) {
-              strategy = strategy.extend(beefyNativeDepositWithdrawActions);
-            } else {
-              strategy = strategy.extend(beefyERC20DepositWithdrawActions);
-            }
-            break;
-          }
-          case DepositStrategyProtocolType.moonwell: {
-            strategy = createDepositStrategy(strategyConfig);
-            strategy = strategy.extend(moonwellBondTokenActions(publicClient));
-            strategy = strategy.extend(moonwellERC20DepositWithdrawActions);
-            break;
-          }
-          case DepositStrategyProtocolType.aaveV3: {
-            strategy = createDepositStrategy(strategyConfig);
-            strategy = strategy.extend(aaveV3BondTokenActions(publicClient));
-            strategy = strategy.extend(aaveV3ERC20DepositWithdrawActions);
-            break;
-          }
-          case DepositStrategyProtocolType.veda: {
-            strategy = createDepositStrategy(strategyConfig);
-            strategy = strategy.extend(vedaBondTokenActions(publicClient));
-            strategy = strategy.extend(
-              vedaERC20Actions({
-                publicClient,
-              }),
-            );
-            break;
-          }
-          default:
-            assertNever(strategyConfig);
-        }
-        if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
-          if (strategy.isSingleStepWithdraw) {
-            strategy = strategy.extend(eoaSingleStepWithdrawActions);
-          } else if (!strategy.isSingleStepWithdraw) {
-            strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
-          }
-          strategy = strategy.extend(eoaDepositActions);
-        }
-        strategy = strategy.extend(zeroDepositWithdrawActions);
-        return strategy as DepositStrategy;
-      });
-      this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
-    } else {
-      this.strategiesById = {};
+    if (!(chainId in strategiesDataByChainId)) {
+      // TODO:@merlin add sentry
+      // eslint-disable-next-line no-console
+      console.error(`Unsupported chainId - ${chainId}`);
+      return;
     }
+
+    const strategyConfigs = strategiesDataByChainId[chainId as keyof typeof strategiesDataByChainId];
+    const strategiesArray = strategyConfigs.map(strategyConfig => {
+      let strategy;
+      switch (strategyConfig.protocolType) {
+        case DepositStrategyProtocolType.beefy: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(beefyBondTokenActions(publicClient));
+          if (strategy.isNative) {
+            strategy = strategy.extend(beefyNativeDepositWithdrawActions);
+          } else {
+            strategy = strategy.extend(beefyERC20DepositWithdrawActions);
+          }
+          break;
+        }
+        case DepositStrategyProtocolType.moonwell: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(moonwellBondTokenActions(publicClient));
+          strategy = strategy.extend(moonwellERC20DepositWithdrawActions);
+          break;
+        }
+        case DepositStrategyProtocolType.aaveV3: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(aaveV3BondTokenActions(publicClient));
+          strategy = strategy.extend(aaveV3ERC20DepositWithdrawActions);
+          break;
+        }
+        case DepositStrategyProtocolType.veda: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(vedaBondTokenActions(publicClient));
+          strategy = strategy.extend(
+            vedaERC20Actions({
+              publicClient,
+            }),
+          );
+          break;
+        }
+        default:
+          assertNever(strategyConfig);
+      }
+      if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
+        if (strategy.isSingleStepWithdraw) {
+          strategy = strategy.extend(eoaSingleStepWithdrawActions);
+        } else if (!strategy.isSingleStepWithdraw) {
+          strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
+        }
+        strategy = strategy.extend(eoaDepositActions);
+      }
+      strategy = strategy.extend(zeroDepositWithdrawActions);
+      return strategy as DepositStrategy;
+    });
+    this.strategiesById = Object.fromEntries(strategiesArray.map(strategy => [strategy.id, strategy]));
   }
 
-  getStrategy<IdType extends SingleStepWithdrawStrategyId>(
-    strategyId: IdType,
-  ): DepositStrategy<{ isSingleStepWithdraw: true; id: IdType } & DepositStrategyConfig>;
-
-  getStrategy<IdType extends MultiStepWithdrawStrategyId>(
-    strategyId: IdType,
-  ): DepositStrategy<{ isSingleStepWithdraw: false; id: IdType } & DepositStrategyConfig>;
-
-  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy<{ id: IdType } & DepositStrategyConfig>;
-
-  getStrategy<IdType extends StrategyId>(strategyId: IdType): DepositStrategy<DepositStrategyConfig & { id: IdType }> {
+  getStrategy<TStrategyId extends StrategyId>(strategyId: TStrategyId): IdBasedDepositStrategy<TStrategyId> {
     if (!(strategyId in this.strategiesById)) {
       throw new StrategyNotFoundError(strategyId);
     }
-    return this.strategiesById[strategyId] as DepositStrategy<DepositStrategyConfig & { id: IdType }>;
+    // TODO:@merlin check why typecasting here
+    return this.strategiesById[strategyId] as IdBasedDepositStrategy<TStrategyId>;
   }
 
   getStrategies(): DepositStrategy[] {
