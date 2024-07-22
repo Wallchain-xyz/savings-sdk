@@ -38,7 +38,16 @@ interface CreateWalletSKAParams {
 
 export type SavingsAccountUserId = string;
 
-export type DepositStrategyDetailedInfo = APIStrategyDetailedInfo;
+// TODO: @merlin temp hardcoded structure
+export interface APIPoint {
+  imageUrl: string;
+  name: string;
+  multiplier: number;
+}
+
+export type DepositStrategyDetailedInfo = APIStrategyDetailedInfo & {
+  points?: APIPoint[];
+};
 
 export interface PauseDepositingParams {
   pauseUntilDatetime?: Date | string;

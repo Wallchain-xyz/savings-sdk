@@ -1,7 +1,5 @@
 import { Address, Chain, PublicClient, Transport, isAddressEqual } from 'viem';
 
-import { base, baseSepolia, mainnet } from 'viem/chains';
-
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { DepositStrategyDetailedInfo, SavingsBackendClient } from '../api/SavingsBackendClient';
 
@@ -10,11 +8,11 @@ import { assertNever } from '../utils/assertNever';
 import {
   DepositStrategy,
   DepositStrategyAccountType,
-  DepositStrategyConfig,
   DepositStrategyProtocolType,
   IdBasedDepositStrategy,
   createDepositStrategy,
 } from './DepositStrategy';
+import { pointsByStrategyId } from './pointsByStrategyId';
 import { aaveV3BondTokenActions } from './stategyActions/aaveV3BondTokenActions';
 import { aaveV3ERC20DepositWithdrawActions } from './stategyActions/aaveV3ERC20DepositWithdrawActions';
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
@@ -28,29 +26,9 @@ import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellER
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
-import {
-  StrategyConfigRaw,
-  StrategyId,
-  baseSepoliaStrategyConfigs,
-  baseStrategyConfigs,
-  mainnetStrategyConfigs,
-} from './strategies';
+import { StrategyId } from './strategies';
+import { strategiesDataByChainId } from './strategiesDataByChainId';
 import { StrategyNotFoundError } from './StrategyNotFoundError';
-
-const fixBigIntMissingInJSON = (strategy: StrategyConfigRaw) =>
-  ({
-    ...strategy,
-    permissions: strategy.permissions.map(permission => ({
-      ...permission,
-      valueLimit: BigInt(permission.valueLimit),
-    })),
-  } as unknown as DepositStrategyConfig);
-
-const strategiesDataByChainId = {
-  [base.id]: baseStrategyConfigs.map(fixBigIntMissingInJSON),
-  [baseSepolia.id]: baseSepoliaStrategyConfigs.map(fixBigIntMissingInJSON),
-  [mainnet.id]: mainnetStrategyConfigs.map(fixBigIntMissingInJSON),
-};
 
 export interface StrategiesFilter {
   tokenAddress?: Address;
@@ -161,9 +139,14 @@ export class StrategiesManager {
   }
 
   async getStrategiesDetails(): Promise<DepositStrategyDetailedInfo[]> {
-    return this.savingsBackendClient.getDepositStrategyDetailedInfo({
+    const infos = await this.savingsBackendClient.getDepositStrategyDetailedInfo({
       chainId: this.chainId,
     });
+    return infos.map(info => ({
+      ...info,
+      // TODO:@merlin fix
+      points: pointsByStrategyId[info.id as StrategyId],
+    }));
   }
 
   static checkFilter(strategy: DepositStrategy, filter?: StrategiesFilter): boolean {

@@ -27,3 +27,4 @@ export { UnsupportedChainError } from './api/dms/errors';
 export { InterpolationError } from './depositStrategies/InterpolatePermissions';
 
 export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
+export type { DepositStrategyDetailedInfo } from './api/SavingsBackendClient';
