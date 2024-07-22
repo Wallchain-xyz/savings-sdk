@@ -23,6 +23,7 @@ export {
   UserNotFoundError,
 } from './api/auth/errors';
 export { ForbiddenError, SkaNotFoundError, SkaAlreadyExistsError, UserOpsFailedError } from './api/ska/errors';
+export { UnsupportedChainError } from './api/dms/errors';
 export { InterpolationError } from './depositStrategies/InterpolatePermissions';
 
 export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
