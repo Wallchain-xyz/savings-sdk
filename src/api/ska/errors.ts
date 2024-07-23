@@ -29,6 +29,7 @@ export class UserOpsFailedError extends ApiError<UserOpsFailedApiError> {
 
 type SkaOnlyError = ForbiddenError | SkaNotFoundError | SkaAlreadyExistsError | UserOpsFailedError;
 
+// eslint-disable-next-line import/no-unused-modules
 export type SkaError = SharedError | SkaOnlyError;
 
 export const errorSchemaAndClasses = [
