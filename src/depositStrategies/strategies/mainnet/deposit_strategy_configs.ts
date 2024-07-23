@@ -66,10 +66,6 @@ export const mainnetStrategyConfigs = [
                 type: 'uint256',
               },
               {
-                name: 'depositAmount',
-                type: 'uint256',
-              },
-              {
                 name: 'minimumMint',
                 type: 'uint256',
               },
@@ -251,10 +247,6 @@ export const mainnetStrategyConfigs = [
               {
                 name: 'depositAsset',
                 type: 'address',
-              },
-              {
-                name: 'depositAmount',
-                type: 'uint256',
               },
               {
                 name: 'depositAmount',
