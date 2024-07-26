@@ -47,8 +47,45 @@ export function vedaERC20Actions({
       client: publicClient,
     });
 
+    const createStep0WithdrawTxns = async ({ amount }: CreateWithdrawTxnsParams) => {
+      const currentPrice = await accountantContract.read.getRateInQuoteSafe([strategy.config.tokenAddress]);
+      const [numerator, denominator] = withdrawDiscountNumeratorDenominator;
+      const discountedPrice = (currentPrice * numerator) / denominator;
+      return [
+        {
+          to: strategy.config.bondTokenAddress,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: erc20ABI,
+            functionName: 'approve',
+            args: [strategy.config.atomicQueueAddress, amount],
+          }),
+        },
+        {
+          to: strategy.config.atomicQueueAddress,
+          value: 0n,
+          data: encodeFunctionData({
+            abi: atomicQueueAbi,
+            functionName: 'updateAtomicRequest',
+            args: [
+              strategy.config.bondTokenAddress,
+              strategy.config.tokenAddress,
+              {
+                deadline: BigInt(Math.floor(Date.now())) / 1000n + BigInt(withdrawDelaySeconds),
+                atomicPrice: discountedPrice,
+                offerAmount: amount,
+                inSolve: false,
+              },
+            ],
+          }),
+        },
+      ];
+    };
+
+    const createStep1WithdrawTxns = async (_: CreateWithdrawTxnsParams) => [];
+
     return {
-      createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
+      createDepositTxns: async ({ amount }: CreateDepositTxnsParams) => [
         {
           to: strategy.config.tokenAddress,
           value: 0n,
@@ -69,41 +106,6 @@ export function vedaERC20Actions({
         },
       ],
 
-      createInitiateWithdrawTxns: async ({ amount }: CreateWithdrawTxnsParams) => {
-        const currentPrice = await accountantContract.read.getRateInQuoteSafe([strategy.config.tokenAddress]);
-        const [numerator, denominator] = withdrawDiscountNumeratorDenominator;
-        const discountedPrice = (currentPrice * numerator) / denominator;
-        return [
-          {
-            to: strategy.config.bondTokenAddress,
-            value: 0n,
-            data: encodeFunctionData({
-              abi: erc20ABI,
-              functionName: 'approve',
-              args: [strategy.config.atomicQueueAddress, amount],
-            }),
-          },
-          {
-            to: strategy.config.atomicQueueAddress,
-            value: 0n,
-            data: encodeFunctionData({
-              abi: atomicQueueAbi,
-              functionName: 'updateAtomicRequest',
-              args: [
-                strategy.config.bondTokenAddress,
-                strategy.config.tokenAddress,
-                {
-                  deadline: BigInt(Math.floor(Date.now())) / 1000n + BigInt(withdrawDelaySeconds),
-                  atomicPrice: discountedPrice,
-                  offerAmount: amount,
-                  inSolve: false,
-                },
-              ],
-            }),
-          },
-        ];
-      },
-
       getPendingWithdrawal: async (aaAddress: Address) => {
         const res = await queueContract.read.getUserAtomicRequest([
           aaAddress,
@@ -113,11 +115,23 @@ export function vedaERC20Actions({
 
         return {
           amount: res.offerAmount,
-          canBeCompleted: false,
+          currentStep: res.offerAmount === 0n ? 0 : 1,
+          isFinalStep: res.offerAmount !== 0n,
+          isStepCanBeExecuted: res.offerAmount === 0n,
         };
       },
 
-      createCompleteWithdrawTxns: async () => [],
+      withdrawStepsCount: 2,
+
+      createWithdrawStepTxns: async (step, params) => {
+        if (step === 0) {
+          return createStep0WithdrawTxns(params);
+        }
+        if (step === 1) {
+          return createStep1WithdrawTxns(params);
+        }
+        throw new Error(`Invalid withdraw step ${step}`);
+      },
     };
   };
 }

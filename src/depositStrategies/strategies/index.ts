@@ -23,3 +23,5 @@ export type MoonwellStrategyId =  (StrategyConfigRaw & { protocolType: 'moonwell
 export type AaveV3StrategyId =  (StrategyConfigRaw & { protocolType: 'aaveV3'  })['id'];
 
 export type VedaStrategyId = (StrategyConfigRaw & { protocolType: 'veda' })['id'];
+
+export type MellowStrategyId = (StrategyConfigRaw & { protocolType: 'mellow' })['id'];

@@ -41,6 +41,7 @@ interface MultiStepWithdrawParams
   extends Omit<WithdrawOrDepositParams, 'amount'>,
     Omit<PauseDepositingParams, 'chainId'> {
   depositStrategyId: MultiStepWithdrawStrategyId;
+  step: number;
   amount?: bigint;
 }
 
@@ -130,7 +131,7 @@ export class SavingsAccount {
 
   async deposit({ depositStrategyId, amount }: WithdrawOrDepositParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
-    const txns = strategy.createDepositTxns({
+    const txns = await strategy.createDepositTxns({
       amount,
       paramValuesByKey: {
         // TODO: fetch parameter from strategy, do not use this constant here
@@ -151,7 +152,7 @@ export class SavingsAccount {
         if (strategy.isSingleStepWithdraw) {
           return strategy.createWithdrawTxns(params);
         }
-        return strategy.createInitiateWithdrawTxns(params);
+        return strategy.createWithdrawStepTxns(0, params);
       }),
     );
     return this.primaryAAAccount.sendTxnsAndWait(txns.flat());
@@ -169,7 +170,8 @@ export class SavingsAccount {
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
-  async initiateWithdraw({
+  async multiStepWithdraw({
+    step,
     depositStrategyId,
     amount,
     pauseUntilDatetime,
@@ -177,36 +179,16 @@ export class SavingsAccount {
     const strategy = this.strategiesManager.getStrategy<MultiStepWithdrawStrategyId>(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const params = await this.buildWithdrawParams(strategy, amount);
-    if (!strategy.isSingleStepWithdraw) {
-      const txns = await strategy.createInitiateWithdrawTxns(params);
-      return this.primaryAAAccount.sendTxnsAndWait(txns);
+    if (!amount && step !== 0) {
+      params.amount = (await strategy.getPendingWithdrawal(this.aaAddress)).amount;
     }
-    const txns = await strategy.createInitiateWithdrawTxns(params);
+    const txns = await strategy.createWithdrawStepTxns(step, params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
   async getPendingWithdrawal(depositStrategyId: MultiStepWithdrawStrategyId): Promise<PendingWithdrawal> {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     return strategy.getPendingWithdrawal(this.aaAddress);
-  }
-
-  async completeWithdraw({
-    depositStrategyId,
-    amount,
-    pauseUntilDatetime,
-  }: MultiStepWithdrawParams): Promise<UserOpResult> {
-    const strategy = this.strategiesManager.getStrategy(depositStrategyId);
-    this.pauseIfNeeded(pauseUntilDatetime);
-    const paramValuesByKey = {
-      // TODO: fetch parameter from strategy, do not use this constant here
-      eoaAddress: this.privateKeyAccount.address,
-      aaAddress: this.aaAddress,
-    };
-    const txns = await strategy.createCompleteWithdrawTxns({
-      amount: amount ?? (await strategy.getPendingWithdrawal(this.aaAddress)).amount,
-      paramValuesByKey,
-    });
-    return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
 
   // TODO: consider refactoring auth message logic into separate class

@@ -3,7 +3,6 @@ import { PublicClient, encodeFunctionData, getContract } from 'viem';
 import { erc20ABI } from '../../../utils/erc20ABI';
 import {
   BondTokenActions,
-  CreateWithdrawTxnsParams,
   DepositStrategyConfig,
   DepositStrategyWithActions,
   MultiStepWithdrawActions,
@@ -26,25 +25,35 @@ export function eoaMultiStepWithdrawActions(
       client: publicClient,
     });
     return {
-      createInitiateWithdrawTxns: strategy.createInitiateWithdrawTxns,
+      withdrawStepsCount: strategy.withdrawStepsCount,
       getPendingWithdrawal: async aaAddress => {
         const aaPendingWithdrawal = await strategy.getPendingWithdrawal(aaAddress);
-        if (aaPendingWithdrawal.canBeCompleted || aaPendingWithdrawal.amount > 0n) {
+        if (aaPendingWithdrawal.currentStep !== 0) {
           return aaPendingWithdrawal;
         }
         // Some protocols (veda) completes withdrawal automatically,
         // so we should check balance of token
         const balance = await tokenContract.read.balanceOf([aaAddress]);
+        if (balance === 0n) {
+          return aaPendingWithdrawal;
+        }
         return {
-          canBeCompleted: balance !== 0n,
           amount: await strategy.tokenAmountToBondTokenAmount(balance),
+          currentStep: strategy.withdrawStepsCount - 1,
+          isStepCanBeExecuted: true,
+          isFinalStep: true,
         };
       },
-      createCompleteWithdrawTxns: async ({ amount, paramValuesByKey }: CreateWithdrawTxnsParams) => {
-        const withdrawTxnsPromise = strategy.createCompleteWithdrawTxns({ amount, paramValuesByKey });
+      createWithdrawStepTxns: async (step, params) => {
+        const strategySpecificTxns = await strategy.createWithdrawStepTxns(step, params);
+        if (step !== strategy.withdrawStepsCount - 1) {
+          // Append transfer to last step
+          return strategySpecificTxns;
+        }
+        const { amount, paramValuesByKey } = params;
         const tokenAmountPromise = strategy.bondTokenAmountToTokenAmount(amount);
         return [
-          ...(await withdrawTxnsPromise),
+          ...strategySpecificTxns,
           {
             to: strategy.tokenAddress,
             value: 0n,

@@ -9,7 +9,14 @@ import { NATIVE_TOKEN_ADDRESS } from '../consts';
 import { mapStringValuesDeep } from '../utils/mapValuesDeep';
 
 import { interpolatePermissions } from './InterpolatePermissions';
-import { AaveV3StrategyId, BeefyStrategyId, MoonwellStrategyId, StrategyId, VedaStrategyId } from './strategies';
+import {
+  AaveV3StrategyId,
+  BeefyStrategyId,
+  MellowStrategyId,
+  MoonwellStrategyId,
+  StrategyId,
+  VedaStrategyId,
+} from './strategies';
 
 export interface ParamsValuesByKey {
   [key: string]: string | null;
@@ -32,6 +39,7 @@ export enum DepositStrategyProtocolType {
   moonwell = 'moonwell',
   aaveV3 = 'aaveV3',
   veda = 'veda',
+  mellow = 'mellow',
 }
 
 export enum DepositStrategyAccountType {
@@ -78,11 +86,19 @@ export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base<fa
   atomicQueueAddress: Address;
 }
 
+export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
+  id: MellowStrategyId;
+  protocolType: DepositStrategyProtocolType.mellow;
+  wrapperAddress: Address;
+  collectorAddress: Address;
+}
+
 export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
   | AaveV3DepositStrategyConfig
-  | VedaDepositStrategyConfig;
+  | VedaDepositStrategyConfig
+  | MellowDepositStrategyConfig;
 
 type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends BeefyStrategyId
   ? BeefyDepositStrategyConfig
@@ -143,7 +159,7 @@ export type BondTokenActions = {
 };
 
 export type DepositActions = {
-  createDepositTxns: (params: CreateDepositTxnsParams) => Txn[];
+  createDepositTxns: (params: CreateDepositTxnsParams) => Promise<Txn[]>;
 };
 
 export type SingleStepWithdrawActions<config extends DepositStrategyConfig> =
@@ -155,15 +171,17 @@ export type SingleStepWithdrawActions<config extends DepositStrategyConfig> =
 
 export interface PendingWithdrawal {
   amount: bigint;
-  canBeCompleted: boolean;
+  currentStep: number;
+  isStepCanBeExecuted: boolean;
+  isFinalStep: boolean;
 }
 
 export type MultiStepWithdrawActions<config extends DepositStrategyConfig> =
   config['isSingleStepWithdraw'] extends false
     ? {
-        createInitiateWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+        createWithdrawStepTxns: (step: number, params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
+        withdrawStepsCount: number;
         getPendingWithdrawal: (aaAddress: Address) => Promise<PendingWithdrawal>;
-        createCompleteWithdrawTxns: (params: CreateWithdrawTxnsParams) => Promise<Txn[]>;
       }
     : never;
 

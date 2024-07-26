@@ -16,7 +16,7 @@ export function eoaDepositActions<
   Actions extends DepositActions & BondTokenActions,
 >(strategy: DepositStrategyWithActions<config, Actions>): DepositActions {
   return {
-    createDepositTxns: ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => [
+    createDepositTxns: async ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,
         value: 0n,
@@ -26,7 +26,7 @@ export function eoaDepositActions<
           args: [ensureAddress(paramValuesByKey, 'eoaAddress'), ensureAddress(paramValuesByKey, 'aaAddress'), amount],
         }),
       },
-      ...strategy.createDepositTxns({ amount, paramValuesByKey }),
+      ...(await strategy.createDepositTxns({ amount, paramValuesByKey })),
     ],
   };
 }

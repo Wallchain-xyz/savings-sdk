@@ -20,7 +20,7 @@ export function beefyERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<BeefyDepositStrategyConfig>,
 ): DepositSingleStepWithdrawActions<BeefyDepositStrategyConfig> {
   return {
-    createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
+    createDepositTxns: async ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,
         value: 0n,

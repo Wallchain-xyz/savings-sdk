@@ -12,16 +12,15 @@ export function zeroDepositWithdrawActions(
   | DepositMultiStepWithdrawActions<{ isSingleStepWithdraw: false } & DepositStrategyConfig> {
   if (strategy.isSingleStepWithdraw) {
     return {
-      createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+      createDepositTxns: async params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
       createWithdrawTxns: async params => (params.amount === 0n ? [] : strategy.createWithdrawTxns(params)),
     };
   }
   return {
     getPendingWithdrawal: strategy.getPendingWithdrawal,
-    createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
-    createInitiateWithdrawTxns: async params =>
-      params.amount === 0n ? [] : strategy.createInitiateWithdrawTxns(params),
-    createCompleteWithdrawTxns: async params =>
-      params.amount === 0n ? [] : strategy.createCompleteWithdrawTxns(params),
+    withdrawStepsCount: strategy.withdrawStepsCount,
+    createDepositTxns: async params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+    createWithdrawStepTxns: async (step, params) =>
+      params.amount === 0n ? [] : strategy.createWithdrawStepTxns(step, params),
   };
 }

@@ -19,7 +19,7 @@ export function moonwellERC20DepositWithdrawActions(
   strategy: DepositStrategyWithActions<MoonwellDepositStrategyConfig>,
 ): DepositSingleStepWithdrawActions<MoonwellDepositStrategyConfig> {
   return {
-    createDepositTxns: ({ amount }: CreateDepositTxnsParams) => [
+    createDepositTxns: async ({ amount }: CreateDepositTxnsParams) => [
       {
         to: strategy.tokenAddress,
         value: 0n,

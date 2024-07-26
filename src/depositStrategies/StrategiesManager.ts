@@ -21,6 +21,8 @@ import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeD
 import { eoaDepositActions } from './stategyActions/eoaActions/eoaDepositActions';
 import { eoaMultiStepWithdrawActions } from './stategyActions/eoaActions/eoaMultiStepWithdrawActions';
 import { eoaSingleStepWithdrawActions } from './stategyActions/eoaActions/eoaSingleStepWithdrawActions';
+import { mellowBondTokenActions } from './stategyActions/mellowBondTokenActions';
+import { mellowERC20Actions } from './stategyActions/mellowERC20Actions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
@@ -92,6 +94,16 @@ export class StrategiesManager {
           strategy = strategy.extend(vedaBondTokenActions(publicClient));
           strategy = strategy.extend(
             vedaERC20Actions({
+              publicClient,
+            }),
+          );
+          break;
+        }
+        case DepositStrategyProtocolType.mellow: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(mellowBondTokenActions(publicClient));
+          strategy = strategy.extend(
+            mellowERC20Actions({
               publicClient,
             }),
           );
