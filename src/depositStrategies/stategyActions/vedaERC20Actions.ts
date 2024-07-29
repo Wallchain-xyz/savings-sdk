@@ -47,7 +47,7 @@ export function vedaERC20Actions({
       client: publicClient,
     });
 
-    const createStep0WithdrawTxns = async ({ amount }: CreateWithdrawTxnsParams) => {
+    const createRequestVedaWithdrawTxns = async ({ amount }: CreateWithdrawTxnsParams) => {
       const currentPrice = await accountantContract.read.getRateInQuoteSafe([strategy.config.tokenAddress]);
       const [numerator, denominator] = withdrawDiscountNumeratorDenominator;
       const discountedPrice = (currentPrice * numerator) / denominator;
@@ -81,8 +81,6 @@ export function vedaERC20Actions({
         },
       ];
     };
-
-    const createStep1WithdrawTxns = async (_: CreateWithdrawTxnsParams) => [];
 
     return {
       createDepositTxns: async ({ amount }: CreateDepositTxnsParams) => [
@@ -127,10 +125,10 @@ export function vedaERC20Actions({
 
       createWithdrawStepTxns: async (step, params) => {
         if (step === 0) {
-          return createStep0WithdrawTxns(params);
+          return createRequestVedaWithdrawTxns(params);
         }
         if (step === 1) {
-          return createStep1WithdrawTxns(params);
+          return [];
         }
         throw new Error(`Invalid withdraw step ${step}`);
       },

@@ -471,7 +471,230 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
     depositWrapperAddress: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
     collectorAddress: '0x317554dC885FbeFfC77D8fA753cCd5a45890863b',
-    permissions: [],
+    permissions: [
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'approve',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
+          },
+        ],
+      },
+      {
+        target: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
+        functionName: 'deposit',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpAmount',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'deadline',
+                type: 'uint256',
+              },
+            ],
+            name: 'deposit',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'lpAmount',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          },
+        ],
+      },
+      {
+        target: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
+        functionName: 'registerWithdrawal',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'registerWithdrawal',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'to',
+              },
+              {
+                type: 'uint256',
+                name: 'lpAmount',
+              },
+              {
+                type: 'uint256[]',
+                name: 'minAmounts',
+              },
+              {
+                type: 'uint256',
+                name: 'deadline',
+              },
+              {
+                type: 'uint256',
+                name: 'requestDeadline',
+              },
+              {
+                type: 'bool',
+                name: 'closePrevious',
+              },
+            ],
+            outputs: [],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+        functionName: 'approve',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+          },
+        ],
+      },
+      {
+        target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+        functionName: 'requestWithdrawalsWstETH',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'uint256[]',
+                name: '_amounts',
+                type: 'uint256[]',
+              },
+              {
+                internalType: 'address',
+                name: '_owner',
+                type: 'address',
+              },
+            ],
+            name: 'requestWithdrawalsWstETH',
+            outputs: [
+              {
+                internalType: 'uint256[]',
+                name: 'requestIds',
+                type: 'uint256[]',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+      {
+        target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+        functionName: 'claimWithdrawal',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'uint256',
+                name: '_requestId',
+                type: 'uint256',
+              },
+            ],
+            name: 'claimWithdrawal',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+    ],
   },
   {
     id: 'a4be0324-c93c-4525-a0d1-48c6f9f1bb49',
@@ -488,6 +711,312 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
     depositWrapperAddress: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
     collectorAddress: '0x317554dC885FbeFfC77D8fA753cCd5a45890863b',
-    permissions: [],
+    permissions: [
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'approve',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
+          },
+        ],
+      },
+      {
+        target: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
+        functionName: 'deposit',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpAmount',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'deadline',
+                type: 'uint256',
+              },
+            ],
+            name: 'deposit',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'lpAmount',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          },
+        ],
+      },
+      {
+        target: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
+        functionName: 'registerWithdrawal',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'registerWithdrawal',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'to',
+              },
+              {
+                type: 'uint256',
+                name: 'lpAmount',
+              },
+              {
+                type: 'uint256[]',
+                name: 'minAmounts',
+              },
+              {
+                type: 'uint256',
+                name: 'deadline',
+              },
+              {
+                type: 'uint256',
+                name: 'requestDeadline',
+              },
+              {
+                type: 'bool',
+                name: 'closePrevious',
+              },
+            ],
+            outputs: [],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+        functionName: 'approve',
+        valueLimit: '0x0',
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+          },
+        ],
+      },
+      {
+        target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+        functionName: 'requestWithdrawalsWstETH',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'uint256[]',
+                name: '_amounts',
+                type: 'uint256[]',
+              },
+              {
+                internalType: 'address',
+                name: '_owner',
+                type: 'address',
+              },
+            ],
+            name: 'requestWithdrawalsWstETH',
+            outputs: [
+              {
+                internalType: 'uint256[]',
+                name: 'requestIds',
+                type: 'uint256[]',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+      {
+        target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
+        functionName: 'claimWithdrawal',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'uint256',
+                name: '_requestId',
+                type: 'uint256',
+              },
+            ],
+            name: 'claimWithdrawal',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'transferFrom',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'from',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transferFrom',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'transfer',
+        valueLimit: '0x0',
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transfer',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+        ],
+      },
+    ],
   },
 ] as const;
