@@ -13,7 +13,7 @@ export function zeroDepositWithdrawActions(
   if (strategy.isSingleStepWithdraw) {
     return {
       createDepositTxns: params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
-      createWithdrawTxns: async params => (params.amount === 0n ? [] : strategy.createDepositTxns(params)),
+      createWithdrawTxns: async params => (params.amount === 0n ? [] : strategy.createWithdrawTxns(params)),
     };
   }
   return {
