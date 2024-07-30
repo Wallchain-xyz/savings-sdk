@@ -178,10 +178,7 @@ export class SavingsAccount {
   }: MultiStepWithdrawParams): Promise<UserOpResult> {
     const strategy = this.strategiesManager.getStrategy<MultiStepWithdrawStrategyId>(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
-    const params = await this.buildWithdrawParams(strategy, amount);
-    if (!amount && step !== 0) {
-      params.amount = (await strategy.getPendingWithdrawal(this.aaAddress)).amount;
-    }
+    const params = await this.buildWithdrawParams(strategy, amount, step);
     const txns = await strategy.createWithdrawStepTxns(step, params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
   }
@@ -233,9 +230,17 @@ export class SavingsAccount {
     }
   }
 
-  private async buildWithdrawParams(strategy: Pick<DepositStrategy, 'getBondTokenBalance'>, amount?: bigint) {
+  private async buildWithdrawParams(strategy: DepositStrategy, amount?: bigint, step?: number) {
+    let amountToWithdraw = amount;
+    if (!amountToWithdraw) {
+      if (strategy.isSingleStepWithdraw || step === 0) {
+        amountToWithdraw = await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress);
+      } else {
+        amountToWithdraw = (await strategy.getPendingWithdrawal(this.aaAddress)).amount;
+      }
+    }
     return {
-      amount: amount ?? (await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress)),
+      amount: amountToWithdraw,
       paramValuesByKey: {
         // TODO: fetch parameter from strategy, do not use this constant here
         eoaAddress: this.privateKeyAccount.address,
