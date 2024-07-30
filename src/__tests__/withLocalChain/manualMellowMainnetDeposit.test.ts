@@ -22,7 +22,7 @@ const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:
 
 // Requires mainnet local fork
 // eslint-disable-next-line jest/no-disabled-tests
-describe.each([
+describe.skip.each([
   ['mellow weth', '5155d89f-98c3-436b-bd87-d8fef022620a'],
   ['mellow eoa weth', 'a4be0324-c93c-4525-a0d1-48c6f9f1bb49'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: MultiStepWithdrawStrategyId) => {

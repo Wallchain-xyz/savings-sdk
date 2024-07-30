@@ -48,14 +48,14 @@ export function mellowERC20Actions({
       createDepositTxns: async ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => {
         const { lpAmount } = await collectorContract.read.fetchDepositWrapperParams([
           strategy.config.bondTokenAddress,
-          strategy.config.wrapperAddress,
+          strategy.config.depositWrapperAddress,
           strategy.config.tokenAddress,
           amount,
         ]);
         const [numerator, denominator] = depositSlippageNumeratorDenominator;
         const lpAmountWithSlippage = (lpAmount * numerator) / denominator;
 
-        const block = await publicClient.getBlock();
+        const { timestamp } = await publicClient.getBlock();
 
         return [
           {
@@ -64,11 +64,11 @@ export function mellowERC20Actions({
             data: encodeFunctionData({
               abi: erc20ABI,
               functionName: 'approve',
-              args: [strategy.config.wrapperAddress, amount],
+              args: [strategy.config.depositWrapperAddress, amount],
             }),
           },
           {
-            to: strategy.config.wrapperAddress,
+            to: strategy.config.depositWrapperAddress,
             value: 0n,
             data: encodeFunctionData({
               abi: depositWrapperAbi,
@@ -78,7 +78,7 @@ export function mellowERC20Actions({
                 strategy.config.tokenAddress,
                 amount,
                 lpAmountWithSlippage,
-                block.timestamp + BigInt(depositDeadlineSeconds),
+                timestamp + BigInt(depositDeadlineSeconds),
               ],
             }),
           },

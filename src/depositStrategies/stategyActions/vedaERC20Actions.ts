@@ -113,11 +113,13 @@ export function vedaERC20Actions({
           strategy.tokenAddress,
         ]);
 
+        const hasEntryInQueue = res.offerAmount > 0n;
+
         return {
           amount: res.offerAmount,
-          currentStep: res.offerAmount === 0n ? 0 : 1,
-          isFinalStep: res.offerAmount !== 0n,
-          isStepCanBeExecuted: res.offerAmount === 0n,
+          currentStep: hasEntryInQueue ? 1 : 0,
+          isFinalStep: hasEntryInQueue,
+          isStepCanBeExecuted: !hasEntryInQueue, // queue processing done by Veda
         };
       },
 

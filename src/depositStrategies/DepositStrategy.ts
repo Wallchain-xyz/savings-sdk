@@ -89,7 +89,7 @@ export interface VedaDepositStrategyConfig extends DepositStrategyConfig_Base<fa
 export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
   id: MellowStrategyId;
   protocolType: DepositStrategyProtocolType.mellow;
-  wrapperAddress: Address;
+  depositWrapperAddress: Address;
   collectorAddress: Address;
 }
 

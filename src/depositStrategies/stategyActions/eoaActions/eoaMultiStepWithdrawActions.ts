@@ -1,8 +1,9 @@
-import { PublicClient, encodeFunctionData, getContract } from 'viem';
+import { Address, PublicClient, encodeFunctionData, getContract } from 'viem';
 
 import { erc20ABI } from '../../../utils/erc20ABI';
 import {
   BondTokenActions,
+  CreateWithdrawTxnsParams,
   DepositStrategyConfig,
   DepositStrategyWithActions,
   MultiStepWithdrawActions,
@@ -26,7 +27,7 @@ export function eoaMultiStepWithdrawActions(
     });
     return {
       withdrawStepsCount: strategy.withdrawStepsCount,
-      getPendingWithdrawal: async aaAddress => {
+      getPendingWithdrawal: async (aaAddress: Address) => {
         const aaPendingWithdrawal = await strategy.getPendingWithdrawal(aaAddress);
         if (aaPendingWithdrawal.currentStep !== 0) {
           return aaPendingWithdrawal;
@@ -44,10 +45,9 @@ export function eoaMultiStepWithdrawActions(
           isFinalStep: true,
         };
       },
-      createWithdrawStepTxns: async (step, params) => {
+      createWithdrawStepTxns: async (step: number, params: CreateWithdrawTxnsParams) => {
         const strategySpecificTxns = await strategy.createWithdrawStepTxns(step, params);
         if (step !== strategy.withdrawStepsCount - 1) {
-          // Append transfer to last step
           return strategySpecificTxns;
         }
         const { amount, paramValuesByKey } = params;

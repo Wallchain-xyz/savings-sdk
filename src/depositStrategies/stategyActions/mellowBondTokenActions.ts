@@ -3,7 +3,7 @@ import { Address, PublicClient, getContract, parseAbi } from 'viem';
 import { erc20ABI } from '../../utils/erc20ABI';
 import { BondTokenActions, DepositStrategyWithActions, MellowDepositStrategyConfig } from '../DepositStrategy';
 
-// Docs: https://docs.veda.tech/
+// Docs: https://docs.mellow.finance/
 
 const collectorAbi = parseAbi([
   'struct DepositWrapperParams { bool isDepositPossible; bool isDepositorWhitelisted; bool isWhitelistedToken; uint256 lpAmount; uint256 depositValueUSDC}',
@@ -11,7 +11,7 @@ const collectorAbi = parseAbi([
   'function fetchWithdrawalAmounts(uint256 lpAmount, address vault) external view returns (uint256[] memory expectedAmounts, uint256[] memory expectedAmountsUSDC)',
 ]);
 
-const wstETHAbi = parseAbi([
+const wStEthAbi = parseAbi([
   'function getWstETHByStETH(uint256 _stETHAmount) view returns (uint256)',
   'function getStETHByWstETH(uint256 _wstETHAmount) view returns (uint256)',
 ]);
@@ -19,7 +19,6 @@ const wstETHAbi = parseAbi([
 export function mellowBondTokenActions(
   publicClient: PublicClient,
 ): (strategy: DepositStrategyWithActions<MellowDepositStrategyConfig>) => BondTokenActions {
-  // eslint-disable-next-line unused-imports/no-unused-vars
   return strategy => {
     const vaultContract = getContract({
       address: strategy.bondTokenAddress,
@@ -35,7 +34,7 @@ export function mellowBondTokenActions(
 
     const wStEthContract = getContract({
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      abi: wstETHAbi,
+      abi: wStEthAbi,
       client: publicClient,
     });
 
@@ -45,14 +44,14 @@ export function mellowBondTokenActions(
           amount,
           strategy.config.bondTokenAddress,
         ]);
-        const wstETHAmount = expectedAmounts[0];
-        return wStEthContract.read.getStETHByWstETH([wstETHAmount]);
+        const wStEthAmount = expectedAmounts[0];
+        return wStEthContract.read.getStETHByWstETH([wStEthAmount]);
       },
 
       tokenAmountToBondTokenAmount: async (amount: bigint) => {
         const { lpAmount } = await collectorContract.read.fetchDepositWrapperParams([
           strategy.config.bondTokenAddress,
-          strategy.config.wrapperAddress,
+          strategy.config.depositWrapperAddress,
           strategy.config.tokenAddress,
           amount,
         ]);
