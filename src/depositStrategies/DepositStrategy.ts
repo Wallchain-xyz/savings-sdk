@@ -173,7 +173,6 @@ export interface PendingWithdrawal {
   amount: bigint;
   currentStep: number;
   isStepCanBeExecuted: boolean;
-  isFinalStep: boolean;
 }
 
 export type MultiStepWithdrawActions<config extends DepositStrategyConfig> =

@@ -19,7 +19,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -53,7 +53,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x929B44db23740E65dF3A81eA4aAB716af1b88474',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -91,7 +91,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x7223442cad8e9cA474fC40109ab981608F8c4273',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -125,7 +125,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xd45884b592e316eb816199615a95c182f75dea07',
         functionName: 'updateAtomicRequest',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -206,7 +206,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -240,7 +240,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x929B44db23740E65dF3A81eA4aAB716af1b88474',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -278,7 +278,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x7223442cad8e9cA474fC40109ab981608F8c4273',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -312,7 +312,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xd45884b592e316eb816199615a95c182f75dea07',
         functionName: 'updateAtomicRequest',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -374,7 +374,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -420,7 +420,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -475,7 +475,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -509,7 +509,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -565,7 +565,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
         functionName: 'registerWithdrawal',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'registerWithdrawal',
@@ -610,7 +610,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -644,7 +644,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
         functionName: 'requestWithdrawalsWstETH',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -676,7 +676,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
         functionName: 'claimWithdrawal',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -689,6 +689,21 @@ export const mainnetStrategyConfigs = [
             name: 'claimWithdrawal',
             outputs: [],
             stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'deposit',
+        valueLimit: 9999999999999999999999999999999999999n,
+        abi: [
+          {
+            inputs: [],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'payable',
             type: 'function',
           },
         ],
@@ -715,7 +730,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -749,7 +764,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x897642a9DbE1dD82AcFdB90D1f22F75B66a765bA',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -805,7 +820,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811',
         functionName: 'registerWithdrawal',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'registerWithdrawal',
@@ -850,7 +865,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -884,7 +899,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
         functionName: 'requestWithdrawalsWstETH',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -916,7 +931,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1',
         functionName: 'claimWithdrawal',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -936,8 +951,23 @@ export const mainnetStrategyConfigs = [
       },
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        functionName: 'deposit',
+        valueLimit: 9999999999999999999999999999999999999n,
+        abi: [
+          {
+            inputs: [],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [],
+      },
+      {
+        target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -983,7 +1013,7 @@ export const mainnetStrategyConfigs = [
       {
         target: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [

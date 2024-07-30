@@ -42,7 +42,6 @@ export function eoaMultiStepWithdrawActions(
           amount: await strategy.tokenAmountToBondTokenAmount(balance),
           currentStep: strategy.withdrawStepsCount - 1,
           isStepCanBeExecuted: true,
-          isFinalStep: true,
         };
       },
       createWithdrawStepTxns: async (step: number, params: CreateWithdrawTxnsParams) => {

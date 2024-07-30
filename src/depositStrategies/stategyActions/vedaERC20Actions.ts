@@ -116,7 +116,6 @@ export function vedaERC20Actions({
         return {
           amount: res.offerAmount,
           currentStep: hasEntryInQueue ? 1 : 0,
-          isFinalStep: hasEntryInQueue,
           isStepCanBeExecuted: !hasEntryInQueue, // queue processing done by Veda
         };
       },

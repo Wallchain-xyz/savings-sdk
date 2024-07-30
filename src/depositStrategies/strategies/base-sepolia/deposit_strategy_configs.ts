@@ -17,7 +17,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -37,7 +37,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -57,7 +57,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -108,7 +108,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -128,7 +128,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -148,7 +148,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -182,7 +182,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -228,7 +228,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -265,7 +265,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -311,7 +311,7 @@ export const baseSepoliaStrategyConfigs = [
       {
         target: '0x9418efe858e69872a09a33a436c82fde58d41113',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [

@@ -2,6 +2,7 @@ import { Address, PublicClient, encodeFunctionData, getContract, parseAbi } from
 
 import { erc20ABI } from '../../utils/erc20ABI';
 import {
+  BondTokenActions,
   CreateDepositTxnsParams,
   CreateWithdrawTxnsParams,
   DepositMultiStepWithdrawActions,
@@ -27,18 +28,20 @@ const vaultAbi = parseAbi([
   'function withdrawalRequest(address user) external view returns (WithdrawalRequest)',
 ]);
 
-const wstETHAbi = parseAbi([
+const wStETHAbi = parseAbi([
   'function getWstETHByStETH(uint256 _stETHAmount) view returns (uint256)',
   'function getStETHByWstETH(uint256 _wstETHAmount) view returns (uint256)',
 ]);
 
-const wstEthWithdrawalQueueAbi = parseAbi([
+const wStEthWithdrawalQueueAbi = parseAbi([
   'struct WithdrawalRequestStatus { uint256 amountOfStETH; uint256 amountOfShares; address owner; uint256 timestamp; bool isFinalized; bool isClaimed; }',
   'function requestWithdrawalsWstETH(uint256[] _amounts, address _owner) returns (uint256[])',
   'function getWithdrawalRequests(address _owner) view returns (uint256[] requestsIds)',
   'function getWithdrawalStatus(uint256[] _requestIds) view returns (WithdrawalRequestStatus[])',
   'function claimWithdrawal(uint256 _requestId)',
 ]);
+
+const wethAbi = parseAbi(['function deposit() public payable']);
 
 // Docs: https://docs.mellow.finance/
 
@@ -57,7 +60,7 @@ export function mellowERC20Actions({
   withdrawCompleteDeadlineSeconds = 180 * 24 * 3600,
   depositSlippageNumeratorDenominator = [BigInt(10 ** 6 - 1), BigInt(10 ** 6)],
 }: MellowERC20ActionsParams): (
-  strategy: DepositStrategyWithActions<MellowDepositStrategyConfig>,
+  strategy: DepositStrategyWithActions<MellowDepositStrategyConfig, BondTokenActions>,
 ) => DepositMultiStepWithdrawActions<MellowDepositStrategyConfig> {
   return strategy => {
     const collectorContract = getContract({
@@ -74,13 +77,19 @@ export function mellowERC20Actions({
 
     const wStEthContract = getContract({
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0' as Address,
-      abi: [...erc20ABI, ...wstETHAbi],
+      abi: [...erc20ABI, ...wStETHAbi],
       client: publicClient,
     });
 
     const wStEthWithdawalQueueContract = getContract({
       address: '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1' as Address,
-      abi: wstEthWithdrawalQueueAbi,
+      abi: wStEthWithdrawalQueueAbi,
+      client: publicClient,
+    });
+
+    const wethContract = getContract({
+      address: strategy.tokenAddress,
+      abi: wethAbi,
       client: publicClient,
     });
 
@@ -89,8 +98,8 @@ export function mellowERC20Actions({
         amount,
         strategy.config.bondTokenAddress,
       ]);
-      const wstETHAmount = expectedAmounts[0];
-      const block = await publicClient.getBlock();
+      const wStEthAmount = expectedAmounts[0];
+      const { timestamp } = await publicClient.getBlock();
       return [
         {
           to: strategy.config.bondTokenAddress,
@@ -101,9 +110,9 @@ export function mellowERC20Actions({
             args: [
               ensureAddress(paramValuesByKey, 'aaAddress'),
               amount,
-              [wstETHAmount],
-              block.timestamp + BigInt(withdrawDeadlineSeconds),
-              block.timestamp + BigInt(withdrawCompleteDeadlineSeconds),
+              [wStEthAmount],
+              timestamp + BigInt(withdrawDeadlineSeconds),
+              timestamp + BigInt(withdrawCompleteDeadlineSeconds),
               true,
             ],
           }),
@@ -139,6 +148,7 @@ export function mellowERC20Actions({
     const createClaimLidoWithdrawTxns = async ({ paramValuesByKey }: CreateWithdrawTxnsParams) => {
       const aaAddress = ensureAddress(paramValuesByKey, 'aaAddress');
       const requests = await wStEthWithdawalQueueContract.read.getWithdrawalRequests([aaAddress]);
+      const requestsData = await wStEthWithdawalQueueContract.read.getWithdrawalStatus([requests]);
       return [
         {
           to: wStEthWithdawalQueueContract.address,
@@ -147,6 +157,15 @@ export function mellowERC20Actions({
             abi: wStEthWithdawalQueueContract.abi,
             functionName: 'claimWithdrawal',
             args: [requests[0]],
+          }),
+        },
+        {
+          to: wethContract.address,
+          value: requestsData[0].amountOfStETH,
+          data: encodeFunctionData({
+            abi: wethContract.abi,
+            functionName: 'deposit',
+            args: [],
           }),
         },
       ];
@@ -196,16 +215,16 @@ export function mellowERC20Actions({
       withdrawStepsCount: 3,
 
       createWithdrawStepTxns: async (step, params: CreateWithdrawTxnsParams) => {
-        if (step === 0) {
-          return createRequestMellowWithdrawTxns(params);
+        switch (step) {
+          case 0:
+            return createRequestMellowWithdrawTxns(params);
+          case 1:
+            return createRequestLidoWithdrawTxns(params);
+          case 2:
+            return createClaimLidoWithdrawTxns(params);
+          default:
+            throw new Error(`Invalid withdraw step ${step}`);
         }
-        if (step === 1) {
-          return createRequestLidoWithdrawTxns(params);
-        }
-        if (step === 2) {
-          return createClaimLidoWithdrawTxns(params);
-        }
-        throw new Error(`Invalid withdraw step ${step}`);
       },
 
       getPendingWithdrawal: async (aaAddress: Address) => {
@@ -215,9 +234,8 @@ export function mellowERC20Actions({
           if (requestsData) {
             const { amountOfStETH, isFinalized } = requestsData[0];
             return {
-              amount: amountOfStETH,
+              amount: await strategy.tokenAmountToBondTokenAmount(amountOfStETH),
               currentStep: 2,
-              isFinalStep: true,
               isStepCanBeExecuted: isFinalized,
             };
           }
@@ -225,25 +243,24 @@ export function mellowERC20Actions({
         const wstBalance = await wStEthContract.read.balanceOf([aaAddress]);
         if (wstBalance !== 0n) {
           return {
-            amount: await wStEthContract.read.getStETHByWstETH([wstBalance]),
+            amount: await strategy.tokenAmountToBondTokenAmount(
+              await wStEthContract.read.getStETHByWstETH([wstBalance]),
+            ),
             currentStep: 1,
-            isFinalStep: false,
             isStepCanBeExecuted: true,
           };
         }
-        const { lpAmount, minAmounts } = await vaultContract.read.withdrawalRequest([aaAddress]);
+        const { lpAmount } = await vaultContract.read.withdrawalRequest([aaAddress]);
         if (lpAmount !== 0n) {
           return {
-            amount: await wStEthContract.read.getStETHByWstETH([minAmounts[0]]),
+            amount: lpAmount,
             currentStep: 1,
-            isFinalStep: false,
             isStepCanBeExecuted: false,
           };
         }
         return {
           amount: 0n,
           currentStep: 0,
-          isFinalStep: false,
           isStepCanBeExecuted: true,
         };
       },

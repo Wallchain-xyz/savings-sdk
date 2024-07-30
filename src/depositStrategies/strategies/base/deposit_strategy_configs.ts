@@ -17,7 +17,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x62e5B9934dCB87618CFC74B222305D16C997E8c1',
         functionName: 'depositBNB',
-        valueLimit: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        valueLimit: 99999999999999999999999999999999999999n,
         abi: [
           {
             inputs: [],
@@ -31,7 +31,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x62e5B9934dCB87618CFC74B222305D16C997E8c1',
         functionName: 'withdrawBNB',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -68,7 +68,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -88,7 +88,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -108,7 +108,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -159,7 +159,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'deposit',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -179,7 +179,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -199,7 +199,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -233,7 +233,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -279,7 +279,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -316,7 +316,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -362,7 +362,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xeF6ED674486E54507d0f711C0d388BD8a1552E6F',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -416,7 +416,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22',
         functionName: 'mint',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -436,7 +436,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22',
         functionName: 'redeem',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'redeem',
@@ -456,7 +456,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -507,7 +507,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22',
         functionName: 'mint',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -527,7 +527,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xEdc817A28E8B93B03976FBd4a3dDBc9f7D176c22',
         functionName: 'redeem',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'redeem',
@@ -547,7 +547,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -581,7 +581,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -627,7 +627,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -682,7 +682,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
         functionName: 'supply',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -731,7 +731,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -767,7 +767,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -819,7 +819,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
         functionName: 'supply',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -868,7 +868,7 @@ export const baseStrategyConfigs = [
       {
         target: '0xa238dd80c259a72e81d7e4664a9801593f98d1c5',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -904,7 +904,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -938,7 +938,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -984,7 +984,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -1039,7 +1039,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7',
         functionName: 'supply',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -1088,7 +1088,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -1124,7 +1124,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -1176,7 +1176,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7',
         functionName: 'supply',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -1225,7 +1225,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x8F44Fd754285aa6A2b8B9B97739B79746e0475a7',
         functionName: 'withdraw',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'withdraw',
@@ -1261,7 +1261,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'approve',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             name: 'approve',
@@ -1295,7 +1295,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transferFrom',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
@@ -1341,7 +1341,7 @@ export const baseStrategyConfigs = [
       {
         target: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         functionName: 'transfer',
-        valueLimit: '0x0',
+        valueLimit: 0n,
         abi: [
           {
             inputs: [
