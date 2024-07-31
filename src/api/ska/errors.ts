@@ -9,9 +9,9 @@ import {
   SkaAlreadyExistsApiErrorSchema,
   SkaNotFoundApiError,
   SkaNotFoundApiErrorSchema,
+  TxnFailedApiError,
+  TxnFailedApiErrorSchema,
   UnauthenticatedApiErrorSchema,
-  UserOpsFailedApiError,
-  UserOpsFailedApiErrorSchema,
 } from './__generated__/createApiClient';
 
 export class ForbiddenError extends ApiError<ForbiddenApiError> {
@@ -23,11 +23,11 @@ export class SkaNotFoundError extends ApiError<SkaNotFoundApiError> {
 export class SkaAlreadyExistsError extends ApiError<SkaAlreadyExistsApiError> {
   readonly name = SkaAlreadyExistsError.name;
 }
-export class UserOpsFailedError extends ApiError<UserOpsFailedApiError> {
-  readonly name = UserOpsFailedError.name;
+export class TxnFailedError extends ApiError<TxnFailedApiError> {
+  readonly name = TxnFailedError.name;
 }
 
-type SkaOnlyError = ForbiddenError | SkaNotFoundError | SkaAlreadyExistsError | UserOpsFailedError;
+type SkaOnlyError = ForbiddenError | SkaNotFoundError | SkaAlreadyExistsError | TxnFailedError;
 
 // eslint-disable-next-line import/no-unused-modules
 export type SkaError = SharedError | SkaOnlyError;
@@ -54,7 +54,7 @@ export const errorSchemaAndClasses = [
     ErrorClass: UnauthenticatedError,
   },
   {
-    schema: UserOpsFailedApiErrorSchema,
-    ErrorClass: UserOpsFailedError,
+    schema: TxnFailedApiErrorSchema,
+    ErrorClass: TxnFailedError,
   },
 ];

@@ -123,16 +123,27 @@ const executeUserOperation_Body = z.array(MinimumExecutableTxn);
 export const executeUserOperation_BodySchema = executeUserOperation_Body;
 export type executeUserOperation_Body = TypeOf<typeof executeUserOperation_BodySchema>;
 
-const UserOpsFailedApiError = z
+const TxnFailedApiError = z
   .object({
-    code: z.literal('SKA__USER_OPS_FAILED').optional().default('SKA__USER_OPS_FAILED'),
+    code: z.literal('SKA__TXN_FAILED').optional().default('SKA__TXN_FAILED'),
     detail: z.union([z.string(), z.null()]),
-    txnHash: z.string(),
+    txnHash: z.union([z.string(), z.null()]),
   })
   .passthrough();
 
-export const UserOpsFailedApiErrorSchema = UserOpsFailedApiError;
-export type UserOpsFailedApiError = TypeOf<typeof UserOpsFailedApiErrorSchema>;
+export const TxnFailedApiErrorSchema = TxnFailedApiError;
+export type TxnFailedApiError = TypeOf<typeof TxnFailedApiErrorSchema>;
+
+const IncorrectNonceTxnFailedApiError = z
+  .object({
+    code: z.literal('SKA__INCORRECT_NONCE_TXN_FAILED').optional().default('SKA__INCORRECT_NONCE_TXN_FAILED'),
+    detail: z.union([z.string(), z.null()]),
+    txnHash: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const IncorrectNonceTxnFailedApiErrorSchema = IncorrectNonceTxnFailedApiError;
+export type IncorrectNonceTxnFailedApiError = TypeOf<typeof IncorrectNonceTxnFailedApiErrorSchema>;
 
 const UserOperation = z
   .object({
@@ -371,7 +382,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 400,
             description: `Bad Request`,
-            schema: UserOpsFailedApiError,
+            schema: TxnFailedApiError,
           },
           {
             status: 401,
@@ -387,6 +398,11 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             status: 404,
             description: `Not Found`,
             schema: SkaNotFoundApiError,
+          },
+          {
+            status: 409,
+            description: `Conflict`,
+            schema: IncorrectNonceTxnFailedApiError,
           },
           {
             status: 422,

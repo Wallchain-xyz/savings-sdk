@@ -9,6 +9,11 @@ const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.litera
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;
 
+const skip_rebalancing = z.boolean().optional().default(false);
+
+export const skip_rebalancingSchema = skip_rebalancing;
+export type skip_rebalancing = TypeOf<typeof skip_rebalancingSchema>;
+
 const UnsupportedChainApiError = z
   .object({
     code: z.literal('SHARED__UNSUPPORTED_CHAIN').optional().default('SHARED__UNSUPPORTED_CHAIN'),
@@ -43,6 +48,16 @@ const HTTPValidationError = z
 
 export const HTTPValidationErrorSchema = HTTPValidationError;
 export type HTTPValidationError = TypeOf<typeof HTTPValidationErrorSchema>;
+
+const DepositTxnFailedApiError = z
+  .object({
+    code: z.literal('DMS__DEPOSIT_TXNS_FAILED').optional().default('DMS__DEPOSIT_TXNS_FAILED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const DepositTxnFailedApiErrorSchema = DepositTxnFailedApiError;
+export type DepositTxnFailedApiError = TypeOf<typeof DepositTxnFailedApiErrorSchema>;
 
 const UnauthenticatedApiError = z
   .object({
@@ -105,6 +120,11 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             type: 'Path',
             schema: chain_id,
           },
+          {
+            name: 'skip_rebalancing',
+            type: 'Query',
+            schema: skip_rebalancing,
+          },
         ],
         response: z.unknown(),
         errors: [
@@ -138,12 +158,29 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
         alias: 'detailed_info_poller_yield_deposits__chain_id__detailed_info_poller_post',
         description: `Update detailed infos for all strategies`,
         requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chain_id',
+            type: 'Path',
+            schema: chain_id,
+          },
+        ],
         response: z.unknown(),
         errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: DepositTxnFailedApiError,
+          },
           {
             status: 403,
             description: `Forbidden`,
             schema: ForbiddenApiError,
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
           },
         ],
       },
@@ -165,7 +202,7 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
           {
             status: 400,
             description: `Bad Request`,
-            schema: UnsupportedChainApiError,
+            schema: DepositTxnFailedApiError,
           },
           {
             status: 401,

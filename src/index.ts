@@ -22,8 +22,8 @@ export {
   UserAlreadyExistsError,
   UserNotFoundError,
 } from './api/auth/errors';
-export { ForbiddenError, SkaNotFoundError, SkaAlreadyExistsError, UserOpsFailedError } from './api/ska/errors';
-export { UnsupportedChainError } from './api/dms/errors';
+export { ForbiddenError, SkaNotFoundError, SkaAlreadyExistsError, TxnFailedError } from './api/ska/errors';
+export { UnsupportedChainError, DepositTxnFailedError } from './api/dms/errors';
 export { InterpolationError } from './depositStrategies/InterpolatePermissions';
 
 export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
