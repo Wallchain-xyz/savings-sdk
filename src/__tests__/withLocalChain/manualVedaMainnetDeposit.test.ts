@@ -110,8 +110,7 @@ describe.skip.each([
     });
 
     // Act
-    const userOpInitiateResult = await savingsAccount.multiStepWithdraw({
-      step: 0,
+    const userOpInitiateResult = await savingsAccount.startMultiStepWithdraw({
       amount: await testClient.getERC20Balance({
         tokenAddress: strategy.bondTokenAddress,
         accountAddress: savingsAccount.aaAddress,
@@ -139,8 +138,7 @@ describe.skip.each([
       }),
     });
     await testClient.waitForTransactionReceipt({ hash: transferERC20TxnHash });
-    const userOpCompleteResult = await savingsAccount.multiStepWithdraw({
-      step: 1,
+    const userOpCompleteResult = await savingsAccount.continueMultiStepWithdraw({
       depositStrategyId: strategy.id,
     });
 
