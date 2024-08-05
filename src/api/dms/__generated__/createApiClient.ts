@@ -89,6 +89,11 @@ const SafetyRating = z.enum(['safe', 'risky']);
 export const SafetyRatingSchema = SafetyRating;
 export type SafetyRating = TypeOf<typeof SafetyRatingSchema>;
 
+const APIPointsInfo = z.object({ name: z.string(), iconUrl: z.string(), multiplier: z.number() }).passthrough();
+
+export const APIPointsInfoSchema = APIPointsInfo;
+export type APIPointsInfo = TypeOf<typeof APIPointsInfoSchema>;
+
 const APIStrategyDetailedInfo = z
   .object({
     id: z.string(),
@@ -98,6 +103,7 @@ const APIStrategyDetailedInfo = z
     apy: APIApyInfo,
     tvl: z.number(),
     safetyRating: SafetyRating,
+    points: z.array(APIPointsInfo),
   })
   .passthrough();
 

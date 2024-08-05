@@ -12,7 +12,6 @@ import {
   IdBasedDepositStrategy,
   createDepositStrategy,
 } from './DepositStrategy';
-import { pointsByStrategyId } from './pointsByStrategyId';
 import { aaveV3BondTokenActions } from './stategyActions/aaveV3BondTokenActions';
 import { aaveV3ERC20DepositWithdrawActions } from './stategyActions/aaveV3ERC20DepositWithdrawActions';
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
@@ -151,14 +150,9 @@ export class StrategiesManager {
   }
 
   async getStrategiesDetails(): Promise<DepositStrategyDetailedInfo[]> {
-    const infos = await this.savingsBackendClient.getDepositStrategyDetailedInfo({
+    return this.savingsBackendClient.getDepositStrategyDetailedInfo({
       chainId: this.chainId,
     });
-    return infos.map(info => ({
-      ...info,
-      // TODO:@merlin fix
-      points: pointsByStrategyId[info.id as StrategyId],
-    }));
   }
 
   static checkFilter(strategy: DepositStrategy, filter?: StrategiesFilter): boolean {
