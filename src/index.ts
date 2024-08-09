@@ -4,6 +4,7 @@ export { createSKAccount } from './factories/createSKAccount';
 export { createSavingsAccountFromPrivateKeyAccount } from './factories/createSavingsAccountFromPrivateKeyAccount';
 export { createStrategiesManager } from './factories/createStrategiesManager';
 export { SavingsAccount } from './SavingsAccount/SavingsAccount';
+export type { PointsInfo } from './SavingsAccount/SavingsAccount';
 export type {
   DepositStrategy,
   DepositStrategyProtocolType,

@@ -6,6 +6,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
 
 import { ActiveStrategy } from '../../api/ska/__generated__/createApiClient';
+import { StrategyId } from '../../depositStrategies/strategies';
 import { createSavingsAccountFromPrivateKeyAccount } from '../../factories/createSavingsAccountFromPrivateKeyAccount';
 import { createSavingsBackendClient } from '../../factories/createSavingsBackendClient';
 import { createStrategiesManager } from '../../factories/createStrategiesManager';
@@ -46,11 +47,12 @@ describe('E2E SDK test without onchain transactions', () => {
     await savingsAccount.auth();
     const allStrategies = savingsAccount.strategiesManager.getStrategies();
     const activeStrategies: ActiveStrategy[] = allStrategies.map(strategy => ({
-      strategyId: strategy.id,
+      strategyId: strategy.id as StrategyId,
       paramValuesByKey: {
         eoaAddress: account.address,
       },
     }));
+    // @ts-expect-error typing of strategyId is lost
     await savingsAccount.activateStrategies({ activeStrategies });
     const currentStrategiesIds = (await savingsAccount.getCurrentActiveStrategies()).map(it => it.id);
     expect(currentStrategiesIds).toStrictEqual(activeStrategies.map(it => it.strategyId));
@@ -67,5 +69,17 @@ describe('E2E SDK test without onchain transactions', () => {
     });
     const detailedStrategies = await manager.getStrategiesDetails();
     expect(detailedStrategies[0].apy.current).toBeGreaterThan(0);
+  }, 10_000);
+
+  it('auth should get points info', async () => {
+    const privateKey: `0x${string}` = `0x${crypto.randomBytes(32).toString('hex')}`;
+    const account = privateKeyToAccount(privateKey);
+    const savingsAccount = await makeForAccount(account);
+    const pointsInfo = await savingsAccount.getPointsInfo();
+    expect(pointsInfo.etherFiPoints).toBe(0);
+    expect(pointsInfo.eigenLayerPoints).toBe(0);
+    expect(pointsInfo.renzoPoints).toBe(0);
+    expect(pointsInfo.mellowPoints).toBe(0);
+    expect(pointsInfo.symbioticPoints).toBe(0);
   }, 10_000);
 });

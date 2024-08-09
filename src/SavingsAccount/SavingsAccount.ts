@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Address, PrivateKeyAccount } from 'viem';
 
 import { UserOpResult } from '../AAProviders/shared/AAAccount';
@@ -53,6 +54,14 @@ interface ContinueMultiStepWithdrawParams
 interface ActivateStrategiesParams {
   activeStrategies: ActiveStrategy[];
   skipRevokeOnChain?: boolean;
+}
+
+export interface PointsInfo {
+  etherFiPoints: number;
+  renzoPoints: number;
+  eigenLayerPoints: number;
+  mellowPoints: number;
+  symbioticPoints: number;
 }
 
 export class SavingsAccount {
@@ -236,6 +245,20 @@ export class SavingsAccount {
 
   setAuthToken(authToken: string): void {
     this.savingsBackendClient.setAuthHeaders(authToken);
+  }
+
+  async getPointsInfo(): Promise<PointsInfo> {
+    const [etherFiResp, renzoResp] = await Promise.all([
+      axios.get(`https://app.ether.fi/api/portfolio/v3/${this.aaAddress}`),
+      axios.get(`https://app.renzoprotocol.com/api/points/${this.aaAddress}`),
+    ]);
+    return {
+      etherFiPoints: etherFiResp.data.totalIntegrationLoyaltyPoints,
+      renzoPoints: renzoResp.data.data.totals.renzoPoints,
+      eigenLayerPoints: renzoResp.data.data.totals.eigenLayerPoints,
+      mellowPoints: renzoResp.data.data.totals.mellowPoints,
+      symbioticPoints: renzoResp.data.data.totals.symbioticPoints,
+    };
   }
 
   private pauseIfNeeded(pauseUntilDatetime: PauseDepositingParams['pauseUntilDatetime']) {
