@@ -20,14 +20,18 @@ export function pendleBondTokenActions(
     });
     return {
       bondTokenAmountToTokenAmount: async (amount: bigint) => {
-        const bondTokenDecimals = await erc20BondTokenContract.read.decimals();
-        const tokenDecimals = await erc20TokenContract.read.decimals();
+        const [bondTokenDecimals, tokenDecimals] = await Promise.all([
+          erc20BondTokenContract.read.decimals(),
+          erc20TokenContract.read.decimals(),
+        ]);
         return (amount * 10n ** BigInt(tokenDecimals)) / 10n ** BigInt(bondTokenDecimals);
       },
 
       tokenAmountToBondTokenAmount: async (amount: bigint) => {
-        const bondTokenDecimals = await erc20BondTokenContract.read.decimals();
-        const tokenDecimals = await erc20TokenContract.read.decimals();
+        const [bondTokenDecimals, tokenDecimals] = await Promise.all([
+          erc20BondTokenContract.read.decimals(),
+          erc20TokenContract.read.decimals(),
+        ]);
         return (amount * 10n ** BigInt(bondTokenDecimals)) / 10n ** BigInt(tokenDecimals);
       },
       getBondTokenBalance: async (address: Address): Promise<bigint> => {
