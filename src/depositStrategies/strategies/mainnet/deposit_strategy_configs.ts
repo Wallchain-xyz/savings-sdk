@@ -1049,4 +1049,23 @@ export const mainnetStrategyConfigs = [
       },
     ],
   },
+  {
+    id: '019144f5-9401-7be9-8999-ec510d6d59a3',
+    chainId: 1,
+
+    isSingleStepWithdraw: false, // TODO: @merlin check
+    accountType: 'eoa',
+    name: 'Pendle USDC', // TODO: @merlin check
+
+    tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
+    tokenName: 'USDC',
+    tokenImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png',
+
+    protocolType: 'pendle', // TODO: @merlin check
+    protocolName: 'Pendle', // TODO: @merlin check
+    protocolImageURL: 'https://cryptologos.cc/logos/pendle-pendle-logo.png',
+
+    bondTokenAddress: '0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', // USDO
+    permissions: [], // TODO: @merlin check
+  },
 ] as const;

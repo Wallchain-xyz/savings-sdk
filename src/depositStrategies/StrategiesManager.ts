@@ -24,6 +24,8 @@ import { mellowBondTokenActions } from './stategyActions/mellowBondTokenActions'
 import { mellowERC20Actions } from './stategyActions/mellowERC20Actions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
+import { pendleBondTokenActions } from './stategyActions/pendleBondTokenActions';
+import { pendleDepositWithdrawActions } from './stategyActions/pendleDepositWithdrawActions';
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
@@ -106,6 +108,12 @@ export class StrategiesManager {
               publicClient,
             }),
           );
+          break;
+        }
+        case DepositStrategyProtocolType.pendle: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(pendleBondTokenActions(publicClient));
+          strategy = strategy.extend(pendleDepositWithdrawActions);
           break;
         }
         default:

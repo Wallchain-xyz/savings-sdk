@@ -4,7 +4,7 @@ import { mainnetStrategyConfigs } from './mainnet/deposit_strategy_configs';
 
 export { baseStrategyConfigs, baseSepoliaStrategyConfigs, mainnetStrategyConfigs };
 
-export type StrategyConfigRaw = (typeof baseStrategyConfigs | typeof baseSepoliaStrategyConfigs | typeof mainnetStrategyConfigs)[number];
+type StrategyConfigRaw = (typeof baseStrategyConfigs | typeof baseSepoliaStrategyConfigs | typeof mainnetStrategyConfigs)[number];
 
 export type StrategyId = StrategyConfigRaw['id'];
 
@@ -25,3 +25,4 @@ export type AaveV3StrategyId =  (StrategyConfigRaw & { protocolType: 'aaveV3'  }
 export type VedaStrategyId = (StrategyConfigRaw & { protocolType: 'veda' })['id'];
 
 export type MellowStrategyId = (StrategyConfigRaw & { protocolType: 'mellow' })['id'];
+export type PendleStrategyId = (StrategyConfigRaw & { protocolType: 'pendle' })['id'];

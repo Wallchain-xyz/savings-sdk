@@ -14,6 +14,7 @@ import {
   BeefyStrategyId,
   MellowStrategyId,
   MoonwellStrategyId,
+  PendleStrategyId,
   StrategyId,
   VedaStrategyId,
 } from './strategies';
@@ -40,6 +41,7 @@ export enum DepositStrategyProtocolType {
   aaveV3 = 'aaveV3',
   veda = 'veda',
   mellow = 'mellow',
+  pendle = 'pendle',
 }
 
 export enum DepositStrategyAccountType {
@@ -92,13 +94,18 @@ export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<
   depositWrapperAddress: Address;
   collectorAddress: Address;
 }
+export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
+  id: PendleStrategyId;
+  protocolType: DepositStrategyProtocolType.pendle;
+}
 
 export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
   | AaveV3DepositStrategyConfig
   | VedaDepositStrategyConfig
-  | MellowDepositStrategyConfig;
+  | MellowDepositStrategyConfig
+  | PendleDepositStrategyConfig;
 
 type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends BeefyStrategyId
   ? BeefyDepositStrategyConfig
