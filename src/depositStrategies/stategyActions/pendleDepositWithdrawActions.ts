@@ -3,11 +3,17 @@ import { DepositSingleStepWithdrawActions, PendleDepositStrategyConfig } from '.
 export function pendleDepositWithdrawActions(): DepositSingleStepWithdrawActions<PendleDepositStrategyConfig> {
   return {
     createDepositTxns: async () => {
-      throw new Error('Under active development');
+      // TODO:@merlin add sentry
+      // eslint-disable-next-line no-console
+      console.error('CreateDepositTxns is under active development');
+      return [];
     },
 
     createWithdrawTxns: async () => {
-      throw new Error('Under active development');
+      // TODO:@merlin add sentry
+      // eslint-disable-next-line no-console
+      console.error('CreateWithdrawTxns is under active development');
+      return [];
     },
   };
 }
