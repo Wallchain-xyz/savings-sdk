@@ -1053,7 +1053,7 @@ export const mainnetStrategyConfigs = [
     id: '019144f5-9401-7be9-8999-ec510d6d59a3',
     chainId: 1,
 
-    isSingleStepWithdraw: false, // TODO: @merlin check
+    isSingleStepWithdraw: false,
     accountType: 'eoa',
     name: 'Pendle USDC', // TODO: @merlin check
 

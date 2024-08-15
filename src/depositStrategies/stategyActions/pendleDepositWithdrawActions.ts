@@ -1,7 +1,24 @@
-import { DepositSingleStepWithdrawActions, PendleDepositStrategyConfig } from '../DepositStrategy';
+import { Address } from 'viem';
 
-export function pendleDepositWithdrawActions(): DepositSingleStepWithdrawActions<PendleDepositStrategyConfig> {
+import {
+  BondTokenActions,
+  DepositMultiStepWithdrawActions,
+  DepositStrategyWithActions,
+  PendleDepositStrategyConfig,
+} from '../DepositStrategy';
+
+export function pendleDepositWithdrawActions(
+  strategy: DepositStrategyWithActions<PendleDepositStrategyConfig, BondTokenActions>,
+): DepositMultiStepWithdrawActions<PendleDepositStrategyConfig> {
   return {
+    withdrawStepsCount: 2,
+    getPendingWithdrawal: async (address: Address) => {
+      return {
+        amount: await strategy.getBondTokenBalance(address),
+        currentStep: 0,
+        isStepCanBeExecuted: false,
+      };
+    },
     createDepositTxns: async () => {
       // TODO:@merlin add sentry
       // eslint-disable-next-line no-console
@@ -9,7 +26,7 @@ export function pendleDepositWithdrawActions(): DepositSingleStepWithdrawActions
       return [];
     },
 
-    createWithdrawTxns: async () => {
+    createWithdrawStepTxns: async () => {
       // TODO:@merlin add sentry
       // eslint-disable-next-line no-console
       console.error('CreateWithdrawTxns is under active development');

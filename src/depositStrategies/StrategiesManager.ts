@@ -119,14 +119,21 @@ export class StrategiesManager {
         default:
           assertNever(strategyConfig);
       }
+
       if (strategyConfig.accountType === DepositStrategyAccountType.eoa) {
-        if (strategy.isSingleStepWithdraw) {
-          strategy = strategy.extend(eoaSingleStepWithdrawActions);
-        } else if (!strategy.isSingleStepWithdraw) {
-          strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
+        switch (strategy.isSingleStepWithdraw) {
+          case true:
+            strategy = strategy.extend(eoaSingleStepWithdrawActions);
+            break;
+          case false:
+            strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
+            break;
+          default:
+            assertNever(strategy);
         }
         strategy = strategy.extend(eoaDepositActions);
       }
+
       strategy = strategy.extend(zeroDepositWithdrawActions);
       return strategy as DepositStrategy;
     });

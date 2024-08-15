@@ -94,7 +94,7 @@ export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<
   depositWrapperAddress: Address;
   collectorAddress: Address;
 }
-export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
+export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
   id: PendleStrategyId;
   protocolType: DepositStrategyProtocolType.pendle;
 }

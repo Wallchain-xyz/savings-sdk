@@ -26,5 +26,8 @@ export { ForbiddenError, SkaNotFoundError, SkaAlreadyExistsError, TxnFailedError
 export { UnsupportedChainError, DepositTxnFailedError } from './api/dms/errors';
 export { InterpolationError } from './depositStrategies/InterpolatePermissions';
 
-export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
 export type { DepositStrategyDetailedInfo } from './api/SavingsBackendClient';
+
+export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
+export type { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from './depositStrategies/strategies';
+export type { PendingWithdrawal } from './depositStrategies/DepositStrategy';
