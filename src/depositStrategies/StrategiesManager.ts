@@ -33,6 +33,8 @@ import { StrategyId } from './strategies';
 import { strategiesDataByChainId } from './strategiesDataByChainId';
 import { StrategyNotFoundError } from './StrategyNotFoundError';
 
+// TODO:@merlin make more robust solution
+// so we don't have to modify it each time we add prop to strategies
 export interface StrategiesFilter {
   tokenAddress?: Address;
   bondTokenAddress?: Address;

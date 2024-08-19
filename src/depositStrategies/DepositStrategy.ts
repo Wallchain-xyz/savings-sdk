@@ -107,6 +107,8 @@ export type DepositStrategyConfig =
   | MellowDepositStrategyConfig
   | PendleDepositStrategyConfig;
 
+// TODO:@merlin make more robust solution
+// this won't fail if not all ids are accounted
 type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends BeefyStrategyId
   ? BeefyDepositStrategyConfig
   : TStrategyId extends MoonwellStrategyId
@@ -115,6 +117,8 @@ type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends
   ? AaveV3DepositStrategyConfig
   : TStrategyId extends VedaStrategyId
   ? VedaDepositStrategyConfig
+  : TStrategyId extends PendleStrategyId
+  ? PendleDepositStrategyConfig
   : never;
 
 interface TokenInfo {
