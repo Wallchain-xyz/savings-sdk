@@ -75,7 +75,7 @@ describe('E2E SDK test without onchain transactions', () => {
     const privateKey: `0x${string}` = `0x${crypto.randomBytes(32).toString('hex')}`;
     const account = privateKeyToAccount(privateKey);
     const savingsAccount = await makeForAccount(account);
-    const pointsInfo = await savingsAccount.getPointsInfo();
+    const pointsInfo = await savingsAccount.getPointsByProtocol();
     expect(pointsInfo.etherFiPoints).toBe(0);
     expect(pointsInfo.eigenLayerPoints).toBe(0);
     expect(pointsInfo.renzoPoints).toBe(0);

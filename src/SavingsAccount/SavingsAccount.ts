@@ -56,7 +56,7 @@ interface ActivateStrategiesParams {
   skipRevokeOnChain?: boolean;
 }
 
-export interface PointsInfo {
+export interface PointsByProtocol {
   etherFiPoints: number;
   renzoPoints: number;
   eigenLayerPoints: number;
@@ -247,7 +247,7 @@ export class SavingsAccount {
     this.savingsBackendClient.setAuthHeaders(authToken);
   }
 
-  async getPointsInfo(): Promise<PointsInfo> {
+  async getPointsByProtocol(): Promise<PointsByProtocol> {
     const [etherFiResp, renzoResp] = await Promise.all([
       axios.get(`https://app.ether.fi/api/portfolio/v3/${this.aaAddress}`),
       axios.get(`https://app.renzoprotocol.com/api/points/${this.aaAddress}`),
