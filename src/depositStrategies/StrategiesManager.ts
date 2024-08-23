@@ -152,7 +152,7 @@ export class StrategiesManager {
             strategy = strategy.extend(eoaSingleStepWithdrawActions);
             break;
           case false:
-            strategy = strategy.extend(eoaMultiStepWithdrawActions(publicClient));
+            strategy = strategy.extend(eoaMultiStepWithdrawActions);
             break;
           default:
             assertNever(strategy);

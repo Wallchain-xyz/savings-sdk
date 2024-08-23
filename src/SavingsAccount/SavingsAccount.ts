@@ -94,7 +94,7 @@ export class SavingsAccount {
     return this.primaryAAAccount.aaAddress;
   }
 
-  async activateStrategies({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> {
+  activateStrategies = async ({ activeStrategies, skipRevokeOnChain }: ActivateStrategiesParams): Promise<void> => {
     await this.deactivateAllStrategies(skipRevokeOnChain);
 
     const { serializedSKAData, txnsToActivate } = await this.primaryAAAccount.createSessionKey({
@@ -118,11 +118,11 @@ export class SavingsAccount {
       serializedSKA: serializedSKAData,
       chainId: this.chainId,
     });
-  }
+  };
 
-  async runDepositing(): Promise<void> {
+  runDepositing = async (): Promise<void> => {
     await this.savingsBackendClient.runDepositing({ chainId: this.chainId });
-  }
+  };
 
   async depositDistribution(distribution: Distribution): Promise<void> {
     await this.savingsBackendClient.depositDistribution({
@@ -131,14 +131,14 @@ export class SavingsAccount {
     });
   }
 
-  async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {
+  getCurrentActiveStrategies = async (filter?: StrategiesFilter): Promise<DepositStrategy[]> => {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     return (walletSKA?.activeStrategies ?? [])
       .map(activeStrategy => this.strategiesManager.getStrategy(activeStrategy.strategyId))
       .filter(strategy => StrategiesManager.checkFilter(strategy, filter));
-  }
+  };
 
-  async deactivateAllStrategies(skipRevokeOnChain?: boolean) {
+  deactivateAllStrategies = async (skipRevokeOnChain?: boolean) => {
     const walletSKA = await this.savingsBackendClient.getWalletSKA(this.aaAddress, this.chainId);
     if (!walletSKA) {
       return;
@@ -149,9 +149,9 @@ export class SavingsAccount {
       ]);
     }
     await this.savingsBackendClient.deleteWalletSKA(this.aaAddress, this.chainId);
-  }
+  };
 
-  async deposit({ depositStrategyId, amount }: WithdrawOrDepositParams): Promise<UserOpResult> {
+  deposit = async ({ depositStrategyId, amount }: WithdrawOrDepositParams): Promise<UserOpResult> => {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     const txns = await strategy.createDepositTxns({
       amount,
@@ -162,9 +162,9 @@ export class SavingsAccount {
       },
     });
     return this.primaryAAAccount.sendTxnsAndWait(txns);
-  }
+  };
 
-  async withdrawAll(pauseUntilDatetime?: PauseDepositingParams['pauseUntilDatetime']): Promise<UserOpResult> {
+  withdrawAll = async (pauseUntilDatetime?: PauseDepositingParams['pauseUntilDatetime']): Promise<UserOpResult> => {
     this.pauseIfNeeded(pauseUntilDatetime);
 
     const currentActiveStrategies = await this.getCurrentActiveStrategies();
@@ -178,36 +178,36 @@ export class SavingsAccount {
       }),
     );
     return this.primaryAAAccount.sendTxnsAndWait(txns.flat());
-  }
+  };
 
-  async singleStepWithdraw({
+  singleStepWithdraw = async ({
     depositStrategyId,
     amount,
     pauseUntilDatetime,
-  }: SingleStepWithdrawParams): Promise<UserOpResult> {
+  }: SingleStepWithdrawParams): Promise<UserOpResult> => {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const params = await this.buildWithdrawParams(strategy, amount);
     const txns = await strategy.createWithdrawTxns(params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
-  }
+  };
 
-  async startMultiStepWithdraw({
+  startMultiStepWithdraw = async ({
     depositStrategyId,
     amount,
     pauseUntilDatetime,
-  }: StartMultiStepWithdrawParams): Promise<UserOpResult> {
+  }: StartMultiStepWithdrawParams): Promise<UserOpResult> => {
     const strategy = this.strategiesManager.getStrategy<MultiStepWithdrawStrategyId>(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const params = await this.buildWithdrawParams(strategy, amount);
     const txns = await strategy.createWithdrawStepTxns(0, params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
-  }
+  };
 
-  async continueMultiStepWithdraw({
+  continueMultiStepWithdraw = async ({
     depositStrategyId,
     pauseUntilDatetime,
-  }: ContinueMultiStepWithdrawParams): Promise<UserOpResult> {
+  }: ContinueMultiStepWithdrawParams): Promise<UserOpResult> => {
     const strategy = this.strategiesManager.getStrategy<MultiStepWithdrawStrategyId>(depositStrategyId);
     this.pauseIfNeeded(pauseUntilDatetime);
     const withdrawal = await this.getPendingWithdrawal(depositStrategyId);
@@ -217,15 +217,15 @@ export class SavingsAccount {
     const params = await this.buildWithdrawParams(strategy, withdrawal.amount);
     const txns = await strategy.createWithdrawStepTxns(withdrawal.currentStep, params);
     return this.primaryAAAccount.sendTxnsAndWait(txns);
-  }
+  };
 
-  async getPendingWithdrawal(depositStrategyId: MultiStepWithdrawStrategyId): Promise<PendingWithdrawal> {
+  getPendingWithdrawal = async (depositStrategyId: MultiStepWithdrawStrategyId): Promise<PendingWithdrawal> => {
     const strategy = this.strategiesManager.getStrategy(depositStrategyId);
     return strategy.getPendingWithdrawal(this.aaAddress);
-  }
+  };
 
   // TODO: consider refactoring auth message logic into separate class
-  async getUser(): Promise<Awaited<GetUserReturnType> | undefined> {
+  getUser = async (): Promise<Awaited<GetUserReturnType> | undefined> => {
     try {
       return await this.savingsBackendClient.getUser();
     } catch (e) {
@@ -238,9 +238,9 @@ export class SavingsAccount {
       // otherwise there is some problem with the request and we throw
       throw e;
     }
-  }
+  };
 
-  async auth(): ReturnType<SavingsBackendClient['auth']> {
+  auth = async (): ReturnType<SavingsBackendClient['auth']> => {
     const authMessage = this.createAuthMessage();
     const signedMessage = await this.signMessage(authMessage);
     const authResponse = await this.savingsBackendClient.auth({
@@ -249,13 +249,13 @@ export class SavingsAccount {
     });
     this.savingsBackendClient.setAuthHeaders(authResponse.token);
     return authResponse;
-  }
+  };
 
-  setAuthToken(authToken: string): void {
+  setAuthToken = (authToken: string): void => {
     this.savingsBackendClient.setAuthHeaders(authToken);
-  }
+  };
 
-  async getPointsByProtocol(): Promise<PointsByProtocol> {
+  getPointsByProtocol = async (): Promise<PointsByProtocol> => {
     const [etherFiResp, renzoResp] = await Promise.all([
       axios.get(`https://app.ether.fi/api/portfolio/v3/${this.aaAddress}`),
       axios.get(`https://app.renzoprotocol.com/api/points/${this.aaAddress}`),
@@ -267,9 +267,9 @@ export class SavingsAccount {
       mellowPoints: renzoResp.data.data.totals.mellowPoints,
       symbioticPoints: renzoResp.data.data.totals.symbioticPoints,
     };
-  }
+  };
 
-  private pauseIfNeeded(pauseUntilDatetime: PauseDepositingParams['pauseUntilDatetime']) {
+  private pauseIfNeeded = (pauseUntilDatetime: PauseDepositingParams['pauseUntilDatetime']) => {
     if (pauseUntilDatetime) {
       this.savingsBackendClient
         .pauseDepositing({
@@ -278,9 +278,9 @@ export class SavingsAccount {
         // eslint-disable-next-line no-console
         .catch(error => console.error(error));
     }
-  }
+  };
 
-  private async buildWithdrawParams(strategy: DepositStrategy, amount?: bigint) {
+  private buildWithdrawParams = async (strategy: DepositStrategy, amount?: bigint) => {
     let amountToWithdraw = amount;
     if (!amountToWithdraw) {
       amountToWithdraw = await strategy.getBondTokenBalance(this.primaryAAAccount.aaAddress);
@@ -293,19 +293,19 @@ export class SavingsAccount {
         aaAddress: this.aaAddress,
       },
     };
-  }
+  };
 
-  private createAuthMessage(): WallchainAuthMessage {
+  private createAuthMessage = (): WallchainAuthMessage => {
     const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 min in milliseconds
     const expiresInt = Math.floor(expires.getTime() / 1000); // Convert to seconds
     return {
       info: 'Confirm Address for Wallchain Auto-Yield',
       expires: expiresInt,
     };
-  }
+  };
 
-  private async signMessage(message: WallchainAuthMessage) {
-    return this.privateKeyAccount.signTypedData({
+  private signMessage = async (message: WallchainAuthMessage) =>
+    this.privateKeyAccount.signTypedData({
       domain: {
         name: 'WallchainAuthMessage',
       },
@@ -321,5 +321,4 @@ export class SavingsAccount {
         expires: BigInt(message.expires),
       },
     });
-  }
 }
