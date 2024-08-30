@@ -20,6 +20,8 @@ import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeD
 import { eoaDepositActions } from './stategyActions/eoaActions/eoaDepositActions';
 import { eoaMultiStepWithdrawActions } from './stategyActions/eoaActions/eoaMultiStepWithdrawActions';
 import { eoaSingleStepWithdrawActions } from './stategyActions/eoaActions/eoaSingleStepWithdrawActions';
+import { fuelBondTokenActions } from './stategyActions/fuelBondTokenActions';
+import { fuelERC20Actions } from './stategyActions/fuelERC20Actions';
 import { mellowBondTokenActions } from './stategyActions/mellowBondTokenActions';
 import { mellowERC20Actions } from './stategyActions/mellowERC20Actions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
@@ -116,6 +118,12 @@ export class StrategiesManager {
           strategy = createDepositStrategy(strategyConfig);
           strategy = strategy.extend(pendleBondTokenActions(publicClient));
           strategy = strategy.extend(pendleDepositWithdrawActions);
+          break;
+        }
+        case DepositStrategyProtocolType.fuel: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(fuelBondTokenActions(publicClient));
+          strategy = strategy.extend(fuelERC20Actions);
           break;
         }
         default:

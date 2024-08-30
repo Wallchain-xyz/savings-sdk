@@ -12,6 +12,7 @@ import { interpolatePermissions } from './InterpolatePermissions';
 import {
   AaveV3StrategyId,
   BeefyStrategyId,
+  FuelStrategyId,
   MellowStrategyId,
   MoonwellStrategyId,
   PendleStrategyId,
@@ -42,6 +43,7 @@ export enum DepositStrategyProtocolType {
   veda = 'veda',
   mellow = 'mellow',
   pendle = 'pendle',
+  fuel = 'fuel',
 }
 
 export enum DepositStrategyAccountType {
@@ -49,7 +51,10 @@ export enum DepositStrategyAccountType {
   eoa = 'eoa',
 }
 
-interface DepositStrategyConfig_Base<TIsSingleStepWithdraw extends boolean = boolean> {
+interface DepositStrategyConfig_Base<
+  TIsSingleStepWithdraw extends boolean = boolean,
+  TIsBondTokenExists extends boolean = true,
+> {
   name: string;
 
   accountType: DepositStrategyAccountType;
@@ -60,7 +65,7 @@ interface DepositStrategyConfig_Base<TIsSingleStepWithdraw extends boolean = boo
   tokenImageURL: string;
   protocolName: string;
   protocolImageURL: string;
-  bondTokenAddress: Address;
+  bondTokenAddress: TIsBondTokenExists extends true ? Address : null;
   isSingleStepWithdraw: TIsSingleStepWithdraw;
 }
 
@@ -99,13 +104,20 @@ export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<
   protocolType: DepositStrategyProtocolType.pendle;
 }
 
+export interface FuelDepositStrategyConfig extends DepositStrategyConfig_Base<true, false> {
+  id: FuelStrategyId;
+  protocolType: DepositStrategyProtocolType.fuel;
+  vaultAddress: Address;
+}
+
 export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
   | AaveV3DepositStrategyConfig
   | VedaDepositStrategyConfig
   | MellowDepositStrategyConfig
-  | PendleDepositStrategyConfig;
+  | PendleDepositStrategyConfig
+  | FuelDepositStrategyConfig;
 
 // TODO:@merlin make more robust solution
 // this won't fail if not all ids are accounted
@@ -119,6 +131,8 @@ type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends
   ? VedaDepositStrategyConfig
   : TStrategyId extends PendleStrategyId
   ? PendleDepositStrategyConfig
+  : TStrategyId extends FuelStrategyId
+  ? FuelDepositStrategyConfig
   : never;
 
 interface TokenInfo {

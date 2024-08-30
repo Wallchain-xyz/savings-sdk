@@ -1068,4 +1068,97 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', // USDO
     permissions: [], // TODO: @merlin check
   },
+  {
+    id: '3693460d-87fa-4c0a-afdc-67cf3ae63041',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'eoa',
+    name: 'Fuel SolvBTC.BBN',
+
+    tokenAddress: '0xd9d920aa40f578ab794426f5c90f6c731d159def', // SolvBTC.BBN
+    tokenName: 'SolvBTC.BBN',
+    tokenImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/1.png',
+
+    protocolType: 'fuel',
+    protocolName: 'Fuel',
+    protocolImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/24087.png',
+
+    bondTokenAddress: null, // There are no bond token
+
+    vaultAddress: '0x19b5cc75846BF6286d599ec116536a333C4C2c14',
+
+    permissions: [
+      {
+        target: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x19b5cc75846BF6286d599ec116536a333C4C2c14',
+          },
+        ],
+      },
+      {
+        target: '0x19b5cc75846BF6286d599ec116536a333C4C2c14',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint240',
+                name: 'amount',
+                type: 'uint240',
+              },
+              {
+                internalType: 'uint16',
+                name: 'depositParam',
+                type: 'uint16',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
+          },
+        ],
+      },
+    ],
+  },
 ] as const;

@@ -25,4 +25,7 @@ export type AaveV3StrategyId =  (StrategyConfigRaw & { protocolType: 'aaveV3'  }
 export type VedaStrategyId = (StrategyConfigRaw & { protocolType: 'veda' })['id'];
 
 export type MellowStrategyId = (StrategyConfigRaw & { protocolType: 'mellow' })['id'];
+
 export type PendleStrategyId = (StrategyConfigRaw & { protocolType: 'pendle' })['id'];
+
+export type FuelStrategyId = (StrategyConfigRaw & { protocolType: 'fuel' })['id'];
