@@ -29,3 +29,6 @@ export type MellowStrategyId = (StrategyConfigRaw & { protocolType: 'mellow' })[
 export type PendleStrategyId = (StrategyConfigRaw & { protocolType: 'pendle' })['id'];
 
 export type FuelStrategyId = (StrategyConfigRaw & { protocolType: 'fuel' })['id'];
+
+export type MezoStrategyId = (StrategyConfigRaw & { protocolType: 'mezo' })['id'];
+

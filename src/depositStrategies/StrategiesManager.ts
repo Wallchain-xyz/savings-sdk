@@ -24,6 +24,8 @@ import { fuelBondTokenActions } from './stategyActions/fuelBondTokenActions';
 import { fuelERC20Actions } from './stategyActions/fuelERC20Actions';
 import { mellowBondTokenActions } from './stategyActions/mellowBondTokenActions';
 import { mellowERC20Actions } from './stategyActions/mellowERC20Actions';
+import { mezoBondTokenActions } from './stategyActions/mezoBondTokenActions';
+import { mezoERC20Actions } from './stategyActions/mezoERC20Actions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
 import { pendleBondTokenActions } from './stategyActions/pendleBondTokenActions';
@@ -124,6 +126,12 @@ export class StrategiesManager {
           strategy = createDepositStrategy(strategyConfig);
           strategy = strategy.extend(fuelBondTokenActions(publicClient));
           strategy = strategy.extend(fuelERC20Actions);
+          break;
+        }
+        case DepositStrategyProtocolType.mezo: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(mezoBondTokenActions(publicClient));
+          strategy = strategy.extend(mezoERC20Actions);
           break;
         }
         default:

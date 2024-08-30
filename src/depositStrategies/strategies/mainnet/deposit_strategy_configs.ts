@@ -1161,4 +1161,97 @@ export const mainnetStrategyConfigs = [
       },
     ],
   },
+  {
+    id: '00c0b60b-8ec6-4c2d-ad08-9457010121a8',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'eoa',
+    name: 'Mezo SolvBTC.BBN',
+
+    tokenAddress: '0xd9d920aa40f578ab794426f5c90f6c731d159def', // SolvBTC.BBN
+    tokenName: 'SolvBTC.BBN',
+    tokenImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/1.png',
+
+    protocolType: 'mezo',
+    protocolName: 'Mezo',
+    protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
+
+    bondTokenAddress: null, // There are no bond token
+
+    vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+
+    permissions: [
+      {
+        target: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+          },
+        ],
+      },
+      {
+        target: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint96',
+                name: 'amount',
+                type: 'uint96',
+              },
+              {
+                internalType: 'uint32',
+                name: 'lockPeriod',
+                type: 'uint32',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
+          },
+        ],
+      },
+    ],
+  },
 ] as const;

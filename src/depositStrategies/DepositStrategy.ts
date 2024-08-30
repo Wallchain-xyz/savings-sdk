@@ -14,6 +14,7 @@ import {
   BeefyStrategyId,
   FuelStrategyId,
   MellowStrategyId,
+  MezoStrategyId,
   MoonwellStrategyId,
   PendleStrategyId,
   StrategyId,
@@ -44,6 +45,7 @@ export enum DepositStrategyProtocolType {
   mellow = 'mellow',
   pendle = 'pendle',
   fuel = 'fuel',
+  mezo = 'mezo',
 }
 
 export enum DepositStrategyAccountType {
@@ -110,6 +112,12 @@ export interface FuelDepositStrategyConfig extends DepositStrategyConfig_Base<tr
   vaultAddress: Address;
 }
 
+export interface MezoDepositStrategyConfig extends DepositStrategyConfig_Base<true, false> {
+  id: MezoStrategyId;
+  protocolType: DepositStrategyProtocolType.mezo;
+  vaultAddress: Address;
+}
+
 export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
@@ -117,7 +125,8 @@ export type DepositStrategyConfig =
   | VedaDepositStrategyConfig
   | MellowDepositStrategyConfig
   | PendleDepositStrategyConfig
-  | FuelDepositStrategyConfig;
+  | FuelDepositStrategyConfig
+  | MezoDepositStrategyConfig;
 
 // TODO:@merlin make more robust solution
 // this won't fail if not all ids are accounted
@@ -133,6 +142,8 @@ type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends
   ? PendleDepositStrategyConfig
   : TStrategyId extends FuelStrategyId
   ? FuelDepositStrategyConfig
+  : TStrategyId extends MezoStrategyId
+  ? MezoDepositStrategyConfig
   : never;
 
 interface TokenInfo {
