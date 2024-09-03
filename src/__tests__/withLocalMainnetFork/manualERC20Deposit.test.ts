@@ -23,6 +23,8 @@ const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:
 describe.each([
   ['Fuel SolvBTC.BBN eoa', '3693460d-87fa-4c0a-afdc-67cf3ae63041'],
   ['Mezo SolvBTC.BBN eoa', '00c0b60b-8ec6-4c2d-ad08-9457010121a8'],
+  ['WBTC -> solvBTC eoa', '0191a35a-888c-7b58-b477-1eb687251cf8'],
+  ['SolvBTC -> solvBTC.BBN eoa', 'c0d17a3f-4c4f-443d-b3b4-3df5f3ab00d7'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: StrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;

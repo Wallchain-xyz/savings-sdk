@@ -30,6 +30,8 @@ import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActi
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
 import { pendleBondTokenActions } from './stategyActions/pendleBondTokenActions';
 import { pendleDepositWithdrawActions } from './stategyActions/pendleDepositWithdrawActions';
+import { solvBondTokenActions } from './stategyActions/solvBondTokenActions';
+import { solvERC20Actions } from './stategyActions/solvERC20Actions';
 import { vedaBondTokenActions } from './stategyActions/vedaBondTokenActions';
 import { vedaERC20Actions } from './stategyActions/vedaERC20Actions';
 import { zeroDepositWithdrawActions } from './stategyActions/zeroDepositWithdrawActions';
@@ -132,6 +134,12 @@ export class StrategiesManager {
           strategy = createDepositStrategy(strategyConfig);
           strategy = strategy.extend(mezoBondTokenActions(publicClient));
           strategy = strategy.extend(mezoERC20Actions);
+          break;
+        }
+        case DepositStrategyProtocolType.solv: {
+          strategy = createDepositStrategy(strategyConfig);
+          strategy = strategy.extend(solvBondTokenActions(publicClient));
+          strategy = strategy.extend(solvERC20Actions);
           break;
         }
         default:

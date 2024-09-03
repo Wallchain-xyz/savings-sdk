@@ -1,4 +1,4 @@
-import { Address, isAddressEqual } from 'viem';
+import { Address, Hex, isAddressEqual } from 'viem';
 
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { Permission } from '../AAProviders/shared/Permission';
@@ -17,6 +17,7 @@ import {
   MezoStrategyId,
   MoonwellStrategyId,
   PendleStrategyId,
+  SolvStrategyId,
   StrategyId,
   VedaStrategyId,
 } from './strategies';
@@ -46,6 +47,7 @@ export enum DepositStrategyProtocolType {
   pendle = 'pendle',
   fuel = 'fuel',
   mezo = 'mezo',
+  solv = 'solv',
 }
 
 export enum DepositStrategyAccountType {
@@ -118,6 +120,13 @@ export interface MezoDepositStrategyConfig extends DepositStrategyConfig_Base<tr
   vaultAddress: Address;
 }
 
+export interface SolvDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
+  id: SolvStrategyId;
+  protocolType: DepositStrategyProtocolType.solv;
+  routerAddress: Address;
+  poolId: Hex;
+}
+
 export type DepositStrategyConfig =
   | BeefyDepositStrategyConfig
   | MoonwellDepositStrategyConfig
@@ -126,7 +135,8 @@ export type DepositStrategyConfig =
   | MellowDepositStrategyConfig
   | PendleDepositStrategyConfig
   | FuelDepositStrategyConfig
-  | MezoDepositStrategyConfig;
+  | MezoDepositStrategyConfig
+  | SolvDepositStrategyConfig;
 
 // TODO:@merlin make more robust solution
 // this won't fail if not all ids are accounted
@@ -144,6 +154,8 @@ type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends
   ? FuelDepositStrategyConfig
   : TStrategyId extends MezoStrategyId
   ? MezoDepositStrategyConfig
+  : TStrategyId extends SolvStrategyId
+  ? SolvDepositStrategyConfig
   : never;
 
 interface TokenInfo {
