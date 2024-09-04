@@ -63,6 +63,11 @@ interface RunDepositingParams {
   chainId: ChainId;
 }
 
+interface DepositDistributionParams {
+  chainId: ChainId;
+  distribution: Distribution;
+}
+
 interface GetDepositStrategyDetailedInfo {
   chainId: ChainId;
 }
@@ -184,6 +189,17 @@ export class SavingsBackendClient {
         chain_id: chainId,
       },
     });
+  }
+
+  async depositDistribution({ chainId, distribution }: DepositDistributionParams) {
+    return this.dmsClient.depositDistribution(
+      { distribution },
+      {
+        params: {
+          chain_id: chainId,
+        },
+      },
+    );
   }
 
   async getUser() {

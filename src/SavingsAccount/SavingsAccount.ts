@@ -15,6 +15,7 @@ import {
 import { DepositStrategy, DepositStrategyId, PendingWithdrawal } from '../depositStrategies/DepositStrategy';
 import { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from '../depositStrategies/strategies';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
+import { Distribution } from '../pools/Distribution';
 
 type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
 
@@ -121,6 +122,10 @@ export class SavingsAccount {
 
   async runDepositing(): Promise<void> {
     await this.savingsBackendClient.runDepositing({ chainId: this.chainId });
+  }
+
+  async depositDistribution(distribution: Distribution): Promise<void> {
+    await this.savingsBackendClient.depositDistribution({ distribution, chainId: this.chainId });
   }
 
   async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {

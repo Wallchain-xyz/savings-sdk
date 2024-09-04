@@ -6,12 +6,12 @@ import { assertNever } from '../utils/assertNever';
 
 type SimpleDistributionKind = 'simple';
 
-interface SimpleDistribution {
+export interface SimpleDistribution {
   kind: SimpleDistributionKind;
   strategyId: StrategyId;
 }
 
-interface Percentage {
+export interface Percentage {
   percent: number;
   // eslint-disable-next-line no-use-before-define
   distribution: Distribution;
@@ -19,21 +19,21 @@ interface Percentage {
 
 type SplitDistributionKind = 'split';
 
-interface SplitDistribution {
+export interface SplitDistribution {
   kind: SplitDistributionKind;
   percentages: Percentage[];
 }
 
 type SequenceDistributionKind = 'sequence';
 
-interface SequenceDistribution {
+export interface SequenceDistribution {
   kind: SequenceDistributionKind;
   strategyId: StrategyId;
   // eslint-disable-next-line no-use-before-define
   bondTokenDistribution: Distribution;
 }
 
-type Distribution = SimpleDistribution | SplitDistribution | SequenceDistribution;
+export type Distribution = SimpleDistribution | SplitDistribution | SequenceDistribution;
 
 interface MakeDistributionTxnsParams {
   distribution: Distribution;

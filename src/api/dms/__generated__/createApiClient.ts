@@ -1,8 +1,28 @@
-/* eslint-disable camelcase,import/no-unused-modules,@typescript-eslint/naming-convention */
+/* eslint-disable camelcase,import/no-unused-modules,no-use-before-define,@typescript-eslint/naming-convention */
 
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
 import { TypeOf, zod as z } from '../../zod';
+
+type APIDistributionPercentage = {
+  percent: number;
+  distribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
+};
+type APISimpleDistribution = {
+  kind: 'simple';
+  strategyId: string;
+};
+type APISequenceDistribution = {
+  kind: 'sequence';
+  strategyId: string;
+  bondTokenDistribution:
+    | (APISimpleDistribution | APISplitDistribution | APISequenceDistribution)
+    | Array<APISimpleDistribution | APISplitDistribution | APISequenceDistribution>;
+};
+type APISplitDistribution = {
+  kind: 'split';
+  percentages: Array<APIDistributionPercentage>;
+};
 
 const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.literal(84532), z.literal(42161)]);
 
@@ -68,6 +88,56 @@ const UnauthenticatedApiError = z
 
 export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
 export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
+
+const APISimpleDistribution = z.object({ kind: z.literal('simple'), strategyId: z.string() }).passthrough();
+
+export const APISimpleDistributionSchema = APISimpleDistribution;
+export type APISimpleDistribution = TypeOf<typeof APISimpleDistributionSchema>;
+
+const APISequenceDistribution: z.ZodType<APISequenceDistribution> = z.lazy(() =>
+  z
+    .object({
+      kind: z.literal('sequence'),
+      strategyId: z.string(),
+      bondTokenDistribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
+    })
+    .passthrough(),
+);
+
+export const APISequenceDistributionSchema = APISequenceDistribution;
+export type APISequenceDistribution = TypeOf<typeof APISequenceDistributionSchema>;
+
+const APIDistributionPercentage: z.ZodType<APIDistributionPercentage> = z.lazy(() =>
+  z
+    .object({
+      percent: z.number().int(),
+      distribution: z.discriminatedUnion('kind', [
+        APISimpleDistribution,
+        APISplitDistribution,
+        APISequenceDistribution,
+      ]),
+    })
+    .passthrough(),
+);
+
+export const APIDistributionPercentageSchema = APIDistributionPercentage;
+export type APIDistributionPercentage = TypeOf<typeof APIDistributionPercentageSchema>;
+
+const APISplitDistribution: z.ZodType<APISplitDistribution> = z.lazy(() =>
+  z.object({ kind: z.literal('split'), percentages: z.array(APIDistributionPercentage) }).passthrough(),
+);
+
+export const APISplitDistributionSchema = APISplitDistribution;
+export type APISplitDistribution = TypeOf<typeof APISplitDistributionSchema>;
+
+const DepositDistributionRequest = z
+  .object({
+    distribution: z.discriminatedUnion('kind', [APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
+  })
+  .passthrough();
+
+export const DepositDistributionRequestSchema = DepositDistributionRequest;
+export type DepositDistributionRequest = TypeOf<typeof DepositDistributionRequestSchema>;
 
 const APITokenInfo = z.object({ name: z.string(), address: z.address(), iconUrl: z.string() }).passthrough();
 
@@ -143,6 +213,75 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             status: 403,
             description: `Forbidden`,
             schema: ForbiddenApiError,
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
+        path: '/yield/deposits/:chain_id/continue_withdrawals_poller',
+        alias: 'continue_withdrawals_poller_yield_deposits__chain_id__continue_withdrawals_poller_post',
+        description: `Continue withdrawals for all users`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'chain_id',
+            type: 'Path',
+            schema: chain_id,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: UnsupportedChainApiError,
+          },
+          {
+            status: 403,
+            description: `Forbidden`,
+            schema: ForbiddenApiError,
+          },
+          {
+            status: 422,
+            description: `Validation Error`,
+            schema: HTTPValidationError,
+          },
+        ],
+      },
+      {
+        method: 'post',
+        path: '/yield/deposits/:chain_id/deposit_distribution',
+        alias: 'depositDistribution',
+        description: `Check active strategies and do distribution depositing for authorized user`,
+        requestFormat: 'json',
+        parameters: [
+          {
+            name: 'body',
+            type: 'Body',
+            schema: DepositDistributionRequest,
+          },
+          {
+            name: 'chain_id',
+            type: 'Path',
+            schema: chain_id,
+          },
+        ],
+        response: z.unknown(),
+        errors: [
+          {
+            status: 400,
+            description: `Bad Request`,
+            schema: DepositTxnFailedApiError,
+          },
+          {
+            status: 401,
+            description: `Unauthorized`,
+            schema: UnauthenticatedApiError,
           },
           {
             status: 422,
