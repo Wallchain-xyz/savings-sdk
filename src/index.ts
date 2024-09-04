@@ -32,3 +32,5 @@ export type { DepositStrategyDetailedInfo } from './api/SavingsBackendClient';
 export { StrategyNotFoundError } from './depositStrategies/StrategyNotFoundError';
 export type { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from './depositStrategies/strategies';
 export type { PendingWithdrawal } from './depositStrategies/DepositStrategy';
+
+export { createDepositDistributionTxns } from './pools/Distribution';
