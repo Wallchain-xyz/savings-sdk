@@ -20,8 +20,6 @@ import { createEoaAccount } from '../utils/createEoaAccount';
 const chain = mainnet;
 const savingsBackendUrl = process.env.SAVINGS_BACKEND_URL ?? ('http://localhost:8000' as string);
 
-// Requires mainnet local fork
-// eslint-disable-next-line jest/no-disabled-tests
 describe.each([['Fuel SolvBTC.BBN eoa', '3693460d-87fa-4c0a-afdc-67cf3ae63041']] as const)(
   'Manual deposit for %s',
   (_: string, strategyId: StrategyId) => {
@@ -32,6 +30,7 @@ describe.each([['Fuel SolvBTC.BBN eoa', '3693460d-87fa-4c0a-afdc-67cf3ae63041']]
 
     beforeAll(async () => {
       await Promise.all([ensurePaymasterIsReady(), ensureBundlerIsReady(), ensureAnvilIsReady()]);
+      await testClient.ensureChainId({ chainId: mainnet.id });
     }, 10_000);
 
     beforeEach(async () => {
