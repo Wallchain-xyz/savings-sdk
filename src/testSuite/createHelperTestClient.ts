@@ -3,6 +3,7 @@ import { base } from 'viem/chains';
 
 import { createExtendedTestClient } from './createExtendedTestClient';
 import { EnsureAllowanceParams, ensureAllowance } from './helperActions/ensureAllowance';
+import { EnsureChainIdParams, ensureChainId } from './helperActions/ensureChainId';
 import { EnsureEnoughBalanceForGasParams, ensureEnoughBalanceForGas } from './helperActions/ensureEnoughBalanceForGas';
 import { GetAllowanceParams, getAllowance } from './helperActions/getAllowance';
 import { GetERC20BalanceParams, getERC20Balance } from './helperActions/getERC20Balance';
@@ -17,5 +18,6 @@ export function createHelperTestClient(chain: Chain = base) {
     ensureAllowance: (params: EnsureAllowanceParams) => ensureAllowance(client, params),
     getERC20Balance: (params: GetERC20BalanceParams) => getERC20Balance(client, params),
     setERC20Balance: (params: SetERC20BalanceParams) => setERC20Balance(client, params),
+    ensureChainId: (params: EnsureChainIdParams) => ensureChainId(client, params),
   }));
 }

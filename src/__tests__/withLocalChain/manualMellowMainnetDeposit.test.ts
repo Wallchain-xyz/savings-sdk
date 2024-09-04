@@ -26,9 +26,7 @@ const wStEthWithdrawalQueueAbi = parseAbi([
   'function finalize(uint256 _lastRequestIdToBeFinalized, uint256 _maxShareRate) payable',
 ]);
 
-// Requires mainnet local fork
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip.each([
+describe.each([
   ['mellow weth', '5155d89f-98c3-436b-bd87-d8fef022620a'],
   ['mellow weth eoa', 'a4be0324-c93c-4525-a0d1-48c6f9f1bb49'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: MultiStepWithdrawStrategyId) => {
@@ -77,6 +75,7 @@ describe.skip.each([
 
   beforeAll(async () => {
     await Promise.all([ensurePaymasterIsReady(), ensureBundlerIsReady(), ensureAnvilIsReady()]);
+    await testClient.ensureChainId({ chainId: mainnet.id });
   }, 10_000);
 
   beforeEach(async () => {
