@@ -30,6 +30,7 @@ export function fuelERC20Actions(
         value: 0n,
         data: encodeFunctionData({
           abi: parseAbi(['function deposit(address token,uint240 amount,uint16 depositParam)']),
+          // depositParam is just stored for each deposit, can be potentially used for referral tracking
           functionName: 'deposit',
           args: [strategy.config.tokenAddress, amount, 0],
         }),

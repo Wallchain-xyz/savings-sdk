@@ -1084,7 +1084,7 @@ export const mainnetStrategyConfigs = [
     protocolName: 'Fuel',
     protocolImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/24087.png',
 
-    bondTokenAddress: null, // There are no bond token
+    bondTokenAddress: null, // Fuel does not issue any bond token as a result of deposit
 
     vaultAddress: '0x19b5cc75846BF6286d599ec116536a333C4C2c14',
 

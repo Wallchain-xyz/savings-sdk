@@ -76,7 +76,7 @@ describe.each([['Fuel SolvBTC.BBN eoa', '3693460d-87fa-4c0a-afdc-67cf3ae63041']]
         tokenAddress: strategy.tokenAddress,
         accountAddress: tokenOwnerAddress,
       });
-      expect(balanceAfter).toBeLessThanOrEqual(startBalance - depositAmount);
+      expect(balanceAfter).toEqual(startBalance - depositAmount);
       const bondAmount = await strategy.getBondTokenBalance(savingsAccount.aaAddress);
       const depositEquivalent = await strategy.bondTokenAmountToTokenAmount(bondAmount);
       expect(depositEquivalent).toBeGreaterThanOrEqual(depositAmount - ALLOWED_DECREASE_DURING_DEPOSIT);

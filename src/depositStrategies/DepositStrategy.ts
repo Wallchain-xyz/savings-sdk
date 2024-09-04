@@ -53,7 +53,7 @@ export enum DepositStrategyAccountType {
 
 interface DepositStrategyConfig_Base<
   TIsSingleStepWithdraw extends boolean = boolean,
-  TIsBondTokenExists extends boolean = true,
+  HasBondToken extends boolean = true,
 > {
   name: string;
 
@@ -65,7 +65,7 @@ interface DepositStrategyConfig_Base<
   tokenImageURL: string;
   protocolName: string;
   protocolImageURL: string;
-  bondTokenAddress: TIsBondTokenExists extends true ? Address : null;
+  bondTokenAddress: HasBondToken extends true ? Address : null;
   isSingleStepWithdraw: TIsSingleStepWithdraw;
 }
 
