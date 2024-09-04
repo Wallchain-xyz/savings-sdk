@@ -1,5 +1,6 @@
 import { Address, PublicClient, getContract, parseAbi, parseAbiItem } from 'viem';
 
+import { sumBigInts } from '../../utils/sum';
 import { BondTokenActions, DepositStrategyWithActions, MezoDepositStrategyConfig } from '../DepositStrategy';
 
 // Contract source code: https://vscode.blockscan.com/ethereum/0xd7097af27b14e204564c057c636022fae346fe60
@@ -27,6 +28,12 @@ export function mezoBondTokenActions(
         return amount;
       },
       getBondTokenBalance: async (address: Address): Promise<bigint> => {
+        // Mezo adds globally unique depositId to each deposit,
+        // and this value is needed to fetch balance unfortunately
+        // To get it, we use `Deposited` event. As it is indexed
+        // by depositor address and token, we will only retrieve entries we need.
+        // Only problem here is that old logs may be dropped by RPC,
+        // if it isn't archival one (ankr should work OK).
         const depositLogs = await publicClient.getLogs({
           address: strategy.config.vaultAddress,
           event: parseAbiItem(
@@ -42,10 +49,15 @@ export function mezoBondTokenActions(
             if (!log.args.depositId) {
               return 0n;
             }
-            return (await vaultContract.read.getDeposit([address, strategy.tokenAddress, log.args.depositId])).balance;
+            const { balance } = await vaultContract.read.getDeposit([
+              address,
+              strategy.tokenAddress,
+              log.args.depositId,
+            ]);
+            return balance;
           }),
         );
-        return balances.reduce((acc, value) => acc + value, 0n);
+        return sumBigInts(balances);
       },
     };
   };
