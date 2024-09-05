@@ -2,11 +2,13 @@ import { Address, Hex } from 'viem';
 
 import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
-import { Distribution } from '../pools/Distribution';
-
 import { LoginResponse, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
-import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
+import {
+  APIStrategyDetailedInfo,
+  DepositDistributionRequest,
+  createApiClient as createDMSClient,
+} from './dms/__generated__/createApiClient';
 import {
   ActiveStrategy as BEActiveStrategy,
   SKA as BESKA,
@@ -65,9 +67,11 @@ interface RunDepositingParams {
   chainId: ChainId;
 }
 
+export type APIDistribution = DepositDistributionRequest['distribution'];
+
 interface DepositDistributionParams {
   chainId: ChainId;
-  distribution: Distribution;
+  distribution: APIDistribution;
 }
 
 interface GetDepositStrategyDetailedInfo {

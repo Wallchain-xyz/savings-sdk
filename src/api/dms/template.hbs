@@ -3,6 +3,8 @@
 
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
+import { z as realZod } from 'zod';
+
 import { TypeOf, zod as z } from '../../zod';
 
 {{#if imports}}
@@ -20,10 +22,10 @@ import { TypeOf, zod as z } from '../../zod';
 
 {{#each schemas}}
 
-  const {{@key}}{{#if (lookup ../emittedType @key)}}: z.ZodType<{{@key}}>{{/if}} = {{{this}}};
+  const {{@key}}{{#if (lookup ../emittedType @key)}}: realZod.ZodType<{{@key}}>{{/if}} = {{{this}}};
 
   export const {{@key}}Schema = {{@key}};
-  export type {{@key}} = TypeOf<typeof {{@key}}Schema>;
+  {{#unless (lookup ../types @key)}}export type {{@key}} = TypeOf<typeof {{@key}}Schema>;{{/unless}}
 
 
 {{/each}}

@@ -5,6 +5,7 @@ import { UserOpResult } from '../AAProviders/shared/AAAccount';
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
 import {
+  APIDistribution,
   ActiveStrategy,
   GetUserReturnType,
   PauseDepositingParams,
@@ -125,7 +126,11 @@ export class SavingsAccount {
   }
 
   async depositDistribution(distribution: Distribution): Promise<void> {
-    await this.savingsBackendClient.depositDistribution({ distribution, chainId: this.chainId });
+    await this.savingsBackendClient.depositDistribution({
+      // APIDistribution type allows [key: string] access due to .passthrough() in zod
+      distribution: distribution as APIDistribution,
+      chainId: this.chainId,
+    });
   }
 
   async getCurrentActiveStrategies(filter?: StrategiesFilter): Promise<DepositStrategy[]> {

@@ -19,6 +19,14 @@ fs.readFile(inputFile, 'utf8', (err, data) => {
   const patterns = [
     { pattern: '.string().regex(/^0x[a-fA-F0-9]{40}$/)', replacement: '.address()' },
     { pattern: '.string().regex(/^0x[a-f0-9]*$/)', replacement: '.positiveHexString()' },
+    // discriminatedUnion doesn't work well with z.lazy definitions.
+    // As `union` provides some functionality (but less performance effective)
+    // we fall back to it to avoid problems.
+    // If you want to dig deeper:
+    // - https://stackoverflow.com/a/78212619
+    // - https://github.com/colinhacks/zod#recursive-types
+    // - https://github.com/colinhacks/zod#discriminated-unions
+    { pattern: ".discriminatedUnion('kind', ", replacement: '.union(' },
   ];
 
   // Replace each pattern in the file content

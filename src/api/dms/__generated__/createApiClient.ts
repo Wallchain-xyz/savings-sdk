@@ -2,6 +2,8 @@
 
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
+import { z as realZod } from 'zod';
+
 import { TypeOf, zod as z } from '../../zod';
 
 type APIDistributionPercentage = {
@@ -92,9 +94,8 @@ export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchem
 const APISimpleDistribution = z.object({ kind: z.literal('simple'), strategyId: z.string() }).passthrough();
 
 export const APISimpleDistributionSchema = APISimpleDistribution;
-export type APISimpleDistribution = TypeOf<typeof APISimpleDistributionSchema>;
 
-const APISequenceDistribution: z.ZodType<APISequenceDistribution> = z.lazy(() =>
+const APISequenceDistribution: realZod.ZodType<APISequenceDistribution> = z.lazy(() =>
   z
     .object({
       kind: z.literal('sequence'),
@@ -105,34 +106,27 @@ const APISequenceDistribution: z.ZodType<APISequenceDistribution> = z.lazy(() =>
 );
 
 export const APISequenceDistributionSchema = APISequenceDistribution;
-export type APISequenceDistribution = TypeOf<typeof APISequenceDistributionSchema>;
 
-const APIDistributionPercentage: z.ZodType<APIDistributionPercentage> = z.lazy(() =>
+const APIDistributionPercentage: realZod.ZodType<APIDistributionPercentage> = z.lazy(() =>
   z
     .object({
       percent: z.number().int(),
-      distribution: z.discriminatedUnion('kind', [
-        APISimpleDistribution,
-        APISplitDistribution,
-        APISequenceDistribution,
-      ]),
+      distribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
     })
     .passthrough(),
 );
 
 export const APIDistributionPercentageSchema = APIDistributionPercentage;
-export type APIDistributionPercentage = TypeOf<typeof APIDistributionPercentageSchema>;
 
-const APISplitDistribution: z.ZodType<APISplitDistribution> = z.lazy(() =>
+const APISplitDistribution: realZod.ZodType<APISplitDistribution> = z.lazy(() =>
   z.object({ kind: z.literal('split'), percentages: z.array(APIDistributionPercentage) }).passthrough(),
 );
 
 export const APISplitDistributionSchema = APISplitDistribution;
-export type APISplitDistribution = TypeOf<typeof APISplitDistributionSchema>;
 
 const DepositDistributionRequest = z
   .object({
-    distribution: z.discriminatedUnion('kind', [APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
+    distribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
   })
   .passthrough();
 
