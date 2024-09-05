@@ -37,8 +37,6 @@ export function solvERC20Actions(
     ],
     withdrawStepsCount: 2,
     getPendingWithdrawal: async (_: Address) => {
-      // eslint-disable-next-line no-console
-      console.error('CreateWithdrawTxns is under active development');
       return { currentStep: 0, isStepCanBeExecuted: false, amount: 0n };
     },
     createWithdrawStepTxns: async (_: number, __: CreateWithdrawTxnsParams) => {
