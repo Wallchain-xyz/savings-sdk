@@ -2,6 +2,8 @@ import { Address, Hex } from 'viem';
 
 import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
+import { Distribution } from '../pools/Distribution';
+
 import { LoginResponse, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
 import { APIStrategyDetailedInfo, createApiClient as createDMSClient } from './dms/__generated__/createApiClient';
