@@ -25,6 +25,10 @@ describe.each([
   ['Mezo SolvBTC.BBN eoa', '00c0b60b-8ec6-4c2d-ad08-9457010121a8'],
   ['WBTC -> solvBTC eoa', '0191a35a-888c-7b58-b477-1eb687251cf8'],
   ['SolvBTC -> solvBTC.BBN eoa', 'c0d17a3f-4c4f-443d-b3b4-3df5f3ab00d7'],
+  ['Fuel SolvBTC.BBN aa', '1d349a1e-27ed-4c83-8201-a50cbf196c0d'],
+  ['Mezo SolvBTC.BBN aa', '026d6585-492b-4f0a-92fa-5a472a7bcc52'],
+  ['WBTC -> solvBTC aa', 'afa4733c-c297-4e89-9f44-bcc988445297'],
+  ['SolvBTC -> solvBTC.BBN aa', '1f2649d5-7d53-4aed-8cb7-af0e47a6ec2c'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: StrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
