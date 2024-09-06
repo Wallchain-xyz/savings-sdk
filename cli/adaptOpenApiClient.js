@@ -8,6 +8,7 @@ if (!inputFile) {
   process.exit(1);
 }
 
+const wrongGeneratedType = '| Array<APISimpleDistribution | APISplitDistribution | APISequenceDistribution>';
 // Read the content of the file
 fs.readFile(inputFile, 'utf8', (err, data) => {
   if (err) {
@@ -27,6 +28,9 @@ fs.readFile(inputFile, 'utf8', (err, data) => {
     // - https://github.com/colinhacks/zod#recursive-types
     // - https://github.com/colinhacks/zod#discriminated-unions
     { pattern: ".discriminatedUnion('kind', ", replacement: '.union(' },
+
+    //   TODO:@merlin temp hack remove after release pools
+    { pattern: wrongGeneratedType, replacement: '' },
   ];
 
   // Replace each pattern in the file content

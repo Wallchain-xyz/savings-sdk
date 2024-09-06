@@ -34,9 +34,9 @@ export type { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from '
 export type { PendingWithdrawal } from './depositStrategies/DepositStrategy';
 
 export type {
+  Distribution,
   SimpleDistribution,
-  Percentage,
+  DistributionPercentage,
   SplitDistribution,
   SequenceDistribution,
-  Distribution,
-} from './pools/Distribution';
+} from './api/SavingsBackendClient';

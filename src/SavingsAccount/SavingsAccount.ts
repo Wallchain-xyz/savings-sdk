@@ -5,8 +5,8 @@ import { UserOpResult } from '../AAProviders/shared/AAAccount';
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
 import {
-  APIDistribution,
   ActiveStrategy,
+  Distribution,
   GetUserReturnType,
   PauseDepositingParams,
   SavingsBackendClient,
@@ -16,7 +16,6 @@ import {
 import { DepositStrategy, DepositStrategyId, PendingWithdrawal } from '../depositStrategies/DepositStrategy';
 import { MultiStepWithdrawStrategyId, SingleStepWithdrawStrategyId } from '../depositStrategies/strategies';
 import { StrategiesFilter, StrategiesManager } from '../depositStrategies/StrategiesManager';
-import { Distribution } from '../pools/Distribution';
 
 type SavingsAccountSigner = Pick<PrivateKeyAccount, 'address' | 'signTypedData'>;
 
@@ -127,8 +126,7 @@ export class SavingsAccount {
 
   async depositDistribution(distribution: Distribution): Promise<void> {
     await this.savingsBackendClient.depositDistribution({
-      // APIDistribution type allows [key: string] access due to .passthrough() in zod
-      distribution: distribution as APIDistribution,
+      distribution,
       chainId: this.chainId,
     });
   }

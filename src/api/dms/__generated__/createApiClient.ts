@@ -6,22 +6,21 @@ import { z as realZod } from 'zod';
 
 import { TypeOf, zod as z } from '../../zod';
 
-type APIDistributionPercentage = {
+export type APIDistributionPercentage = {
   percent: number;
   distribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
-type APISimpleDistribution = {
+export type APISimpleDistribution = {
   kind: 'simple';
   strategyId: string;
 };
-type APISequenceDistribution = {
+export type APISequenceDistribution = {
   kind: 'sequence';
   strategyId: string;
-  bondTokenDistribution:
-    | (APISimpleDistribution | APISplitDistribution | APISequenceDistribution)
-    | Array<APISimpleDistribution | APISplitDistribution | APISequenceDistribution>;
+  bondTokenDistribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
-type APISplitDistribution = {
+
+export type APISplitDistribution = {
   kind: 'split';
   percentages: Array<APIDistributionPercentage>;
 };

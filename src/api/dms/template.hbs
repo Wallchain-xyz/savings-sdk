@@ -1,6 +1,5 @@
 /* eslint-disable camelcase,import/no-unused-modules,no-use-before-define,@typescript-eslint/naming-convention */
 
-
 import { Zodios, type ZodiosOptions } from '@zodios/core';
 
 import { z as realZod } from 'zod';
@@ -16,7 +15,7 @@ import { TypeOf, zod as z } from '../../zod';
 
 {{#if types}}
   {{#each types}}
-    {{{this}}};
+    export {{{this}}};
   {{/each}}
 {{/if}}
 

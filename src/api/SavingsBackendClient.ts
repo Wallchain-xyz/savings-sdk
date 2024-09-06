@@ -2,11 +2,16 @@ import { Address, Hex } from 'viem';
 
 import { DepositStrategyId } from '../depositStrategies/DepositStrategy';
 
+import { StrategyId } from '../depositStrategies/strategies';
+
 import { LoginResponse, createApiClient as createAuthClient } from './auth/__generated__/createApiClient';
 import { UserNotFoundError } from './auth/errors';
 import {
+  APIDistributionPercentage,
+  APISequenceDistribution,
+  APISimpleDistribution,
+  APISplitDistribution,
   APIStrategyDetailedInfo,
-  DepositDistributionRequest,
   createApiClient as createDMSClient,
 } from './dms/__generated__/createApiClient';
 import {
@@ -63,20 +68,41 @@ interface GetSponsorshipInfoParams {
   userOperation: UserOperation;
 }
 
+// TODO:@merlin extract to DMS specific file
 interface RunDepositingParams {
   chainId: ChainId;
 }
 
-export type APIDistribution = DepositDistributionRequest['distribution'];
+export type SimpleDistribution = APISimpleDistribution & {
+  strategyId: APISimpleDistribution['strategyId'] & StrategyId;
+};
+
+export interface SequenceDistribution extends APISequenceDistribution {
+  strategyId: StrategyId;
+  // eslint-disable-next-line no-use-before-define
+  bondTokenDistribution: Distribution;
+}
+
+export interface DistributionPercentage extends APIDistributionPercentage {
+  // eslint-disable-next-line no-use-before-define
+  distribution: Distribution;
+}
+
+export interface SplitDistribution extends APISplitDistribution {
+  percentages: DistributionPercentage[];
+}
+
+export type Distribution = SimpleDistribution | SequenceDistribution | SplitDistribution;
 
 interface DepositDistributionParams {
   chainId: ChainId;
-  distribution: APIDistribution;
+  distribution: Distribution;
 }
 
 interface GetDepositStrategyDetailedInfo {
   chainId: ChainId;
 }
+// ENDTODO:@merlin extract to DMS specific file
 
 export type GetUserReturnType = ReturnType<AuthClient['getUser']>;
 
