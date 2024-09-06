@@ -125,6 +125,8 @@ export interface SolvDepositStrategyConfig extends DepositStrategyConfig_Base<fa
   protocolType: DepositStrategyProtocolType.solv;
   routerAddress: Address;
   poolId: Hex;
+  tokenDecimals: number;
+  bondTokenDecimals: number;
 }
 
 export type DepositStrategyConfig =

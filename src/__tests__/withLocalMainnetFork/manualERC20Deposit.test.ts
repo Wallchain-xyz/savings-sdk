@@ -87,5 +87,6 @@ describe.each([
     const bondAmount = await strategy.getBondTokenBalance(savingsAccount.aaAddress);
     const depositEquivalent = await strategy.bondTokenAmountToTokenAmount(bondAmount);
     expect(depositEquivalent).toBeGreaterThanOrEqual(depositAmount - ALLOWED_DECREASE_DURING_DEPOSIT);
+    expect(depositEquivalent).toBeLessThanOrEqual(depositAmount + ALLOWED_DECREASE_DURING_DEPOSIT);
   }, 120_000);
 });

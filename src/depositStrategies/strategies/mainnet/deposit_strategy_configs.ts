@@ -1371,6 +1371,8 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0x7A56E1C57C7475CCf742a1832B028F0456652F97', // SolvBTC
     routerAddress: '0x1fF7d7C0A7D8E94046708C611DeC5056A9d2B823',
     poolId: '0x716db7dc196abe78d5349c7166896f674ab978af26ada3e5b3ea74c5a1b48307',
+    tokenDecimals: 8,
+    bondTokenDecimals: 18,
 
     permissions: [
       {
@@ -1514,6 +1516,8 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
     routerAddress: '0x01024AaeD5561fa6237C0ad4073417576C591261',
     poolId: '0xefcca1eb946cdc7b56509489a56b45b75aff74b8bb84dad5b893012157e0df93',
+    tokenDecimals: 18,
+    bondTokenDecimals: 18,
 
     permissions: [
       {
@@ -1846,6 +1850,8 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0x7A56E1C57C7475CCf742a1832B028F0456652F97', // SolvBTC
     routerAddress: '0x1fF7d7C0A7D8E94046708C611DeC5056A9d2B823',
     poolId: '0x716db7dc196abe78d5349c7166896f674ab978af26ada3e5b3ea74c5a1b48307',
+    tokenDecimals: 8,
+    bondTokenDecimals: 18,
 
     permissions: [
       {
@@ -1909,6 +1915,9 @@ export const mainnetStrategyConfigs = [
     bondTokenAddress: '0xd9d920aa40f578ab794426f5c90f6c731d159def',
     routerAddress: '0x01024AaeD5561fa6237C0ad4073417576C591261',
     poolId: '0xefcca1eb946cdc7b56509489a56b45b75aff74b8bb84dad5b893012157e0df93',
+
+    tokenDecimals: 18,
+    bondTokenDecimals: 18,
 
     permissions: [
       {
