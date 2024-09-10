@@ -5,7 +5,7 @@ import { Txn } from './Txn';
 import { UserOperationV06 } from './UserOperationV06';
 
 export interface WaitParams {
-  maxDurationMS?: number;
+  maxDurationMS: number;
   pollingIntervalMS: number;
 }
 
@@ -19,6 +19,8 @@ export abstract class AAAccount {
 
   private paymaster?: Paymaster;
 
+  protected waitParams: WaitParams = { maxDurationMS: 30000, pollingIntervalMS: 500 };
+
   abstract buildUserOp(txns: Txn[]): Promise<UserOperationV06>;
 
   abstract sendUserOp(userOp: UserOperationV06): Promise<Hash>;
@@ -27,6 +29,10 @@ export abstract class AAAccount {
 
   setPaymaster(paymaster: Paymaster) {
     this.paymaster = paymaster;
+  }
+
+  setDefaultWaitParams(params: WaitParams) {
+    this.waitParams = params;
   }
 
   async sendTxns(txns: Txn[]): Promise<Hash | undefined> {
@@ -40,7 +46,7 @@ export abstract class AAAccount {
     return this.sendUserOp(userOp);
   }
 
-  async sendTxnsAndWait(txns: Txn[]): Promise<UserOpResult> {
+  async sendTxnsAndWait(txns: Txn[], params?: WaitParams | undefined): Promise<UserOpResult> {
     const userOpHash = await this.sendTxns(txns);
     if (userOpHash === undefined) {
       return {
@@ -48,6 +54,6 @@ export abstract class AAAccount {
         txnHash: undefined,
       };
     }
-    return this.waitForUserOp(userOpHash);
+    return this.waitForUserOp(userOpHash, params);
   }
 }

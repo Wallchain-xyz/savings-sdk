@@ -46,12 +46,10 @@ export abstract class ZerodevAAAccount extends AAAccount {
   }
 
   async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<UserOpResult> {
-    const pollingInterval = params?.pollingIntervalMS ?? 500;
-    const timeout = params?.maxDurationMS ?? 30000;
     const receipt = await this.bundlerClient.waitForUserOperationReceipt({
       hash: userOpHash,
-      pollingInterval,
-      timeout,
+      pollingInterval: (params ?? this.waitParams).pollingIntervalMS,
+      timeout: (params ?? this.waitParams).maxDurationMS,
     });
     return {
       txnHash: receipt.receipt.transactionHash,

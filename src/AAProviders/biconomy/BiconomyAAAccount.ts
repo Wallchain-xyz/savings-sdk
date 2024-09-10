@@ -32,8 +32,8 @@ export abstract class BiconomyAAAccount extends AAAccount {
   }
 
   waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<UserOpResult> {
-    const maxDuration = params?.maxDurationMS ?? 20000; // default 20 seconds
-    const intervalValue = params?.pollingIntervalMS ?? 500; // default 0.5 seconds
+    const maxDuration = (params ?? this.waitParams).maxDurationMS;
+    const intervalValue = (params ?? this.waitParams).pollingIntervalMS;
     let totalDuration = 0;
     if (!this.smartAccount.bundler) {
       throw new Error('Bundler is not set');

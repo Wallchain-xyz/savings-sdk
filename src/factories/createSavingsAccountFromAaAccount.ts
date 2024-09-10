@@ -1,4 +1,5 @@
 import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
+import { WaitParams } from '../AAProviders/shared/AAAccount';
 import { SupportedChainId } from '../AAProviders/shared/chains';
 import { Paymaster } from '../AAProviders/shared/Paymaster';
 import { PrimaryAAAccount } from '../AAProviders/shared/PrimaryAAAccount';
@@ -14,6 +15,7 @@ export interface CreateSavingsAccountFromAaAccountParams extends CreateSavingsBa
   chainId: SupportedChainId;
 
   rpcUrl?: string;
+  waitParams?: WaitParams;
   paymasterUrl?: string;
 }
 
@@ -22,6 +24,7 @@ export function createSavingsAccountFromAaAccount({
   savingsBackendUrl,
   zodiosOptions,
   apiListeners,
+  waitParams,
 
   chainId,
   rpcUrl,
@@ -47,6 +50,12 @@ export function createSavingsAccountFromAaAccount({
       });
 
   aaAccount.setPaymaster(paymaster);
+  aaAccount.setDefaultWaitParams(
+    waitParams ?? {
+      maxDurationMS: 180_000, // Wait up to 3 minutes
+      pollingIntervalMS: 1_000, // Check once a second
+    },
+  );
 
   return new SavingsAccount({
     aaAccount,
