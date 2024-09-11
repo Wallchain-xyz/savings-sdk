@@ -1993,4 +1993,240 @@ export const mainnetStrategyConfigs = [
       },
     ],
   },
+  {
+    id: 'bf9f2459-32b5-4df1-a3b4-a7eed390f8d0',
+    isSingleStepWithdraw: false,
+    protocolType: 'veda',
+    accountType: 'aa',
+    chainId: 1,
+    name: 'Ether.fi eBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolName: 'Ether.fi',
+    protocolImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/29814.png',
+
+    bondTokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+
+    tellerAddress: '0xe19a43B1b8af6CeE71749Af2332627338B3242D1',
+    accountantAddress: '0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F',
+    atomicQueueAddress: '0xd45884b592e316eb816199615a95c182f75dea07',
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+          },
+        ],
+      },
+      {
+        target: '0xe19a43B1b8af6CeE71749Af2332627338B3242D1',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                name: 'depositAsset',
+                type: 'address',
+              },
+              {
+                name: 'depositAmount',
+                type: 'uint256',
+              },
+              {
+                name: 'minimumMint',
+                type: 'uint256',
+              },
+            ],
+            name: 'deposit',
+            outputs: [
+              {
+                name: 'shares',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: '650a8da2-de1c-49b6-b0d6-c71af4ab5447',
+    isSingleStepWithdraw: false,
+    protocolType: 'veda',
+    accountType: 'eoa',
+    chainId: 1,
+    name: 'Ether.fi eBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolName: 'Ether.fi',
+    protocolImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/29814.png',
+
+    bondTokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+
+    tellerAddress: '0xe19a43B1b8af6CeE71749Af2332627338B3242D1',
+    accountantAddress: '0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F',
+    atomicQueueAddress: '0xd45884b592e316eb816199615a95c182f75dea07',
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+          },
+        ],
+      },
+      {
+        target: '0xe19a43B1b8af6CeE71749Af2332627338B3242D1',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                name: 'depositAsset',
+                type: 'address',
+              },
+              {
+                name: 'depositAmount',
+                type: 'uint256',
+              },
+              {
+                name: 'minimumMint',
+                type: 'uint256',
+              },
+            ],
+            name: 'deposit',
+            outputs: [
+              {
+                name: 'shares',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'transferFrom',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'from',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transferFrom',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+    ],
+  },
 ] as const;
