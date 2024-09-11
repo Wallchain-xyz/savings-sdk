@@ -2,7 +2,7 @@ import { BiconomySmartAccountV2 } from '@biconomy/account';
 
 import { Address, Hash } from 'viem';
 
-import { AAAccount, UserOpResult, WaitParams } from '../shared/AAAccount';
+import { AAAccount, UserOpResult, WaitForUserOpToLandParams } from '../shared/AAAccount';
 import { Txn } from '../shared/Txn';
 import { UserOperationV06 } from '../shared/UserOperationV06';
 
@@ -31,9 +31,10 @@ export abstract class BiconomyAAAccount extends AAAccount {
     return userOpHash as Hash;
   }
 
-  waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<UserOpResult> {
-    const maxDuration = (params ?? this.waitParams).maxDurationMS;
-    const intervalValue = (params ?? this.waitParams).pollingIntervalMS;
+  waitForUserOp(userOpHash: Hash, waitForUserOpToLandParams?: WaitForUserOpToLandParams): Promise<UserOpResult> {
+    const maxDurationMS = waitForUserOpToLandParams?.maxDurationMS ?? this.waitForUserOpToLandParams.maxDurationMS;
+    const pollingIntervalMS =
+      waitForUserOpToLandParams?.pollingIntervalMS ?? this.waitForUserOpToLandParams.pollingIntervalMS;
     let totalDuration = 0;
     if (!this.smartAccount.bundler) {
       throw new Error('Bundler is not set');
@@ -61,18 +62,18 @@ export abstract class BiconomyAAAccount extends AAAccount {
           }
         }
 
-        totalDuration += intervalValue;
-        if (totalDuration >= maxDuration) {
+        totalDuration += pollingIntervalMS;
+        if (totalDuration >= maxDurationMS) {
           clearInterval(intervalId);
           reject(
             new Error(
               `Exceeded maximum duration (${
-                maxDuration / 1000
+                maxDurationMS / 1000
               } sec) waiting to get receipt for userOpHash ${userOpHash}. Try getting the receipt manually using eth_getUserOperationReceipt rpc method on bundler`,
             ),
           );
         }
-      }, intervalValue);
+      }, pollingIntervalMS);
     });
   }
 }

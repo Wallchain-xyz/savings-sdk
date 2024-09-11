@@ -3,7 +3,7 @@ import { Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
-import { WaitParams } from '../AAProviders/shared/AAAccount';
+import { WaitForUserOpToLandParams } from '../AAProviders/shared/AAAccount';
 import { CreateSKAccountParams as AAProviderCreateSKAccountParams } from '../AAProviders/shared/AAProvider';
 import { SupportedChainId, getChainById } from '../AAProviders/shared/chains';
 import { SKAccount } from '../AAProviders/shared/SKAccount';
@@ -19,7 +19,7 @@ interface CreateSKAccountParamsBase {
   chainId: SupportedChainId;
 
   rpcUrl?: string;
-  waitParams?: WaitParams;
+  waitForUserOpToLandParams?: WaitForUserOpToLandParams;
 }
 
 interface CreatePaymasterAndBundlerWithApiKeyParams extends CreateSKAccountParamsBase {
@@ -39,7 +39,7 @@ type CreateSKAccountParams = CreatePaymasterAndBundlerWithApiKeyParams | CreateP
 export async function createSKAccount({
   sessionPrivateKey,
   serializedSKAData,
-  waitParams,
+  waitForUserOpToLandParams,
 
   chainId,
 
@@ -65,12 +65,9 @@ export async function createSKAccount({
   const pimlicoPaymasterUrl = paymasterUrl ?? createPimlicoPaymasterUrl({ chainId, apiKey });
   const pimlicoPaymaster = new PimlicoPaymaster(pimlicoPaymasterUrl);
   skaAccount.setPaymaster(pimlicoPaymaster);
-  skaAccount.setDefaultWaitParams(
-    waitParams ?? {
-      maxDurationMS: 180_000, // Wait up to 3 minutes
-      pollingIntervalMS: 1_000, // Check once a second
-    },
-  );
+  if (waitForUserOpToLandParams) {
+    skaAccount.setWaitForUserOpToLandParams(waitForUserOpToLandParams);
+  }
 
   return skaAccount;
 }

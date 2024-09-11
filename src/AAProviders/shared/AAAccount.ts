@@ -4,10 +4,12 @@ import { Paymaster } from './Paymaster';
 import { Txn } from './Txn';
 import { UserOperationV06 } from './UserOperationV06';
 
-export interface WaitParams {
+interface WaitForUserOpToLandParamsComplete {
   maxDurationMS: number;
   pollingIntervalMS: number;
 }
+
+export type WaitForUserOpToLandParams = Partial<WaitForUserOpToLandParamsComplete>;
 
 export interface UserOpResult {
   txnHash: Hash | undefined;
@@ -19,20 +21,29 @@ export abstract class AAAccount {
 
   private paymaster?: Paymaster;
 
-  protected waitParams: WaitParams = { maxDurationMS: 30000, pollingIntervalMS: 500 };
+  protected waitForUserOpToLandParams: WaitForUserOpToLandParamsComplete = {
+    maxDurationMS: 180_000, // Wait up to 3 minutes
+    pollingIntervalMS: 1_000, // Check once a second
+  };
 
   abstract buildUserOp(txns: Txn[]): Promise<UserOperationV06>;
 
   abstract sendUserOp(userOp: UserOperationV06): Promise<Hash>;
 
-  abstract waitForUserOp(userOpHash: Hash, params?: WaitParams): Promise<UserOpResult>;
+  abstract waitForUserOp(
+    userOpHash: Hash,
+    waitForUserOpToLandParams?: WaitForUserOpToLandParams,
+  ): Promise<UserOpResult>;
 
   setPaymaster(paymaster: Paymaster) {
     this.paymaster = paymaster;
   }
 
-  setDefaultWaitParams(params: WaitParams) {
-    this.waitParams = params;
+  setWaitForUserOpToLandParams(waitForUserOpToLandParams: WaitForUserOpToLandParams) {
+    this.waitForUserOpToLandParams.maxDurationMS =
+      waitForUserOpToLandParams.maxDurationMS ?? this.waitForUserOpToLandParams.maxDurationMS;
+    this.waitForUserOpToLandParams.pollingIntervalMS =
+      waitForUserOpToLandParams.pollingIntervalMS ?? this.waitForUserOpToLandParams.pollingIntervalMS;
   }
 
   async sendTxns(txns: Txn[]): Promise<Hash | undefined> {
@@ -46,7 +57,10 @@ export abstract class AAAccount {
     return this.sendUserOp(userOp);
   }
 
-  async sendTxnsAndWait(txns: Txn[], params?: WaitParams | undefined): Promise<UserOpResult> {
+  async sendTxnsAndWait(
+    txns: Txn[],
+    waitForUserOpToLandParams?: WaitForUserOpToLandParams | undefined,
+  ): Promise<UserOpResult> {
     const userOpHash = await this.sendTxns(txns);
     if (userOpHash === undefined) {
       return {
@@ -54,6 +68,6 @@ export abstract class AAAccount {
         txnHash: undefined,
       };
     }
-    return this.waitForUserOp(userOpHash, params);
+    return this.waitForUserOp(userOpHash, waitForUserOpToLandParams);
   }
 }

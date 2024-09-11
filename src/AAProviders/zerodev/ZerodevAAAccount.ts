@@ -2,7 +2,7 @@ import { BundlerClient, ENTRYPOINT_ADDRESS_V06, bundlerActions } from 'permissio
 
 import { Address, Hash } from 'viem';
 
-import { AAAccount, UserOpResult, WaitParams } from '../shared/AAAccount';
+import { AAAccount, UserOpResult, WaitForUserOpToLandParams } from '../shared/AAAccount';
 import { Txn } from '../shared/Txn';
 import { UserOperationV06 } from '../shared/UserOperationV06';
 
@@ -45,11 +45,11 @@ export abstract class ZerodevAAAccount extends AAAccount {
     return this.bundlerClient.sendUserOperation({ userOperation: signedUserOp });
   }
 
-  async waitForUserOp(userOpHash: Hash, params?: WaitParams | undefined): Promise<UserOpResult> {
+  async waitForUserOp(userOpHash: Hash, waitForUserOpToLandParams?: WaitForUserOpToLandParams): Promise<UserOpResult> {
     const receipt = await this.bundlerClient.waitForUserOperationReceipt({
       hash: userOpHash,
-      pollingInterval: (params ?? this.waitParams).pollingIntervalMS,
-      timeout: (params ?? this.waitParams).maxDurationMS,
+      pollingInterval: waitForUserOpToLandParams?.pollingIntervalMS ?? this.waitForUserOpToLandParams.pollingIntervalMS,
+      timeout: waitForUserOpToLandParams?.maxDurationMS ?? this.waitForUserOpToLandParams.maxDurationMS,
     });
     return {
       txnHash: receipt.receipt.transactionHash,
