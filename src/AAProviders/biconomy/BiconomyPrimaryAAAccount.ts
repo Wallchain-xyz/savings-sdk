@@ -9,6 +9,7 @@ import {
 } from '@biconomy/account';
 import { Address, Hex, getAbiItem, isHex, padHex, toHex } from 'viem';
 
+import { notNull } from '../../utils/notNull';
 import { Permission } from '../shared/Permission';
 import { CreateSKAResult, CreateSessionKeyParams, PrimaryAAAccount } from '../shared/PrimaryAAAccount';
 import { Txn } from '../shared/Txn';
@@ -132,6 +133,7 @@ export class BiconomyPrimaryAAAccount extends BiconomyAAAccount implements Prima
     if (abiItem?.type !== 'function') {
       throw Error(`${functionName} not found in abi`);
     }
+
     return args
       .map(
         (arg, i) =>
@@ -143,6 +145,6 @@ export class BiconomyPrimaryAAAccount extends BiconomyAAAccount implements Prima
             }),
           },
       )
-      .filter(rule => rule);
+      .filter(notNull);
   }
 }
