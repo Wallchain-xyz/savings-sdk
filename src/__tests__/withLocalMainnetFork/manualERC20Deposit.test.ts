@@ -31,6 +31,8 @@ describe.each([
   ['Mezo SolvBTC.BBN aa', '026d6585-492b-4f0a-92fa-5a472a7bcc52'],
   ['Etherfi WBTC -> eBTC aa', 'bf9f2459-32b5-4df1-a3b4-a7eed390f8d0'],
   ['Etherfi WBTC -> eBTC eoa', '650a8da2-de1c-49b6-b0d6-c71af4ab5447'],
+  ['Pendle eBTC eoa', 'debec8c2-7ed7-43a8-992e-402ae8e21dbd'],
+  ['Pendle eBTC aa', '64d6ae55-e161-4a9a-94ff-8faf9d36d97f'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: StrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;

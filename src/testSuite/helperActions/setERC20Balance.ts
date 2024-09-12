@@ -2,6 +2,8 @@ import { ADDRESS_ZERO } from '@biconomy/account';
 import { Address, encodeFunctionData, parseAbi } from 'viem';
 
 import {
+  EBTC_ADDRESS,
+  EBTC_SOURCE_ACCOUNT_ADDRESS,
   SOLV_BTC_ADDRESS,
   SOLV_BTC_BBN_ADDRESS,
   SOLV_BTC_BBN_SOURCE_ACCOUNT_ADDRESS,
@@ -30,6 +32,7 @@ const DONOR_ADDRESS_BY_TOKEN: { [key: Address]: Address | undefined } = {
   [WBTC_ADDRESS]: WBTC_SOURCE_ACCOUNT_ADDRESS,
   [SOLV_BTC_ADDRESS]: SOLV_BTC_SOURCE_ACCOUNT_ADDRESS,
   [SOLV_BTC_BBN_ADDRESS]: SOLV_BTC_BBN_SOURCE_ACCOUNT_ADDRESS,
+  [EBTC_ADDRESS]: EBTC_SOURCE_ACCOUNT_ADDRESS,
 };
 
 export async function setERC20Balance(

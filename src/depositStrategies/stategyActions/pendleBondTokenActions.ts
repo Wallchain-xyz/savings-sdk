@@ -1,15 +1,17 @@
-import { Address, PublicClient, getContract } from 'viem';
+import { Address, PublicClient, getContract, parseAbi } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
 import { BondTokenActions, DepositStrategyWithActions, PendleDepositStrategyConfig } from '../DepositStrategy';
 
+const routerStaticAbi = parseAbi(['function getLpToAssetRate(address market) external view returns (uint256)']);
+
 export function pendleBondTokenActions(
   publicClient: PublicClient,
 ): (strategy: DepositStrategyWithActions<PendleDepositStrategyConfig>) => BondTokenActions {
-  return (strategy: DepositStrategyWithActions) => {
-    const erc20TokenContract = getContract({
-      address: strategy.tokenAddress,
-      abi: erc20ABI,
+  return (strategy: DepositStrategyWithActions<PendleDepositStrategyConfig>) => {
+    const routerStaticContract = getContract({
+      address: strategy.config.routerStaticAddr,
+      abi: routerStaticAbi,
       client: publicClient,
     });
 
@@ -20,19 +22,19 @@ export function pendleBondTokenActions(
     });
     return {
       bondTokenAmountToTokenAmount: async (amount: bigint) => {
-        const [bondTokenDecimals, tokenDecimals] = await Promise.all([
+        const [bondTokenDecimals, rate] = await Promise.all([
           erc20BondTokenContract.read.decimals(),
-          erc20TokenContract.read.decimals(),
+          routerStaticContract.read.getLpToAssetRate([strategy.config.marketAddr]),
         ]);
-        return (amount * 10n ** BigInt(tokenDecimals)) / 10n ** BigInt(bondTokenDecimals);
+        return (amount * rate) / 10n ** BigInt(bondTokenDecimals);
       },
 
       tokenAmountToBondTokenAmount: async (amount: bigint) => {
-        const [bondTokenDecimals, tokenDecimals] = await Promise.all([
+        const [bondTokenDecimals, rate] = await Promise.all([
           erc20BondTokenContract.read.decimals(),
-          erc20TokenContract.read.decimals(),
+          routerStaticContract.read.getLpToAssetRate([strategy.config.marketAddr]),
         ]);
-        return (amount * 10n ** BigInt(bondTokenDecimals)) / 10n ** BigInt(tokenDecimals);
+        return (amount * 10n ** BigInt(bondTokenDecimals)) / rate;
       },
       getBondTokenBalance: async (address: Address): Promise<bigint> => {
         return erc20BondTokenContract.read.balanceOf([address]);

@@ -106,6 +106,8 @@ export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<
 export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
   id: PendleStrategyId;
   protocolType: DepositStrategyProtocolType.pendle;
+  marketAddr: Address;
+  routerStaticAddr: Address;
 }
 
 export interface FuelDepositStrategyConfig extends DepositStrategyConfig_Base<true, false> {
