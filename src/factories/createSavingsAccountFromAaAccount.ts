@@ -50,9 +50,7 @@ export function createSavingsAccountFromAaAccount({
       });
 
   aaAccount.setPaymaster(paymaster);
-  if (waitForUserOpToLandParams) {
-    aaAccount.setWaitForUserOpToLandParams(waitForUserOpToLandParams);
-  }
+  aaAccount.setWaitForUserOpToLandParams(waitForUserOpToLandParams);
 
   return new SavingsAccount({
     aaAccount,

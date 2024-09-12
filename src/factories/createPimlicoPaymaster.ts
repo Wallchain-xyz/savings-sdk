@@ -2,14 +2,14 @@ import { PimlicoPaymaster } from '../AAProviders/pimlico/PimlicoPaymaster';
 
 import { CreatePimlicoPaymasterUrlParams, createPimlicoPaymasterUrl } from './utils/createPimlicoPaymasterUrl';
 
+interface CreatePimlicoPaymasterByParams extends CreatePimlicoPaymasterUrlParams {
+  paymasterUrl: never;
+}
+
 interface CreatePimlicoPaymasterByUrl {
   paymasterUrl: string;
   chainId: never;
   apiKey: never;
-}
-
-interface CreatePimlicoPaymasterByParams extends CreatePimlicoPaymasterUrlParams {
-  paymasterUrl: never;
 }
 
 type CreatePimlicoPaymasterParams = CreatePimlicoPaymasterByParams | CreatePimlicoPaymasterByUrl;

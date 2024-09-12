@@ -4,12 +4,10 @@ import { Paymaster } from './Paymaster';
 import { Txn } from './Txn';
 import { UserOperationV06 } from './UserOperationV06';
 
-interface WaitForUserOpToLandParamsComplete {
-  maxDurationMS: number;
-  pollingIntervalMS: number;
+export interface WaitForUserOpToLandParams {
+  maxDurationMS?: number;
+  pollingIntervalMS?: number;
 }
-
-export type WaitForUserOpToLandParams = Partial<WaitForUserOpToLandParamsComplete>;
 
 export interface UserOpResult {
   txnHash: Hash | undefined;
@@ -21,7 +19,7 @@ export abstract class AAAccount {
 
   private paymaster?: Paymaster;
 
-  protected waitForUserOpToLandParams: WaitForUserOpToLandParamsComplete = {
+  protected waitForUserOpToLandParams = {
     maxDurationMS: 180_000, // Wait up to 3 minutes
     pollingIntervalMS: 1_000, // Check once a second
   };
@@ -39,7 +37,7 @@ export abstract class AAAccount {
     this.paymaster = paymaster;
   }
 
-  setWaitForUserOpToLandParams(waitForUserOpToLandParams: WaitForUserOpToLandParams) {
+  setWaitForUserOpToLandParams(waitForUserOpToLandParams: WaitForUserOpToLandParams = {}) {
     this.waitForUserOpToLandParams.maxDurationMS =
       waitForUserOpToLandParams.maxDurationMS ?? this.waitForUserOpToLandParams.maxDurationMS;
     this.waitForUserOpToLandParams.pollingIntervalMS =
@@ -57,10 +55,7 @@ export abstract class AAAccount {
     return this.sendUserOp(userOp);
   }
 
-  async sendTxnsAndWait(
-    txns: Txn[],
-    waitForUserOpToLandParams?: WaitForUserOpToLandParams | undefined,
-  ): Promise<UserOpResult> {
+  async sendTxnsAndWait(txns: Txn[], waitForUserOpToLandParams?: WaitForUserOpToLandParams): Promise<UserOpResult> {
     const userOpHash = await this.sendTxns(txns);
     if (userOpHash === undefined) {
       return {

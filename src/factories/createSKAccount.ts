@@ -65,9 +65,7 @@ export async function createSKAccount({
   const pimlicoPaymasterUrl = paymasterUrl ?? createPimlicoPaymasterUrl({ chainId, apiKey });
   const pimlicoPaymaster = new PimlicoPaymaster(pimlicoPaymasterUrl);
   skaAccount.setPaymaster(pimlicoPaymaster);
-  if (waitForUserOpToLandParams) {
-    skaAccount.setWaitForUserOpToLandParams(waitForUserOpToLandParams);
-  }
+  skaAccount.setWaitForUserOpToLandParams(waitForUserOpToLandParams);
 
   return skaAccount;
 }
