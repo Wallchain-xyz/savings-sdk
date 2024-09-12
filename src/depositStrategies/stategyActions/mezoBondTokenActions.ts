@@ -10,6 +10,8 @@ const vaultAbi = parseAbi([
   'function getDeposit(address depositor, address token, uint256 depositId) external view returns (DepositInfo memory)',
 ]);
 
+const VAULT_DEPLOYED_BLOCK_NUMBER = BigInt(19_425_763);
+
 export function mezoBondTokenActions(
   publicClient: PublicClient,
 ): (strategy: DepositStrategyWithActions<MezoDepositStrategyConfig>) => BondTokenActions {
@@ -35,6 +37,8 @@ export function mezoBondTokenActions(
         // Only problem here is that old logs may be dropped by RPC,
         // if it isn't archival one (ankr should work OK).
         const depositLogs = await publicClient.getLogs({
+          fromBlock: VAULT_DEPLOYED_BLOCK_NUMBER,
+          toBlock: 'latest',
           address: strategy.config.vaultAddress,
           event: parseAbiItem(
             'event Deposited(address indexed depositor, address indexed token, uint256 indexed depositId, uint256 amount)',
