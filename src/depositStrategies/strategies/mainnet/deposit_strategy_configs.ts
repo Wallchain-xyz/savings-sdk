@@ -1053,7 +1053,7 @@ export const mainnetStrategyConfigs = [
     id: '019144f5-9401-7be9-8999-ec510d6d59a3',
     chainId: 1,
 
-    isSingleStepWithdraw: false,
+    isSingleStepWithdraw: true,
     accountType: 'eoa',
     name: 'Pendle USDC', // TODO: @merlin check
 
@@ -1061,7 +1061,7 @@ export const mainnetStrategyConfigs = [
     tokenName: 'USDC',
     tokenImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png',
 
-    protocolType: 'pendle', // TODO: @merlin check
+    protocolType: 'noop', // TODO: @merlin check
     protocolName: 'Pendle', // TODO: @merlin check
     protocolImageURL: 'https://cryptologos.cc/logos/pendle-pendle-logo.png',
     defiLlamaPoolId: '91593e09-004f-4b56-8504-e2c28a94e2d9',
