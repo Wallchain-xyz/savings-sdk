@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Address, encodeFunctionData } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
@@ -31,14 +31,20 @@ export function pendleDepositWithdrawActions(
         amountTokenIn: amount,
         slippage: '0.002',
       };
-      let resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleToken', {
-        params: queryParams,
-      });
-      if (resp.status === 500) {
-        // This is often due to really small amount, fallback to no-swap version
-        resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleTokenKeepYt', {
+      let resp;
+      try {
+        resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleToken', {
           params: queryParams,
         });
+      } catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 500) {
+          // This is often due to really small amount, fallback to no-swap version
+          resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleTokenKeepYt', {
+            params: queryParams,
+          });
+        } else {
+          throw error;
+        }
       }
       const txn = resp.data.transaction;
 
