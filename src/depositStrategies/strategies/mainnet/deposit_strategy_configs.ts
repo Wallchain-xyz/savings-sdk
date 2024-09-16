@@ -1751,7 +1751,8 @@ export const mainnetStrategyConfigs = [
     protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
     // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
 
-    bondTokenAddress: null, // There are no bond token
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
 
     vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
 
@@ -2246,7 +2247,8 @@ export const mainnetStrategyConfigs = [
     protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
     // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
 
-    bondTokenAddress: null, // There are no bond token
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
 
     vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
 
@@ -2340,7 +2342,8 @@ export const mainnetStrategyConfigs = [
     protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
     // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
 
-    bondTokenAddress: null, // There are no bond token
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
 
     vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
 
