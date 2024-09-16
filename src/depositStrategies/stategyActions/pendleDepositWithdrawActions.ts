@@ -23,7 +23,7 @@ export function pendleDepositWithdrawActions(
       };
     },
     createDepositTxns: async ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => {
-      const queryParams = {
+      const params = {
         chainId: strategy.config.chainId,
         receiverAddr: paramValuesByKey.aaAddress,
         marketAddr: strategy.config.marketAddr,
@@ -34,13 +34,13 @@ export function pendleDepositWithdrawActions(
       let resp;
       try {
         resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleToken', {
-          params: queryParams,
+          params,
         });
       } catch (error) {
         if (error instanceof AxiosError && error.response?.status === 500) {
           // This is often due to really small amount, fallback to no-swap version
           resp = await axios.get('https://api-v2.pendle.finance/sdk/api/v1/addLiquiditySingleTokenKeepYt', {
-            params: queryParams,
+            params,
           });
         } else {
           throw error;
