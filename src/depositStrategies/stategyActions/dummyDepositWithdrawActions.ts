@@ -2,12 +2,12 @@ import {
   BondTokenActions,
   DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
-  NoOpDepositStrategyConfig,
+  DummyDepositStrategyConfig,
 } from '../DepositStrategy';
 
-export function noOpDepositWithdrawActions(
-  _: DepositStrategyWithActions<NoOpDepositStrategyConfig, BondTokenActions>,
-): DepositSingleStepWithdrawActions<NoOpDepositStrategyConfig> {
+export function dummyDepositWithdrawActions(
+  _: DepositStrategyWithActions<DummyDepositStrategyConfig, BondTokenActions>,
+): DepositSingleStepWithdrawActions<DummyDepositStrategyConfig> {
   return {
     createDepositTxns: async () => [],
     createWithdrawTxns: async () => [],

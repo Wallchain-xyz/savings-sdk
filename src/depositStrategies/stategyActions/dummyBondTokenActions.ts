@@ -1,11 +1,11 @@
 import { Address, PublicClient, getContract } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
-import { BondTokenActions, DepositStrategyWithActions, NoOpDepositStrategyConfig } from '../DepositStrategy';
+import { BondTokenActions, DepositStrategyWithActions, DummyDepositStrategyConfig } from '../DepositStrategy';
 
-export function noOpBondTokenActions(
+export function dummyBondTokenActions(
   publicClient: PublicClient,
-): (strategy: DepositStrategyWithActions<NoOpDepositStrategyConfig>) => BondTokenActions {
+): (strategy: DepositStrategyWithActions<DummyDepositStrategyConfig>) => BondTokenActions {
   return (strategy: DepositStrategyWithActions) => {
     const erc20TokenContract = getContract({
       address: strategy.tokenAddress,

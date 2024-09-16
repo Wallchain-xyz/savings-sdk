@@ -12,11 +12,11 @@ import { interpolatePermissions } from './InterpolatePermissions';
 import {
   AaveV3StrategyId,
   BeefyStrategyId,
+  DummyStrategyId,
   FuelStrategyId,
   MellowStrategyId,
   MezoStrategyId,
   MoonwellStrategyId,
-  NoOpStrategyId,
   PendleStrategyId,
   SolvStrategyId,
   StrategyId,
@@ -49,7 +49,7 @@ export enum DepositStrategyProtocolType {
   fuel = 'fuel',
   mezo = 'mezo',
   solv = 'solv',
-  noOp = 'noOp',
+  dummy = 'dummy',
 }
 
 export enum DepositStrategyAccountType {
@@ -133,9 +133,9 @@ export interface SolvDepositStrategyConfig extends DepositStrategyConfig_Base<fa
   bondTokenDecimals: number;
 }
 
-export interface NoOpDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
-  id: NoOpStrategyId;
-  protocolType: DepositStrategyProtocolType.noOp;
+export interface DummyDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
+  id: DummyStrategyId;
+  protocolType: DepositStrategyProtocolType.dummy;
 }
 
 export type DepositStrategyConfig =
@@ -148,7 +148,7 @@ export type DepositStrategyConfig =
   | FuelDepositStrategyConfig
   | MezoDepositStrategyConfig
   | SolvDepositStrategyConfig
-  | NoOpDepositStrategyConfig;
+  | DummyDepositStrategyConfig;
 
 // TODO:@merlin make more robust solution
 // this won't fail if not all ids are accounted
@@ -168,8 +168,8 @@ type IdBasedStrategyConfig<TStrategyId extends StrategyId> = TStrategyId extends
   ? MezoDepositStrategyConfig
   : TStrategyId extends SolvStrategyId
   ? SolvDepositStrategyConfig
-  : TStrategyId extends NoOpStrategyId
-  ? NoOpDepositStrategyConfig
+  : TStrategyId extends DummyStrategyId
+  ? DummyDepositStrategyConfig
   : never;
 
 interface TokenInfo {

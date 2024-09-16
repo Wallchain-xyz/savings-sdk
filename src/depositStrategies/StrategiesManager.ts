@@ -17,6 +17,8 @@ import { aaveV3ERC20DepositWithdrawActions } from './stategyActions/aaveV3ERC20D
 import { beefyBondTokenActions } from './stategyActions/beefyBondTokenActions';
 import { beefyERC20DepositWithdrawActions } from './stategyActions/beefyERC20DepositWithdrawActions';
 import { beefyNativeDepositWithdrawActions } from './stategyActions/beefyNativeDepositWithdrawActions';
+import { dummyBondTokenActions } from './stategyActions/dummyBondTokenActions';
+import { dummyDepositWithdrawActions } from './stategyActions/dummyDepositWithdrawActions';
 import { eoaDepositActions } from './stategyActions/eoaActions/eoaDepositActions';
 import { eoaMultiStepWithdrawActions } from './stategyActions/eoaActions/eoaMultiStepWithdrawActions';
 import { eoaSingleStepWithdrawActions } from './stategyActions/eoaActions/eoaSingleStepWithdrawActions';
@@ -28,8 +30,6 @@ import { mezoBondTokenActions } from './stategyActions/mezoBondTokenActions';
 import { mezoERC20Actions } from './stategyActions/mezoERC20Actions';
 import { moonwellBondTokenActions } from './stategyActions/moonwellBondTokenActions';
 import { moonwellERC20DepositWithdrawActions } from './stategyActions/moonwellERC20DepositWithdrawActions';
-import { noOpBondTokenActions } from './stategyActions/noOpBondTokenActions';
-import { noOpDepositWithdrawActions } from './stategyActions/noOpDepositWithdrawActions';
 import { pendleBondTokenActions } from './stategyActions/pendleBondTokenActions';
 import { pendleDepositWithdrawActions } from './stategyActions/pendleDepositWithdrawActions';
 import { solvBondTokenActions } from './stategyActions/solvBondTokenActions';
@@ -144,10 +144,10 @@ export class StrategiesManager {
           strategy = strategy.extend(solvERC20Actions);
           break;
         }
-        case DepositStrategyProtocolType.noOp: {
+        case DepositStrategyProtocolType.dummy: {
           strategy = createDepositStrategy(strategyConfig);
-          strategy = strategy.extend(noOpBondTokenActions(publicClient));
-          strategy = strategy.extend(noOpDepositWithdrawActions);
+          strategy = strategy.extend(dummyBondTokenActions(publicClient));
+          strategy = strategy.extend(dummyDepositWithdrawActions);
           break;
         }
         default:
