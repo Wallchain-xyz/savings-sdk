@@ -20,5 +20,8 @@ export interface Permission {
   functionName: string;
   valueLimit: bigint;
   abi: Abi;
-  args: (PermissionArgRule | null)[]; // Null used to skip arguments
+  // args is list of ArgRule objects per each argument in same order as ABI
+  // To be able to check only second argument without checking first
+  // use [null, ruleForSecondArg]
+  args: (PermissionArgRule | null)[];
 }
