@@ -2229,4 +2229,238 @@ export const mainnetStrategyConfigs = [
       },
     ],
   },
+  {
+    id: 'c3a5781b-ac9d-4fcc-9ae2-6702fb2e3146',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'aa',
+    name: 'Mezo WBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolType: 'mezo',
+    protocolName: 'Mezo',
+    protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
+    // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
+
+    bondTokenAddress: null, // There are no bond token
+
+    vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+          },
+        ],
+      },
+      {
+        target: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint96',
+                name: 'amount',
+                type: 'uint96',
+              },
+              {
+                internalType: 'uint32',
+                name: 'lockPeriod',
+                type: 'uint32',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'cd5bb544-c791-4f13-ad90-7a81e31dcf8d',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'eoa',
+    name: 'Mezo WBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolType: 'mezo',
+    protocolName: 'Mezo',
+    protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
+    // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
+
+    bondTokenAddress: null, // There are no bond token
+
+    vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'transferFrom',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'from',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transferFrom',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+          },
+        ],
+      },
+      {
+        target: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint96',
+                name: 'amount',
+                type: 'uint96',
+              },
+              {
+                internalType: 'uint32',
+                name: 'lockPeriod',
+                type: 'uint32',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+    ],
+  },
 ] as const;
