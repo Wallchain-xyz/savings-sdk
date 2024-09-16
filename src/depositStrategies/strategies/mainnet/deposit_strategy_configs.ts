@@ -1754,7 +1754,8 @@ export const mainnetStrategyConfigs = [
     protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
     // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
 
-    bondTokenAddress: null, // There are no bond token
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
 
     vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
 
@@ -2227,6 +2228,1332 @@ export const mainnetStrategyConfigs = [
           {
             operator: 0,
             value: '{{aaAddress}}',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'c3a5781b-ac9d-4fcc-9ae2-6702fb2e3146',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'aa',
+    name: 'Mezo WBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolType: 'mezo',
+    protocolName: 'Mezo',
+    protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
+    // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
+
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
+
+    vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+          },
+        ],
+      },
+      {
+        target: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint96',
+                name: 'amount',
+                type: 'uint96',
+              },
+              {
+                internalType: 'uint32',
+                name: 'lockPeriod',
+                type: 'uint32',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'cd5bb544-c791-4f13-ad90-7a81e31dcf8d',
+    chainId: 1,
+
+    isSingleStepWithdraw: true,
+    accountType: 'eoa',
+    name: 'Mezo WBTC',
+
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // WBTC
+    tokenName: 'WBTC',
+    tokenImageURL: 'https://etherscan.io/token/images/wbtc_28.png?v=1',
+
+    protocolType: 'mezo',
+    protocolName: 'Mezo',
+    protocolImageURL: 'https://img.cryptorank.io/coins/mezo1712665386292.png',
+    // TODO:@merlin find defiLlamaPoolId in https://yields.llama.fi/pools
+
+    // Mezo tracks deposited amount directly in contract memory and does not give any bondTokens as a result of deposit
+    bondTokenAddress: null,
+
+    vaultAddress: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+
+    permissions: [
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'transferFrom',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'from',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transferFrom',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+          },
+        ],
+      },
+      {
+        target: '0xab13b8eecf5aa2460841d75da5d5d861fd5b8a39',
+        functionName: 'deposit',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+              },
+              {
+                internalType: 'uint96',
+                name: 'amount',
+                type: 'uint96',
+              },
+              {
+                internalType: 'uint32',
+                name: 'lockPeriod',
+                type: 'uint32',
+              },
+            ],
+            name: 'deposit',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: '64d6ae55-e161-4a9a-94ff-8faf9d36d97f',
+    chainId: 1,
+
+    isSingleStepWithdraw: false,
+    accountType: 'aa',
+    name: 'Pendle eBTC',
+
+    tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC
+    tokenName: 'eBTC',
+    tokenImageURL: 'https://app.ether.fi/images/liquid/ebtc-icon.png',
+
+    protocolType: 'pendle',
+    protocolName: 'Pendle',
+    protocolImageURL: 'https://cryptologos.cc/logos/pendle-pendle-logo.png',
+    defiLlamaPoolId: '782161ae-9fb4-4db7-a39c-bac2e7e946fb',
+
+    bondTokenAddress: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+
+    marketAddr: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+    routerStaticAddr: '0x263833d47eA3fA4a30f269323aba6a107f9eB14C',
+
+    permissions: [
+      {
+        target: '0x7A56E1C57C7475CCf742a1832B028F0456652F97',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+          },
+        ],
+      },
+      {
+        target: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+        functionName: 'addLiquiditySingleToken',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'market',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpOut',
+                type: 'uint256',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'uint256',
+                    name: 'guessMin',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'guessMax',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'guessOffchain',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'maxIteration',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'eps',
+                    type: 'uint256',
+                  },
+                ],
+                internalType: 'struct ApproxParams',
+                name: 'guessPtReceivedFromSy',
+                type: 'tuple',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'tokenIn',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'netTokenIn',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'tokenMintSy',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'pendleSwap',
+                    type: 'address',
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: 'enum SwapType',
+                        name: 'swapType',
+                        type: 'uint8',
+                      },
+                      {
+                        internalType: 'address',
+                        name: 'extRouter',
+                        type: 'address',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'extCalldata',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'bool',
+                        name: 'needScale',
+                        type: 'bool',
+                      },
+                    ],
+                    internalType: 'struct SwapData',
+                    name: 'swapData',
+                    type: 'tuple',
+                  },
+                ],
+                internalType: 'struct TokenInput',
+                name: 'input',
+                type: 'tuple',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'limitRouter',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'epsSkipMarket',
+                    type: 'uint256',
+                  },
+                  {
+                    components: [
+                      {
+                        components: [
+                          {
+                            internalType: 'uint256',
+                            name: 'salt',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'expiry',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'nonce',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'enum IPLimitOrderType.OrderType',
+                            name: 'orderType',
+                            type: 'uint8',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'token',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'YT',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'maker',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'receiver',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'makingAmount',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'lnImpliedRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'failSafeRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'bytes',
+                            name: 'permit',
+                            type: 'bytes',
+                          },
+                        ],
+                        internalType: 'struct Order',
+                        name: 'order',
+                        type: 'tuple',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'signature',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'uint256',
+                        name: 'makingAmount',
+                        type: 'uint256',
+                      },
+                    ],
+                    internalType: 'struct FillOrderParams[]',
+                    name: 'normalFills',
+                    type: 'tuple[]',
+                  },
+                  {
+                    components: [
+                      {
+                        components: [
+                          {
+                            internalType: 'uint256',
+                            name: 'salt',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'expiry',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'nonce',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'enum IPLimitOrderType.OrderType',
+                            name: 'orderType',
+                            type: 'uint8',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'token',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'YT',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'maker',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'receiver',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'makingAmount',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'lnImpliedRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'failSafeRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'bytes',
+                            name: 'permit',
+                            type: 'bytes',
+                          },
+                        ],
+                        internalType: 'struct Order',
+                        name: 'order',
+                        type: 'tuple',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'signature',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'uint256',
+                        name: 'makingAmount',
+                        type: 'uint256',
+                      },
+                    ],
+                    internalType: 'struct FillOrderParams[]',
+                    name: 'flashFills',
+                    type: 'tuple[]',
+                  },
+                  {
+                    internalType: 'bytes',
+                    name: 'optData',
+                    type: 'bytes',
+                  },
+                ],
+                internalType: 'struct LimitOrderData',
+                name: 'limit',
+                type: 'tuple',
+              },
+            ],
+            name: 'addLiquiditySingleToken',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'netLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyFee',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyInterm',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+          },
+          null,
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+          },
+        ],
+      },
+      {
+        target: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+        functionName: 'addLiquiditySingleTokenKeepYt',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'market',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minYtOut',
+                type: 'uint256',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'tokenIn',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'netTokenIn',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'tokenMintSy',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'pendleSwap',
+                    type: 'address',
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: 'enum SwapType',
+                        name: 'swapType',
+                        type: 'uint8',
+                      },
+                      {
+                        internalType: 'address',
+                        name: 'extRouter',
+                        type: 'address',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'extCalldata',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'bool',
+                        name: 'needScale',
+                        type: 'bool',
+                      },
+                    ],
+                    internalType: 'struct SwapData',
+                    name: 'swapData',
+                    type: 'tuple',
+                  },
+                ],
+                internalType: 'struct TokenInput',
+                name: 'input',
+                type: 'tuple',
+              },
+            ],
+            name: 'addLiquiditySingleTokenKeepYt',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'netLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netYtOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyMintPy',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyInterm',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+          },
+          null,
+          null,
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'debec8c2-7ed7-43a8-992e-402ae8e21dbd',
+    chainId: 1,
+
+    isSingleStepWithdraw: false,
+    accountType: 'eoa',
+    name: 'Pendle eBTC',
+
+    tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC
+    tokenName: 'eBTC',
+    tokenImageURL: 'https://app.ether.fi/images/liquid/ebtc-icon.png',
+
+    protocolType: 'pendle',
+    protocolName: 'Pendle',
+    protocolImageURL: 'https://cryptologos.cc/logos/pendle-pendle-logo.png',
+    defiLlamaPoolId: '782161ae-9fb4-4db7-a39c-bac2e7e946fb',
+
+    bondTokenAddress: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+
+    marketAddr: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+    routerStaticAddr: '0x263833d47eA3fA4a30f269323aba6a107f9eB14C',
+
+    permissions: [
+      {
+        target: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+        functionName: 'transferFrom',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'from',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'transferFrom',
+            outputs: [
+              {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{eoaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+        ],
+      },
+      {
+        target: '0x7A56E1C57C7475CCf742a1832B028F0456652F97',
+        functionName: 'approve',
+        valueLimit: 0n,
+        abi: [
+          {
+            name: 'approve',
+            type: 'function',
+            inputs: [
+              {
+                type: 'address',
+                name: 'spender',
+              },
+              {
+                type: 'uint256',
+                name: 'value',
+              },
+            ],
+            outputs: [
+              {
+                name: '',
+                type: 'bool',
+              },
+            ],
+            stateMutability: 'nonpayable',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+          },
+        ],
+      },
+      {
+        target: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+        functionName: 'addLiquiditySingleToken',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'market',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpOut',
+                type: 'uint256',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'uint256',
+                    name: 'guessMin',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'guessMax',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'guessOffchain',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'maxIteration',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'eps',
+                    type: 'uint256',
+                  },
+                ],
+                internalType: 'struct ApproxParams',
+                name: 'guessPtReceivedFromSy',
+                type: 'tuple',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'tokenIn',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'netTokenIn',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'tokenMintSy',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'pendleSwap',
+                    type: 'address',
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: 'enum SwapType',
+                        name: 'swapType',
+                        type: 'uint8',
+                      },
+                      {
+                        internalType: 'address',
+                        name: 'extRouter',
+                        type: 'address',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'extCalldata',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'bool',
+                        name: 'needScale',
+                        type: 'bool',
+                      },
+                    ],
+                    internalType: 'struct SwapData',
+                    name: 'swapData',
+                    type: 'tuple',
+                  },
+                ],
+                internalType: 'struct TokenInput',
+                name: 'input',
+                type: 'tuple',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'limitRouter',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'epsSkipMarket',
+                    type: 'uint256',
+                  },
+                  {
+                    components: [
+                      {
+                        components: [
+                          {
+                            internalType: 'uint256',
+                            name: 'salt',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'expiry',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'nonce',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'enum IPLimitOrderType.OrderType',
+                            name: 'orderType',
+                            type: 'uint8',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'token',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'YT',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'maker',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'receiver',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'makingAmount',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'lnImpliedRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'failSafeRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'bytes',
+                            name: 'permit',
+                            type: 'bytes',
+                          },
+                        ],
+                        internalType: 'struct Order',
+                        name: 'order',
+                        type: 'tuple',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'signature',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'uint256',
+                        name: 'makingAmount',
+                        type: 'uint256',
+                      },
+                    ],
+                    internalType: 'struct FillOrderParams[]',
+                    name: 'normalFills',
+                    type: 'tuple[]',
+                  },
+                  {
+                    components: [
+                      {
+                        components: [
+                          {
+                            internalType: 'uint256',
+                            name: 'salt',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'expiry',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'nonce',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'enum IPLimitOrderType.OrderType',
+                            name: 'orderType',
+                            type: 'uint8',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'token',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'YT',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'maker',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'address',
+                            name: 'receiver',
+                            type: 'address',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'makingAmount',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'lnImpliedRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'uint256',
+                            name: 'failSafeRate',
+                            type: 'uint256',
+                          },
+                          {
+                            internalType: 'bytes',
+                            name: 'permit',
+                            type: 'bytes',
+                          },
+                        ],
+                        internalType: 'struct Order',
+                        name: 'order',
+                        type: 'tuple',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'signature',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'uint256',
+                        name: 'makingAmount',
+                        type: 'uint256',
+                      },
+                    ],
+                    internalType: 'struct FillOrderParams[]',
+                    name: 'flashFills',
+                    type: 'tuple[]',
+                  },
+                  {
+                    internalType: 'bytes',
+                    name: 'optData',
+                    type: 'bytes',
+                  },
+                ],
+                internalType: 'struct LimitOrderData',
+                name: 'limit',
+                type: 'tuple',
+              },
+            ],
+            name: 'addLiquiditySingleToken',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'netLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyFee',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyInterm',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+          },
+          null,
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+          },
+        ],
+      },
+      {
+        target: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+        functionName: 'addLiquiditySingleTokenKeepYt',
+        valueLimit: 0n,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'market',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minYtOut',
+                type: 'uint256',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'tokenIn',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'netTokenIn',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'tokenMintSy',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'address',
+                    name: 'pendleSwap',
+                    type: 'address',
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: 'enum SwapType',
+                        name: 'swapType',
+                        type: 'uint8',
+                      },
+                      {
+                        internalType: 'address',
+                        name: 'extRouter',
+                        type: 'address',
+                      },
+                      {
+                        internalType: 'bytes',
+                        name: 'extCalldata',
+                        type: 'bytes',
+                      },
+                      {
+                        internalType: 'bool',
+                        name: 'needScale',
+                        type: 'bool',
+                      },
+                    ],
+                    internalType: 'struct SwapData',
+                    name: 'swapData',
+                    type: 'tuple',
+                  },
+                ],
+                internalType: 'struct TokenInput',
+                name: 'input',
+                type: 'tuple',
+              },
+            ],
+            name: 'addLiquiditySingleTokenKeepYt',
+            outputs: [
+              {
+                internalType: 'uint256',
+                name: 'netLpOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netYtOut',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyMintPy',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'netSyInterm',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'payable',
+            type: 'function',
+          },
+        ],
+        args: [
+          {
+            operator: 0,
+            value: '{{aaAddress}}',
+          },
+          {
+            operator: 0,
+            value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
+          },
+          null,
+          null,
+          {
+            operator: 0,
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
           },
         ],
       },

@@ -33,6 +33,8 @@ describe.each([
   ['Etherfi WBTC -> eBTC eoa', '650a8da2-de1c-49b6-b0d6-c71af4ab5447'],
   ['Pendle eBTC eoa', 'debec8c2-7ed7-43a8-992e-402ae8e21dbd'],
   ['Pendle eBTC aa', '64d6ae55-e161-4a9a-94ff-8faf9d36d97f'],
+  ['Mezo WBTC eoa', 'cd5bb544-c791-4f13-ad90-7a81e31dcf8d'],
+  ['Mezo WBTC aa', 'c3a5781b-ac9d-4fcc-9ae2-6702fb2e3146'],
 ] as const)('Manual deposit for %s', (_: string, strategyId: StrategyId) => {
   let eoaAccount: PrivateKeyAccount;
   let savingsAccount: SavingsAccount;
