@@ -49,7 +49,7 @@ export enum DepositStrategyProtocolType {
   fuel = 'fuel',
   mezo = 'mezo',
   solv = 'solv',
-  noop = 'noop',
+  noOp = 'noOp',
 }
 
 export enum DepositStrategyAccountType {
@@ -135,7 +135,7 @@ export interface SolvDepositStrategyConfig extends DepositStrategyConfig_Base<fa
 
 export interface NoOpDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
   id: NoOpStrategyId;
-  protocolType: DepositStrategyProtocolType.noop;
+  protocolType: DepositStrategyProtocolType.noOp;
 }
 
 export type DepositStrategyConfig =

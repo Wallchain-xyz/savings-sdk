@@ -1061,7 +1061,7 @@ export const mainnetStrategyConfigs = [
     tokenName: 'USDC',
     tokenImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png',
 
-    protocolType: 'noop', // TODO: @merlin check
+    protocolType: 'noOp', // TODO: @merlin check
     protocolName: 'Pendle', // TODO: @merlin check
     protocolImageURL: 'https://cryptologos.cc/logos/pendle-pendle-logo.png',
     defiLlamaPoolId: '91593e09-004f-4b56-8504-e2c28a94e2d9',

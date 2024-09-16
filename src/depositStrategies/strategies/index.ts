@@ -34,4 +34,4 @@ export type MezoStrategyId = (StrategyConfigRaw & { protocolType: 'mezo' })['id'
 
 export type SolvStrategyId = (StrategyConfigRaw & { protocolType: 'solv' })['id'];
 
-export type NoOpStrategyId = (StrategyConfigRaw & { protocolType: 'noop' })['id'];
+export type NoOpStrategyId = (StrategyConfigRaw & { protocolType: 'noOp' })['id'];

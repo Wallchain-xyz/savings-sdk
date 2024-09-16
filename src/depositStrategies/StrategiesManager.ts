@@ -144,7 +144,7 @@ export class StrategiesManager {
           strategy = strategy.extend(solvERC20Actions);
           break;
         }
-        case DepositStrategyProtocolType.noop: {
+        case DepositStrategyProtocolType.noOp: {
           strategy = createDepositStrategy(strategyConfig);
           strategy = strategy.extend(noOpBondTokenActions(publicClient));
           strategy = strategy.extend(noOpDepositWithdrawActions);
