@@ -2107,7 +2107,7 @@ export const mainnetStrategyConfigs = [
     protocolName: 'Ether.fi',
     protocolImageURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/29814.png',
 
-    bondTokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+    bondTokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC
 
     tellerAddress: '0xe19a43B1b8af6CeE71749Af2332627338B3242D1',
     accountantAddress: '0x1b293DC39F94157fA0D1D36d7e0090C8B8B8c13F',
@@ -2143,7 +2143,7 @@ export const mainnetStrategyConfigs = [
         args: [
           {
             operator: 0,
-            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC
           },
         ],
       },
@@ -2493,7 +2493,7 @@ export const mainnetStrategyConfigs = [
 
     permissions: [
       {
-        target: '0x7A56E1C57C7475CCf742a1832B028F0456652F97',
+        target: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC
         functionName: 'approve',
         valueLimit: 0n,
         abi: [
@@ -2856,11 +2856,6 @@ export const mainnetStrategyConfigs = [
             operator: 0,
             value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
           },
-          null,
-          {
-            operator: 0,
-            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
-          },
         ],
       },
       {
@@ -2980,12 +2975,6 @@ export const mainnetStrategyConfigs = [
           {
             operator: 0,
             value: '0x36d3ca43ae7939645c306e26603ce16e39a89192',
-          },
-          null,
-          null,
-          {
-            operator: 0,
-            value: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
           },
         ],
       },
