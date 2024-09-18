@@ -20,7 +20,11 @@ export function createStrategiesManager({
   return new StrategiesManager({
     chainId,
     publicClient: createPublicClient({
-      transport: http(rpcUrl ?? chain.rpcUrls.default.http[0]),
+      transport: http(rpcUrl ?? chain.rpcUrls.default.http[0], {
+        // increased statically for now, because mezo protocol requires reading logs
+        // to get bondTokenAmount
+        timeout: 60_000,
+      }),
       chain,
     }),
     savingsBackendClient,
