@@ -11,17 +11,16 @@ export type APIDistributionPercentage = {
   distribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
 export type APISimpleDistribution = {
-  kind: 'simple';
+  kind?: 'simple' | undefined;
   strategyId: string;
 };
 export type APISequenceDistribution = {
-  kind: 'sequence';
+  kind?: 'sequence' | undefined;
   strategyId: string;
   bondTokenDistribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
-
 export type APISplitDistribution = {
-  kind: 'split';
+  kind?: 'split' | undefined;
   percentages: Array<APIDistributionPercentage>;
 };
 
@@ -29,11 +28,6 @@ const chain_id = z.union([z.literal(1), z.literal(56), z.literal(8453), z.litera
 
 export const chain_idSchema = chain_id;
 export type chain_id = TypeOf<typeof chain_idSchema>;
-
-const skip_rebalancing = z.boolean().optional().default(false);
-
-export const skip_rebalancingSchema = skip_rebalancing;
-export type skip_rebalancing = TypeOf<typeof skip_rebalancingSchema>;
 
 const UnsupportedChainApiError = z
   .object({
@@ -80,24 +74,16 @@ const DepositTxnFailedApiError = z
 export const DepositTxnFailedApiErrorSchema = DepositTxnFailedApiError;
 export type DepositTxnFailedApiError = TypeOf<typeof DepositTxnFailedApiErrorSchema>;
 
-const UnauthenticatedApiError = z
-  .object({
-    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
-    detail: z.union([z.string(), z.null()]),
-  })
+const APISimpleDistribution = z
+  .object({ kind: z.literal('simple').optional().default('simple'), strategyId: z.string() })
   .passthrough();
-
-export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
-export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
-
-const APISimpleDistribution = z.object({ kind: z.literal('simple'), strategyId: z.string() }).passthrough();
 
 export const APISimpleDistributionSchema = APISimpleDistribution;
 
 const APISequenceDistribution: realZod.ZodType<APISequenceDistribution> = z.lazy(() =>
   z
     .object({
-      kind: z.literal('sequence'),
+      kind: z.literal('sequence').optional().default('sequence'),
       strategyId: z.string(),
       bondTokenDistribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
     })
@@ -118,7 +104,9 @@ const APIDistributionPercentage: realZod.ZodType<APIDistributionPercentage> = z.
 export const APIDistributionPercentageSchema = APIDistributionPercentage;
 
 const APISplitDistribution: realZod.ZodType<APISplitDistribution> = z.lazy(() =>
-  z.object({ kind: z.literal('split'), percentages: z.array(APIDistributionPercentage) }).passthrough(),
+  z
+    .object({ kind: z.literal('split').optional().default('split'), percentages: z.array(APIDistributionPercentage) })
+    .passthrough(),
 );
 
 export const APISplitDistributionSchema = APISplitDistribution;
@@ -126,11 +114,22 @@ export const APISplitDistributionSchema = APISplitDistribution;
 const DepositDistributionRequest = z
   .object({
     distribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
+    amount: z.union([z.string(), z.null()]).optional(),
   })
   .passthrough();
 
 export const DepositDistributionRequestSchema = DepositDistributionRequest;
 export type DepositDistributionRequest = TypeOf<typeof DepositDistributionRequestSchema>;
+
+const UnauthenticatedApiError = z
+  .object({
+    code: z.literal('SHARED__UNAUTHENTICATED').optional().default('SHARED__UNAUTHENTICATED'),
+    detail: z.union([z.string(), z.null()]),
+  })
+  .passthrough();
+
+export const UnauthenticatedApiErrorSchema = UnauthenticatedApiError;
+export type UnauthenticatedApiError = TypeOf<typeof UnauthenticatedApiErrorSchema>;
 
 const APITokenInfo = z.object({ name: z.string(), address: z.address(), iconUrl: z.string() }).passthrough();
 
@@ -177,43 +176,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(
     baseUrl,
     [
-      {
-        method: 'post',
-        path: '/yield/deposits/:chain_id/auto_deposit_poller',
-        alias: 'auto_deposit_poller_yield_deposits__chain_id__auto_deposit_poller_post',
-        description: `Do deposit where needed for all users`,
-        requestFormat: 'json',
-        parameters: [
-          {
-            name: 'chain_id',
-            type: 'Path',
-            schema: chain_id,
-          },
-          {
-            name: 'skip_rebalancing',
-            type: 'Query',
-            schema: skip_rebalancing,
-          },
-        ],
-        response: z.unknown(),
-        errors: [
-          {
-            status: 400,
-            description: `Bad Request`,
-            schema: UnsupportedChainApiError,
-          },
-          {
-            status: 403,
-            description: `Forbidden`,
-            schema: ForbiddenApiError,
-          },
-          {
-            status: 422,
-            description: `Validation Error`,
-            schema: HTTPValidationError,
-          },
-        ],
-      },
       {
         method: 'post',
         path: '/yield/deposits/:chain_id/continue_withdrawals_poller',
@@ -314,38 +276,6 @@ export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
             status: 403,
             description: `Forbidden`,
             schema: ForbiddenApiError,
-          },
-          {
-            status: 422,
-            description: `Validation Error`,
-            schema: HTTPValidationError,
-          },
-        ],
-      },
-      {
-        method: 'post',
-        path: '/yield/deposits/:chain_id/run_depositing',
-        alias: 'runDepositing',
-        description: `Check active strategies and do depositing if needed for authorized user`,
-        requestFormat: 'json',
-        parameters: [
-          {
-            name: 'chain_id',
-            type: 'Path',
-            schema: chain_id,
-          },
-        ],
-        response: z.unknown(),
-        errors: [
-          {
-            status: 400,
-            description: `Bad Request`,
-            schema: DepositTxnFailedApiError,
-          },
-          {
-            status: 401,
-            description: `Unauthorized`,
-            schema: UnauthenticatedApiError,
           },
           {
             status: 422,

@@ -120,14 +120,11 @@ export class SavingsAccount {
     });
   };
 
-  runDepositing = async (): Promise<void> => {
-    await this.savingsBackendClient.runDepositing({ chainId: this.chainId });
-  };
-
-  async depositDistribution(distribution: Distribution): Promise<void> {
+  async depositDistribution({ distribution, amount }: { distribution: Distribution; amount?: bigint }): Promise<void> {
     await this.savingsBackendClient.depositDistribution({
       distribution,
       chainId: this.chainId,
+      amount,
     });
   }
 

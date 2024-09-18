@@ -68,11 +68,6 @@ interface GetSponsorshipInfoParams {
   userOperation: UserOperation;
 }
 
-// TODO:@merlin extract to DMS specific file
-interface RunDepositingParams {
-  chainId: ChainId;
-}
-
 export type SimpleDistribution = APISimpleDistribution & {
   strategyId: APISimpleDistribution['strategyId'] & StrategyId;
 };
@@ -97,6 +92,7 @@ export type Distribution = SimpleDistribution | SequenceDistribution | SplitDist
 interface DepositDistributionParams {
   chainId: ChainId;
   distribution: Distribution;
+  amount?: bigint;
 }
 
 interface GetDepositStrategyDetailedInfo {
@@ -215,17 +211,9 @@ export class SavingsBackendClient {
     });
   }
 
-  async runDepositing({ chainId }: RunDepositingParams) {
-    return this.dmsClient.runDepositing(undefined, {
-      params: {
-        chain_id: chainId,
-      },
-    });
-  }
-
-  async depositDistribution({ chainId, distribution }: DepositDistributionParams) {
+  async depositDistribution({ chainId, distribution, amount }: DepositDistributionParams) {
     return this.dmsClient.depositDistribution(
-      { distribution },
+      { distribution, amount: amount?.toString(16) },
       {
         params: {
           chain_id: chainId,
