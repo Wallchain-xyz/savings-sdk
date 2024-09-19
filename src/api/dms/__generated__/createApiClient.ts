@@ -11,16 +11,16 @@ export type APIDistributionPercentage = {
   distribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
 export type APISimpleDistribution = {
-  kind?: 'simple' | undefined;
+  kind: 'simple';
   strategyId: string;
 };
 export type APISequenceDistribution = {
-  kind?: 'sequence' | undefined;
+  kind: 'sequence';
   strategyId: string;
   bondTokenDistribution: APISimpleDistribution | APISplitDistribution | APISequenceDistribution;
 };
 export type APISplitDistribution = {
-  kind?: 'split' | undefined;
+  kind: 'split';
   percentages: Array<APIDistributionPercentage>;
 };
 
@@ -74,16 +74,14 @@ const DepositTxnFailedApiError = z
 export const DepositTxnFailedApiErrorSchema = DepositTxnFailedApiError;
 export type DepositTxnFailedApiError = TypeOf<typeof DepositTxnFailedApiErrorSchema>;
 
-const APISimpleDistribution = z
-  .object({ kind: z.literal('simple').optional().default('simple'), strategyId: z.string() })
-  .passthrough();
+const APISimpleDistribution = z.object({ kind: z.literal('simple'), strategyId: z.string() }).passthrough();
 
 export const APISimpleDistributionSchema = APISimpleDistribution;
 
 const APISequenceDistribution: realZod.ZodType<APISequenceDistribution> = z.lazy(() =>
   z
     .object({
-      kind: z.literal('sequence').optional().default('sequence'),
+      kind: z.literal('sequence'),
       strategyId: z.string(),
       bondTokenDistribution: z.union([APISimpleDistribution, APISplitDistribution, APISequenceDistribution]),
     })
@@ -104,9 +102,7 @@ const APIDistributionPercentage: realZod.ZodType<APIDistributionPercentage> = z.
 export const APIDistributionPercentageSchema = APIDistributionPercentage;
 
 const APISplitDistribution: realZod.ZodType<APISplitDistribution> = z.lazy(() =>
-  z
-    .object({ kind: z.literal('split').optional().default('split'), percentages: z.array(APIDistributionPercentage) })
-    .passthrough(),
+  z.object({ kind: z.literal('split'), percentages: z.array(APIDistributionPercentage) }).passthrough(),
 );
 
 export const APISplitDistributionSchema = APISplitDistribution;
