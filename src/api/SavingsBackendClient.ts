@@ -213,7 +213,7 @@ export class SavingsBackendClient {
 
   async depositDistribution({ chainId, distribution, amount }: DepositDistributionParams) {
     return this.dmsClient.depositDistribution(
-      { distribution, amount: amount?.toString(16) },
+      { distribution, amount: amount?.toString() },
       {
         params: {
           chain_id: chainId,
