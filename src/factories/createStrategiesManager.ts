@@ -23,7 +23,7 @@ export function createStrategiesManager({
       transport: http(rpcUrl ?? chain.rpcUrls.default.http[0], {
         // increased statically for now, because mezo protocol requires reading logs
         // to get bondTokenAmount
-        timeout: 60_000,
+        timeout: 90_000,
       }),
       chain,
     }),
