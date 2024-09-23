@@ -2473,7 +2473,7 @@ export const mainnetStrategyConfigs = [
     id: '64d6ae55-e161-4a9a-94ff-8faf9d36d97f',
     chainId: 1,
 
-    isSingleStepWithdraw: false,
+    isSingleStepWithdraw: true,
     accountType: 'aa',
     name: 'Pendle eBTC',
 
@@ -2984,7 +2984,7 @@ export const mainnetStrategyConfigs = [
     id: 'debec8c2-7ed7-43a8-992e-402ae8e21dbd',
     chainId: 1,
 
-    isSingleStepWithdraw: false,
+    isSingleStepWithdraw: true,
     accountType: 'eoa',
     name: 'Pendle eBTC',
 

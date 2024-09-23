@@ -1,27 +1,19 @@
 import axios, { AxiosError } from 'axios';
-import { Address, encodeFunctionData } from 'viem';
+import { encodeFunctionData } from 'viem';
 
 import { erc20ABI } from '../../utils/erc20ABI';
 import {
   BondTokenActions,
   CreateDepositTxnsParams,
-  DepositMultiStepWithdrawActions,
+  DepositSingleStepWithdrawActions,
   DepositStrategyWithActions,
   PendleDepositStrategyConfig,
 } from '../DepositStrategy';
 
 export function pendleDepositWithdrawActions(
   strategy: DepositStrategyWithActions<PendleDepositStrategyConfig, BondTokenActions>,
-): DepositMultiStepWithdrawActions<PendleDepositStrategyConfig> {
+): DepositSingleStepWithdrawActions<PendleDepositStrategyConfig> {
   return {
-    withdrawStepsCount: 2,
-    getPendingWithdrawal: async (address: Address) => {
-      return {
-        amount: await strategy.getBondTokenBalance(address),
-        currentStep: 0,
-        isStepCanBeExecuted: false,
-      };
-    },
     createDepositTxns: async ({ amount, paramValuesByKey }: CreateDepositTxnsParams) => {
       const params = {
         chainId: strategy.config.chainId,
@@ -66,7 +58,7 @@ export function pendleDepositWithdrawActions(
       ];
     },
 
-    createWithdrawStepTxns: async () => {
+    createWithdrawTxns: async () => {
       // TODO:@merlin add sentry
       // eslint-disable-next-line no-console
       console.error('CreateWithdrawTxns is under active development');

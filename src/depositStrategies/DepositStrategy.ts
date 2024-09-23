@@ -105,7 +105,8 @@ export interface MellowDepositStrategyConfig extends DepositStrategyConfig_Base<
   depositWrapperAddress: Address;
   collectorAddress: Address;
 }
-export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<false> {
+// TODO: @merlin these <true> or false should be taken from src/depositStrategies/strategies/mainnet/deposit_strategy_configs.ts
+export interface PendleDepositStrategyConfig extends DepositStrategyConfig_Base<true> {
   id: PendleStrategyId;
   protocolType: DepositStrategyProtocolType.pendle;
   marketAddr: Address;
