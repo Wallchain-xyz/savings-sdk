@@ -36,11 +36,14 @@ describe('vault functions', () => {
   });
 
   beforeAll(async () => {
-    await Promise.all([ensureAnvilIsReady()]);
-    await testClient.ensureChainId({ chainId: mainnet.id });
-    await testClient.ensureEnoughBalanceForGas({ address: walletClient.account.address });
-    await testClient.ensureEnoughBalanceForGas({ address: ADMIN_ADDRESS });
-    await testClient.setERC20Balance({
+    await Promise.all([
+     ensureAnvilIsReady(),
+     testClient.ensureChainId({ chainId: mainnet.id });
+     testClient.ensureEnoughBalanceForGas({ address: walletClient.account.address });
+     testClient.ensureEnoughBalanceForGas({ address: ADMIN_ADDRESS });
+     testClient.setERC20Balance({
+    ]);
+
       tokenAddress: vault.asset,
       accountAddress: walletClient.account.address,
     });
