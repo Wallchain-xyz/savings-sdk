@@ -3,6 +3,7 @@ export { createPimlicoPaymaster } from './factories/createPimlicoPaymaster';
 export { createSKAccount } from './factories/createSKAccount';
 export { createSavingsAccountFromPrivateKeyAccount } from './factories/createSavingsAccountFromPrivateKeyAccount';
 export { createStrategiesManager } from './factories/createStrategiesManager';
+export { createVaultManager } from './factories/createVaultManager';
 export { SavingsAccount } from './SavingsAccount/SavingsAccount';
 export type { PointsByProtocol } from './SavingsAccount/SavingsAccount';
 export type {
