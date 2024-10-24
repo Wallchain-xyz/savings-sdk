@@ -26,6 +26,13 @@ const vaultAbi = parseAbi([
   'function withdraw(uint256 assets, address receiver, address owner) public returns (uint256)',
 ]);
 
+/**
+ * Represents a single vault instance for user perspective
+ *
+ * Provides all methods needed to interact with Wallchain's vault contract.
+ * Note this class stores 'walletClient', that allows to identify user (e.g. get his on-chain address)
+ * and send transactions on user behalf.
+ */
 export class Vault {
   private walletClient: WalletClientWithChain;
 
@@ -33,10 +40,19 @@ export class Vault {
 
   private config: VaultConfig;
 
+  /**
+   * Vault contract address
+   */
   get address(): Address {
     return this.config.address;
   }
 
+  /**
+   * Vault asset token address
+   *
+   * Asset is a token used to deposit/withdraw funds, e.g. it is underlying token that
+   * is used by this vault. You can think about it as a vault's currency.
+   */
   get asset(): Address {
     return this.config.asset;
   }
@@ -54,26 +70,50 @@ export class Vault {
     });
   }
 
+  /**
+   * Get total assets this vault holds
+   *
+   * Uses vault.asset token as a currency
+   */
   async getTvl() {
     return this.vaultContract.read.totalAssets();
   }
 
-  async shareAmountToAssetAmount(amount: bigint) {
-    return this.vaultContract.read.convertToAssets([amount]);
+  /**
+   * Convert given amount of vault shares into assets amount
+   */
+  async shareAmountToAssetAmount(shares: bigint) {
+    return this.vaultContract.read.convertToAssets([shares]);
   }
 
-  async assetAmountToShareAmount(amount: bigint) {
-    return this.vaultContract.read.convertToShares([amount]);
+  /**
+   * Convert given amount of vault assets into shares
+   */
+  async assetAmountToShareAmount(assets: bigint) {
+    return this.vaultContract.read.convertToShares([assets]);
   }
 
+  /**
+   * Get amount of shares that belong to given address
+   *
+   * Note: use shareAmountToAssetAmount() to get amount of assets.
+   */
   async getBalance(address: Address) {
     return this.vaultContract.read.balanceOf([address]);
   }
 
+  /**
+   * Get amount of shares that belong to the current user address
+   *
+   * Note: use shareAmountToAssetAmount() to get amount of assets.
+   */
   async getOwnBalance() {
     return this.getBalance(this.walletClient.account.address);
   }
 
+  /**
+   * Get status of withdraw of given address
+   */
   async getActiveWithdraw(address: Address): Promise<WithdrawInfo> {
     return {
       pendingSharesAmount: await this.vaultContract.read.pendingRedeemRequest([0n, address]),
@@ -81,25 +121,50 @@ export class Vault {
     };
   }
 
+  /**
+   * Get status of withdraw of the current user address
+   */
   async getOwnActiveWithdraw(): Promise<WithdrawInfo> {
     return this.getActiveWithdraw(this.walletClient.account.address);
   }
 
-  async deposit(amount: bigint): Promise<Hash> {
-    return this.vaultContract.write.deposit([amount, this.walletClient.account.address]);
+  /**
+   * Deposit given amount of assets into the vault
+   *
+   * This method will send transaction using user's walletClient.
+   * Before executing this function, make sure ERC20 approval
+   * for asset transfer was given. Use vault's address as spender address.
+   */
+  async deposit(assets: bigint): Promise<Hash> {
+    return this.vaultContract.write.deposit([assets, this.walletClient.account.address]);
   }
 
-  async requestWithdraw(amount: bigint): Promise<Hash> {
+  /**
+   * Request withdrawal of given shares amount
+   *
+   * This method will send transaction using user's walletClient.
+   * This will add withdrawal request to the queue. To check withdrawal status
+   * after executing this method, use getActiveWithdraw() or getOwnActiveWithdraw()
+   */
+  async requestWithdraw(shares: bigint): Promise<Hash> {
     return this.vaultContract.write.requestRedeem([
-      amount,
+      shares,
       this.walletClient.account.address,
       this.walletClient.account.address,
     ]);
   }
 
-  async claimWithdraw(amount: bigint): Promise<Hash> {
+  /**
+   * Finalize withdrawal of given assets amount
+   *
+   * This method will send transaction using user's walletClient.
+   * Note that you request withdraw using shares amount, but finalize it using
+   * assets amount. This is because when admin approves withdrawal, the froze
+   * exchange rate by settings fixed amount assets that can be withdrawn.
+   */
+  async claimWithdraw(assets: bigint): Promise<Hash> {
     return this.vaultContract.write.withdraw([
-      amount,
+      assets,
       this.walletClient.account.address,
       this.walletClient.account.address,
     ]);

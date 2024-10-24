@@ -7,6 +7,9 @@ interface ConstructorParams {
   walletClient: WalletClientWithChain;
 }
 
+/**
+ * Represents a store of all wallchain vaults
+ */
 export class VaultManager {
   private publicClient: PublicClientWithChain;
 
@@ -17,6 +20,9 @@ export class VaultManager {
     this.walletClient = walletClient;
   }
 
+  /**
+   * Get a vault instance for a given id
+   */
   getVault(id: VaultId): Vault {
     const vaultConfig = VAULTS_MAP.get(id);
     if (!vaultConfig) {
