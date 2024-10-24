@@ -41,7 +41,7 @@ export class Vault {
     return this.config.asset;
   }
 
-  constructor({ publicClient, walletClient, config }: VaultConstructorParams) {
+  constructor({ walletClient, config, publicClient }: VaultConstructorParams) {
     this.walletClient = walletClient;
     this.config = config;
     this.vaultContract = getContract({
