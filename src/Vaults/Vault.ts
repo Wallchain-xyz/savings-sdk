@@ -16,6 +16,8 @@ interface WithdrawInfo {
 
 const vaultAbi = parseAbi([
   'function totalAssets() public view returns (uint256)',
+  'function convertToShares(uint256 assets) public view returns (uint256)',
+  'function convertToAssets(uint256 assets) public view returns (uint256)',
   'function balanceOf(address account) view returns (uint256)',
   'function deposit(uint256 assets, address receiver) public returns (uint256)',
   'function pendingRedeemRequest(uint256, address controller) public view returns (uint256 shares)',
@@ -54,6 +56,14 @@ export class Vault {
 
   async getTvl() {
     return this.vaultContract.read.totalAssets();
+  }
+
+  async shareAmountToAssetAmount(amount: bigint) {
+    return this.vaultContract.read.convertToAssets([amount]);
+  }
+
+  async assetAmountToShareAmount(amount: bigint) {
+    return this.vaultContract.read.convertToShares([amount]);
   }
 
   async getBalance(address: Address) {

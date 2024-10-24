@@ -52,6 +52,18 @@ describe('vault functions', () => {
     expect(tvl).toBeGreaterThanOrEqual(0n);
   });
 
+  it('can convert to assets', async () => {
+    const amount = await vault.shareAmountToAssetAmount(123n);
+
+    expect(amount).toEqual(123n);
+  });
+
+  it('can convert to shares', async () => {
+    const amount = await vault.assetAmountToShareAmount(123n);
+
+    expect(amount).toEqual(123n);
+  });
+
   it('can get balance by address', async () => {
     const balance = await vault.getBalance('0x0000000000000000000000000000000000000000');
 
