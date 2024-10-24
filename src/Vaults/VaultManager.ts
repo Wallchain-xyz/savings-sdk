@@ -1,16 +1,16 @@
 import { Vault } from './Vault';
 import { VAULTS_MAP, VaultId } from './VaultConfigs';
-import { PublicClientWithChain, ViemDefinitions } from './ViemDefinitions';
+import { PublicClientWithChain, WalletClientWithChain } from './ViemDefinitions';
 
 interface ConstructorParams {
   publicClient: PublicClientWithChain;
-  walletClient: ViemDefinitions;
+  walletClient: WalletClientWithChain;
 }
 
 export class VaultManager {
   private publicClient: PublicClientWithChain;
 
-  private walletClient: ViemDefinitions;
+  private walletClient: WalletClientWithChain;
 
   constructor({ publicClient, walletClient }: ConstructorParams) {
     this.publicClient = publicClient;

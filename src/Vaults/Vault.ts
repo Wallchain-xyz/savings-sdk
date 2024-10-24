@@ -1,11 +1,11 @@
 import { Address, Hash, getContract, parseAbi } from 'viem';
 
 import { VaultConfig } from './VaultConfigs';
-import { PublicClientWithChain, ViemDefinitions } from './ViemDefinitions';
+import { PublicClientWithChain, WalletClientWithChain } from './ViemDefinitions';
 
 interface VaultConstructorParams {
   publicClient: PublicClientWithChain;
-  walletClient: ViemDefinitions;
+  walletClient: WalletClientWithChain;
   config: VaultConfig;
 }
 
@@ -27,7 +27,7 @@ const vaultAbi = parseAbi([
 ]);
 
 export class Vault {
-  private walletClient: ViemDefinitions;
+  private walletClient: WalletClientWithChain;
 
   private vaultContract; // Type is inferred as it is very complex
 

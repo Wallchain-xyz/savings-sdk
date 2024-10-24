@@ -5,6 +5,7 @@ import { createHelperTestClient } from '../../testSuite/createHelperTestClient';
 import { ensureAnvilIsReady } from '../../testSuite/healthCheck';
 import { erc20ABI } from '../../utils/erc20ABI';
 import { VaultManager } from '../../Vaults/VaultManager';
+import { LOCAL_CHAIN_RPC_URL } from '../utils/consts';
 import { createEoaAccount } from '../utils/createEoaAccount';
 
 describe('vault functions', () => {
@@ -12,12 +13,12 @@ describe('vault functions', () => {
 
   const publicClient = createPublicClient({
     chain: testClient.chain,
-    transport: http('http://localhost:8545'),
+    transport: http(LOCAL_CHAIN_RPC_URL),
   });
   const walletClient = createWalletClient({
     account: createEoaAccount(),
     chain: testClient.chain,
-    transport: http('http://localhost:8545'),
+    transport: http(LOCAL_CHAIN_RPC_URL),
   });
   const ADMIN_ADDRESS: Address = '0x62c6d517a603a1ef8dd4d875647aaa6bcb064739';
 
@@ -37,16 +38,15 @@ describe('vault functions', () => {
 
   beforeAll(async () => {
     await Promise.all([
-     ensureAnvilIsReady(),
-     testClient.ensureChainId({ chainId: mainnet.id });
-     testClient.ensureEnoughBalanceForGas({ address: walletClient.account.address });
-     testClient.ensureEnoughBalanceForGas({ address: ADMIN_ADDRESS });
-     testClient.setERC20Balance({
+      ensureAnvilIsReady(),
+      testClient.ensureChainId({ chainId: mainnet.id }),
+      testClient.ensureEnoughBalanceForGas({ address: walletClient.account.address }),
+      testClient.ensureEnoughBalanceForGas({ address: ADMIN_ADDRESS }),
+      testClient.setERC20Balance({
+        tokenAddress: vault.asset,
+        accountAddress: walletClient.account.address,
+      }),
     ]);
-
-      tokenAddress: vault.asset,
-      accountAddress: walletClient.account.address,
-    });
   }, 30_000);
 
   it('can get tvl', async () => {
@@ -146,10 +146,11 @@ describe('vault functions', () => {
         args: [[{ controller: walletClient.account.address, shares: amount }]],
       }),
     });
-    await publicClient.waitForTransactionReceipt({
+    const makeClaimableReceipt = await publicClient.waitForTransactionReceipt({
       hash: makeClaimableHash,
     });
-
+    // If next expect fails, please verify sendUnsignedTransaction code above
+    expect(makeClaimableReceipt.status).toEqual('success');
     const claimWithdrawHash = await vault.claimWithdraw(amount);
     const claimWithdrawReceipt = await publicClient.waitForTransactionReceipt({
       hash: claimWithdrawHash,

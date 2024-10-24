@@ -7,7 +7,7 @@ export type PublicClientWithChain<
   rpcSchema extends RpcSchema | undefined = undefined,
 > = PublicClient<transport, chain, accountOrAddress, rpcSchema>;
 
-export type ViemDefinitions<
+export type WalletClientWithChain<
   transport extends Transport = Transport,
   chain extends Chain = Chain,
   account extends Account = Account,
