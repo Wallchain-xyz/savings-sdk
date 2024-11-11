@@ -16,6 +16,7 @@ interface WithdrawInfo {
 
 const vaultAbi = parseAbi([
   'function totalAssets() public view returns (uint256)',
+  'function depositCap() public view returns (uint256)',
   'function convertToShares(uint256 assets) public view returns (uint256)',
   'function convertToAssets(uint256 assets) public view returns (uint256)',
   'function balanceOf(address account) view returns (uint256)',
@@ -77,6 +78,15 @@ export class Vault {
    */
   async getTvl() {
     return this.vaultContract.read.totalAssets();
+  }
+
+  /**
+   * Get maximum assets this vault can hold
+   *
+   * Uses vault.asset token as a currency
+   */
+  async getDepositCap() {
+    return this.vaultContract.read.depositCap();
   }
 
   /**

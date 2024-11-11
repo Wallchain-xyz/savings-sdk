@@ -26,7 +26,7 @@ describe('vault functions', () => {
     publicClient,
     walletClient,
   });
-  const vault = vaultsManager.getVault('crypto-cove-2-v0');
+  const vault = vaultsManager.getVault('crypto-cove-2--dev');
   const assetContract = getContract({
     address: vault.asset,
     abi: erc20ABI,
@@ -53,6 +53,12 @@ describe('vault functions', () => {
     const tvl = await vault.getTvl();
 
     expect(tvl).toBeGreaterThanOrEqual(0n);
+  });
+
+  it('can get cap', async () => {
+    const cap = await vault.getDepositCap();
+
+    expect(cap).toBeGreaterThanOrEqual(0n);
   });
 
   it('can convert to assets', async () => {

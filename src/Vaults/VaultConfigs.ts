@@ -1,7 +1,7 @@
 const VAULTS = [
   {
-    id: 'crypto-cove-2-v0',
-    address: '0xd2A1640cB7DE3cdd1c2f97dDa2d4C4c034edC878',
+    id: 'crypto-cove-2--dev',
+    address: '0xACAE2184D4c60993A2e415EAe885478CE8266802',
     asset: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   },
 ] as const;
